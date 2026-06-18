@@ -151,6 +151,14 @@ input[type="search"] {
   padding: 16px;
 }
 
+.entry-section {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .entry-header {
   display: flex;
   align-items: baseline;
