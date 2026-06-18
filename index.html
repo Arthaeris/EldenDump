@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111111" />
+  <title>Accessory Info</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Accessory Info</h1>
+    <p>Paste raw FMG text like <code>[1000] Raises maximum HP</code>. It will be formatted into searchable cards.</p>
+  </header>
+
+  <main>
+    <section class="panel input-panel">
+      <label for="rawText">Raw text</label>
+      <textarea id="rawText" spellcheck="false" placeholder="Paste AccessoryInfo.fmg text here..."></textarea>
+      <div class="actions">
+        <button id="formatBtn">Format</button>
+        <button id="sampleBtn" class="secondary">Load sample</button>
+        <button id="clearBtn" class="secondary">Clear</button>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Search ID or description..." />
+      <span id="count">0 entries</span>
+    </section>
+
+    <section id="results" class="results" aria-live="polite"></section>
+  </main>
+
+  <footer>
+    <span>Works offline after first load.</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

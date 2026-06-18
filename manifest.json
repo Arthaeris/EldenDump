@@ -1,0 +1,11 @@
+{
+  "name": "Accessory Info",
+  "short_name": "Accessories",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6f2ea",
+  "theme_color": "#111111",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
