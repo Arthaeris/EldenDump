@@ -5,14 +5,34 @@ const count = document.querySelector('#count');
 let entries = [];
 
 function parseEntries(text) {
-  return (text || '')
+  const cleanedText = (text || '')
     .replace(/^\s*AccessoryInfo\.fmg\s*/i, '')
-    .match(/\[\d+\][^\[]+/g)?.map(item => {
-      const match = item.match(/\[(\d+)\]\s*(.*)/s);
-      return match
-        ? { id: match[1], text: match[2].trim().replace(/\s+/g, ' ') }
-        : null;
-    }).filter(Boolean) || [];
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const matches = [...cleanedText.matchAll(/([^[]+?)\s*\[(\d+)\]/g)];
+
+  return matches.map((match, index) => {
+    const nextMatch = matches[index + 1];
+
+    const rawName = match[1].trim();
+    const name = rawName.split('.').pop().trim();
+
+    const id = match[2];
+
+    const descriptionStart = match.index + match[0].length;
+    const descriptionEnd = nextMatch ? nextMatch.index : cleanedText.length;
+
+    const description = cleanedText
+      .slice(descriptionStart, descriptionEnd)
+      .trim();
+
+    return {
+      id,
+      name,
+      text: description
+    };
+  }).filter(entry => entry.id && entry.name);
 }
 
 function render() {
@@ -21,6 +41,7 @@ function render() {
   const visible = entries.filter(e =>
     !q ||
     e.id.includes(q) ||
+    e.name.toLowerCase().includes(q) ||
     e.text.toLowerCase().includes(q)
   );
 
@@ -33,7 +54,11 @@ function render() {
 
   results.innerHTML = visible.map(e => `
     <article class="entry" id="entry-${escapeHtml(e.id)}">
-      <div class="entry-id">[${escapeHtml(e.id)}]</div>
+      <div class="entry-header">
+        <div class="entry-name">${escapeHtml(e.name)}</div>
+        <div class="entry-id">[${escapeHtml(e.id)}]</div>
+      </div>
+
       <div class="entry-text">${escapeHtml(e.text)}</div>
     </article>
   `).join('');
@@ -56,7 +81,7 @@ async function loadDump() {
     const response = await fetch('./EldenDump.html');
 
     if (!response.ok) {
-      throw new Error(`Could not load EldenDump.html`);
+      throw new Error('Could not load EldenDump.html');
     }
 
     const html = await response.text();
