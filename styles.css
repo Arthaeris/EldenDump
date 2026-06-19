@@ -281,7 +281,20 @@ input[type="search"] {
   word-break: break-word;
 }
 
-.entry[data-mode="ids"] .entry-text-clean {
+.entry[data-mode="ids"] .entry-text-clean,
+.entry[data-mode="ids"] .entry-text-code {
+  display: none;
+}
+
+.entry[data-mode="clean"] .entry-id,
+.entry[data-mode="clean"] .entry-text-ids,
+.entry[data-mode="clean"] .entry-text-code {
+  display: none;
+}
+
+.entry[data-mode="code"] .entry-id,
+.entry[data-mode="code"] .entry-text-ids,
+.entry[data-mode="code"] .entry-text-clean {
   display: none;
 }
 
