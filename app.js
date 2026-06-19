@@ -845,6 +845,18 @@ async function loadDump() {
 search.addEventListener('input', render);
 
 document.addEventListener('click', async event => {
+  const dialogueNameButton = event.target.closest('[data-dialogue-name]');
+
+  if (dialogueNameButton) {
+    event.stopPropagation();
+
+    showDialogue(
+      decodeHtml(dialogueNameButton.dataset.dialogueName)
+    );
+
+    return;
+  }
+
   const copyButton = event.target.closest('.copy-btn');
 
   if (copyButton) {
