@@ -104,10 +104,7 @@ const CATEGORY_ORDER = [
 
 const TALK_ID_NAMES = {
   '0208': 'Dungeater',
-  '0207': 'Enia',
   '0206': 'Intro Narrator',
-  '0205': 'Melina',
-  '0204': 'Melina',
   '0201': 'Mohg',
   '0165': 'Ranni',
   '0160': 'Ranni',
@@ -120,8 +117,29 @@ const TALK_ID_NAMES = {
 };
 
 const TALK_SECTION_NAMES = {
+  '0207|Section 00': 'Enia',
+  '0207|Section 30': 'Patches',
+  '0207|Section 80': 'Patches',
+  '0207|Section 50': 'Asimi, Silver Tear',
+
+  '0205|Section 00': 'Melina',
+  '0205|Section 80': 'Melina',
+
+  '0204|Section 30': 'Melina',
+  '0204|Section 50': 'Morgott',
+  '0204|Section 80': 'Ending Narrator',
+  '0204|Section 81': 'Ending Narrator',
+  '0204|Section 82': 'Ending Narrator',
+  '0204|Section 83': 'Ending Narrator',
+  '0204|Section 84': 'Ending Narrator',
+  '0204|Section 85': 'Ending Narrator',
+  '0204|Section 86': 'Ending Narrator',
+  '0204|Section 90': 'Ranni',
+  '0204|Section 95': 'Ranni',
+
   '0203|Section 00': 'Rykard',
   '0203|Section 91': 'Jerren',
+
   '0202|Section 10': 'Morgott',
   '0202|Section 11': 'Morgott',
   '0202|Section 30': 'Maliketh',
@@ -134,6 +152,7 @@ const TALK_SECTION_NAMES = {
   '0202|Section 70': 'Malenia',
   '0202|Section 75': 'Malenia',
   '0202|Section 90': 'Unknown',
+
   '0200|Section 10': 'Melina',
   '0200|Section 15': 'Melina',
   '0200|Section 30': 'Margit',
@@ -141,7 +160,8 @@ const TALK_SECTION_NAMES = {
   '0200|Section 50': 'Godrick',
   '0200|Section 70': 'Godfrey',
   '0200|Section 80': 'Godfrey',
-  '|Section 01': 'Intro Narrator'
+
+  'PRE_0100|Section 01': 'Intro Narrator'
 };
 
 function parseEntries(text) {
@@ -304,7 +324,12 @@ function parseTalkMsgSection(section) {
       const finalNpcId = derivedNpcId || segment || '0000';
       const finalSection = talkSection || 'Section Unknown';
 
-      const mappedName = TALK_SECTION_NAMES[`${segment}|${finalSection}`];
+      const mappedName =
+        TALK_SECTION_NAMES[`${segment}|${finalSection}`] ||
+        (!segment && finalSection === 'Section 01'
+          ? TALK_SECTION_NAMES[`PRE_0100|${finalSection}`]
+          : '');
+
       let finalNpcName = mappedName || npcName;
 
       if (
