@@ -791,6 +791,19 @@ function getText(entry, lang) {
     : entry.textEn || entry.textJp || '';
 }
 
+
+
+function hasDirectLanguage(entry, lang) {
+  if (lang === 'jp') {
+    return Boolean(entry.nameJp || entry.textJp);
+  }
+
+  return Boolean(entry.nameEn || entry.textEn);
+}
+
+
+
+
 function formatRawTextWithIds(entry, lang) {
   return getText(entry, lang) || '';
 }
