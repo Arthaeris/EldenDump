@@ -443,8 +443,8 @@ function shouldUseTextAsName(section) {
 }
 
 function markJapaneseExclusive(entry) {
-  const hasEnglish = Boolean(entry.nameEn || entry.textEn);
-  const hasJapanese = Boolean(entry.nameJp || entry.textJp);
+  const hasEnglish = hasDirectLanguage(entry, 'en');
+  const hasJapanese = hasDirectLanguage(entry, 'jp');
 
   if (!hasEnglish && hasJapanese) {
     return {
