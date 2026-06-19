@@ -267,8 +267,8 @@ function parseTalkMsgEntries({
   jpSections,
   isDlc = false
 }) {
-  const enTalk = enSections.get(talkSection) || new Map();
-  const jpTalk = jpSections.get(talkSection) || new Map();
+  const enTalk = normalizeIdMap(enSections.get(talkSection) || new Map());
+const jpTalk = normalizeIdMap(jpSections.get(talkSection) || new Map());
 
   const npcNamesEn = buildNpcNameLookup(
     npcNameSection ? enSections.get(npcNameSection) || new Map() : new Map()
