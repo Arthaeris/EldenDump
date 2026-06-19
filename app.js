@@ -255,8 +255,6 @@ function parseTalkMsgSection(section) {
 
   const npcNameById = {};
 
-  // First pass:
-  // Collect all native Name [1234] definitions.
   for (const line of lines) {
     const namedNpcMatch = line.match(/^(.+?)\s*\[(\d{4})\]\s*$/);
 
@@ -265,7 +263,7 @@ function parseTalkMsgSection(section) {
     }
   }
 
-  const parsed = [];
+  const grouped = new Map();
 
   let segment = '';
   let talkSection = '';
@@ -322,26 +320,52 @@ function parseTalkMsgSection(section) {
         finalNpcName = npcNameById[derivedNpcId];
       }
 
-      parsed.push({
-        section: section.name,
-        category: 'Dialogues',
+      if (!finalNpcName) {
+        finalNpcName = `Unknown ${derivedNpcId || segment || 'NPC'}`;
+      }
 
-        segment: derivedNpcId,
-        npcId: derivedNpcId,
-        npcName: finalNpcName || `Unknown ${derivedNpcId}`,
+      const finalNpcId = derivedNpcId || segment || '0000';
+      const finalSection = talkSection || 'Section Unknown';
+      const key = `${finalNpcId}|${finalNpcName}|${finalSection}`;
 
-        talkSection,
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          section: section.name,
+          category: 'Dialogues',
+          segment: finalNpcId,
+          npcId: finalNpcId,
+          npcName: finalNpcName,
+          talkSection: finalSection,
+          id: `${finalNpcId}-${finalSection.replace(/\s+/g, '-')}`,
+          name: finalNpcName,
+          lines: [],
+          type: 'talk'
+        });
+      }
 
+      grouped.get(key).lines.push({
         id,
-        name: finalNpcName || `Unknown ${derivedNpcId}`,
-        text: cleanBodyText(body),
-
-        type: 'talk'
+        text: cleanBodyText(body)
       });
     }
   }
 
-  return parsed;
+  return [...grouped.values()]
+    .map(group => ({
+      section: group.section,
+      category: group.category,
+      segment: group.segment,
+      npcId: group.npcId,
+      npcName: group.npcName,
+      talkSection: group.talkSection,
+      id: group.id,
+      name: group.name,
+      text: group.lines
+        .map(line => `[${line.id}] ${line.text}`)
+        .join('\n'),
+      type: group.type
+    }))
+    .filter(entry => entry.text);
 }
 
 function splitDialogueLine(line) {
@@ -369,6 +393,7 @@ function splitDialogueLine(line) {
     return { id, text };
   }).filter(part => part.id && part.text);
 }
+
 function mergeTalismans(sectionEntries) {
   return mergeNameInfoSections({
     category: 'Talismans',
@@ -564,7 +589,7 @@ function renderEntry(e) {
   if (e.segment) metaParts.push(`NPC ${e.segment}`);
   if (e.talkSection) metaParts.push(e.talkSection);
 
-  const textWithIds = formatEntryText(e.text, e);
+  const textWithIds = formatEntryText(e.text);
   const textWithoutIds = formatCleanEntryText(e.text);
 
   return `
@@ -581,7 +606,7 @@ function renderEntry(e) {
 
       <div class="entry-header">
         ${e.name ? `<div class="entry-name">${escapeHtml(e.name)}</div>` : ''}
-        <div class="entry-id">[${escapeHtml(e.id)}]</div>
+        ${e.type !== 'talk' ? `<div class="entry-id">[${escapeHtml(e.id)}]</div>` : ''}
       </div>
 
       ${
@@ -602,8 +627,6 @@ function formatEntryText(text) {
     .replace(/\n/g, '<br>');
 }
 
-
-
 function formatCleanEntryText(text) {
   return escapeHtml(getCleanText(text))
     .replace(/\n---\n/g, '<hr>')
@@ -611,6 +634,10 @@ function formatCleanEntryText(text) {
 }
 
 function getCopyTextWithIds(e) {
+  if (e.type === 'talk') {
+    return e.text || '';
+  }
+
   const lines = [];
 
   if (e.name) lines.push(`${e.name} [${e.id}]`);
@@ -622,10 +649,13 @@ function getCopyTextWithIds(e) {
 }
 
 function getCopyTextClean(e) {
+  if (e.type === 'talk') {
+    return getCleanText(e.text);
+  }
+
   const lines = [];
 
   if (e.name) lines.push(e.name);
-
   if (e.text) lines.push(getCleanText(e.text));
 
   return lines.join('\n').trim();
@@ -644,9 +674,6 @@ function getCleanText(text) {
 function escapeAttribute(value) {
   return escapeHtml(value).replace(/"/g, '&quot;');
 }
-
-
-
 
 function showHome() {
   searchView.hidden = false;
@@ -684,7 +711,7 @@ function showNpcIndex() {
     return `
       <button class="npc-item" data-npc="${escapeHtml(name)}">
         <span>${escapeHtml(name)}</span>
-        <small>${group.length} entries · ${segmentCount} segments</small>
+        <small>${group.length} sections · ${segmentCount} segments</small>
       </button>
     `;
   }).join('');
@@ -776,7 +803,6 @@ async function loadDump() {
 
 search.addEventListener('input', render);
 
-
 document.addEventListener('click', async event => {
   const copyButton = event.target.closest('.copy-btn');
 
@@ -823,7 +849,6 @@ function decodeHtml(value) {
   textarea.innerHTML = value;
   return textarea.value;
 }
-
 
 menuBtn.addEventListener('click', openMenu);
 closeMenuBtn.addEventListener('click', closeMenu);
