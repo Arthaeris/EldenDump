@@ -41,35 +41,50 @@ const EXCLUDED_SECTIONS = new Set([
 ]);
 
 const SECTION_CATEGORY = {
+  'AccessoryInfo.fmg': 'Talismans',
+  'AccessoryName.fmg': 'Talismans',
+
   'ActionButtonText.fmg': 'Interactions',
   'ArtsName.fmg': 'Ashes of War',
+
   'BloodMsg.fmg': 'Messages',
+
   'EventTextForMap.fmg': 'Event Texts',
   'EventTextForTalk.fmg': 'UI Messages',
+
   'GemInfo.fmg': 'Ashes of War (Item)',
   'GemName.fmg': 'Ashes of War (Item)',
+
   'GoodsDialog.fmg': 'Item Prompts',
   'GoodsInfo.fmg': 'Items',
   'GoodsInfo2.fmg': 'Items',
   'GoodsName.fmg': 'Items',
+
   'GR_Dialogues.fmg': 'UI Prompts',
   'GR_KeyGuide.fmg': 'UI Prompts',
   'GR_LineHelp.fmg': 'UI Prompts',
   'GR_MenuText.fmg': 'UI Prompts',
   'GR_System_Message_win64.fmg': 'UI Prompts',
+
   'LoadingTitle.fmg': 'Loading Screen Tutorials',
   'NetworkMessage.fmg': 'Multiplayer Prompts',
+
   'NpcName.fmg': 'NPCs',
+  'NpcName_dlc01.fmg': 'NPCs',
+
   'PlaceName.fmg': 'Locations',
+
   'ProtectorInfo.fmg': 'Armor',
   'ProtectorName.fmg': 'Armor',
+
   'TalkMsg.fmg': 'Dialogues',
+  'TalkMsg_dlc01.fmg': 'Dialogues',
+
   'TutorialTitle.fmg': 'Tutorials',
+
   'WeaponEffect.fmg': 'Weapon Effects',
   'WeaponInfo.fmg': 'Arrow/Bolt Types',
-  'WeaponName.fmg': 'Weapons',
-  'AccessoryInfo.fmg': 'Talismans',
-  'AccessoryName.fmg': 'Talismans'
+  'WeaponName.fmg': 'Weapons'
 };
 
 const CATEGORY_ORDER = [
@@ -92,70 +107,9 @@ const CATEGORY_ORDER = [
   'UI Prompts',
   'Loading Screen Tutorials',
   'Tutorials',
-  'Multiplayer Prompts'
+  'Multiplayer Prompts',
+  'Japanese-Exclusive'
 ];
-
-const TALK_ID_NAMES = {
-  '0208': 'Dungeater',
-  '0206': 'Intro Narrator',
-  '0201': 'Mohg',
-  '0165': 'Ranni',
-  '0160': 'Ranni',
-  '0150': 'Intro Narrator',
-  '0140': 'Intro Narrator',
-  '0130': 'Intro Narrator',
-  '0120': 'Intro Narrator',
-  '0110': 'Godfrey',
-  '0100': 'Intro Narrator'
-};
-
-const TALK_SECTION_NAMES = {
-  '0207|Section 00': 'Enia',
-  '0207|Section 30': 'Patches',
-  '0207|Section 80': 'Patches',
-  '0207|Section 50': 'Asimi, Silver Tear',
-
-  '0205|Section 00': 'Melina',
-  '0205|Section 80': 'Melina',
-
-  '0204|Section 30': 'Melina',
-  '0204|Section 50': 'Morgott',
-  '0204|Section 80': 'Ending Narrator',
-  '0204|Section 81': 'Ending Narrator',
-  '0204|Section 82': 'Ending Narrator',
-  '0204|Section 83': 'Ending Narrator',
-  '0204|Section 84': 'Ending Narrator',
-  '0204|Section 85': 'Ending Narrator',
-  '0204|Section 86': 'Ending Narrator',
-  '0204|Section 90': 'Ranni',
-  '0204|Section 95': 'Ranni',
-
-  '0203|Section 00': 'Rykard',
-  '0203|Section 91': 'Jerren',
-
-  '0202|Section 10': 'Morgott',
-  '0202|Section 11': 'Morgott',
-  '0202|Section 30': 'Maliketh',
-  '0202|Section 40': 'Rennala',
-  '0202|Section 45': 'Rennala',
-  '0202|Section 50': 'Rennala',
-  '0202|Section 55': 'Rennala',
-  '0202|Section 60': 'Malenia',
-  '0202|Section 65': 'Malenia',
-  '0202|Section 70': 'Malenia',
-  '0202|Section 75': 'Malenia',
-  '0202|Section 90': 'Unknown',
-
-  '0200|Section 10': 'Melina',
-  '0200|Section 15': 'Melina',
-  '0200|Section 30': 'Margit',
-  '0200|Section 40': 'Godrick',
-  '0200|Section 50': 'Godrick',
-  '0200|Section 70': 'Godfrey',
-  '0200|Section 80': 'Godfrey',
-
-  'PRE_0100|Section 01': 'Intro Narrator'
-};
 
 function parseXmlDump(rawText) {
   const normalized = String(rawText || '')
@@ -225,18 +179,51 @@ function buildEntriesFromDumps(enSections, jpSections) {
   }));
 
   built.push(...mergeItems(enSections, jpSections));
-  built.push(...parseTalkMsgEntries(enSections, jpSections));
+
+  built.push(...parseTalkMsgEntries({
+    talkSection: 'TalkMsg.fmg',
+    npcNameSection: 'NpcName.fmg',
+    enSections,
+    jpSections,
+    isDlc: false
+  }));
+
+  built.push(...parseTalkMsgEntries({
+    talkSection: 'TalkMsg_dlc01.fmg',
+    npcNameSection: 'NpcName_dlc01.fmg',
+    enSections,
+    jpSections,
+    isDlc: true
+  }));
+
   built.push(...collectStandaloneSections(enSections, jpSections));
 
-  return built.filter(entry =>
-    entry.id &&
-    (
-      entry.nameEn ||
-      entry.nameJp ||
-      entry.textEn ||
-      entry.textJp
+  return built
+    .filter(entry =>
+      entry.id &&
+      (
+        entry.nameEn ||
+        entry.nameJp ||
+        entry.textEn ||
+        entry.textJp
+      )
     )
-  );
+    .map(markJapaneseExclusive);
+}
+
+function markJapaneseExclusive(entry) {
+  const hasEnglish = Boolean(entry.nameEn || entry.textEn);
+  const hasJapanese = Boolean(entry.nameJp || entry.textJp);
+
+  if (!hasEnglish && hasJapanese) {
+    return {
+      ...entry,
+      originalCategory: entry.category,
+      category: 'Japanese-Exclusive'
+    };
+  }
+
+  return entry;
 }
 
 function mergeNameInfoSections({
@@ -282,22 +269,17 @@ function mergeItems(enSections, jpSections) {
     const nameEn = getValue(enSections, 'GoodsName.fmg', id);
     const nameJp = getValue(jpSections, 'GoodsName.fmg', id);
 
-    const enTop = [
-      getValue(enSections, 'GoodsInfo.fmg', id)
-    ].filter(Boolean);
-
-    const jpTop = [
-      getValue(jpSections, 'GoodsInfo.fmg', id)
-    ].filter(Boolean);
-
     const enParts = [];
     const jpParts = [];
 
-    if (enTop.length) enParts.push(enTop.join('\n\n'));
-    if (jpTop.length) jpParts.push(jpTop.join('\n\n'));
+    const enInfo = getValue(enSections, 'GoodsInfo.fmg', id);
+    const jpInfo = getValue(jpSections, 'GoodsInfo.fmg', id);
 
     const enInfo2 = getValue(enSections, 'GoodsInfo2.fmg', id);
     const jpInfo2 = getValue(jpSections, 'GoodsInfo2.fmg', id);
+
+    if (enInfo) enParts.push(enInfo);
+    if (jpInfo) jpParts.push(jpInfo);
 
     if (enInfo2) enParts.push(enInfo2);
     if (jpInfo2) jpParts.push(jpInfo2);
@@ -315,12 +297,18 @@ function mergeItems(enSections, jpSections) {
   });
 }
 
-function parseTalkMsgEntries(enSections, jpSections) {
-  const enTalk = enSections.get('TalkMsg.fmg') || new Map();
-  const jpTalk = jpSections.get('TalkMsg.fmg') || new Map();
+function parseTalkMsgEntries({
+  talkSection,
+  npcNameSection,
+  enSections,
+  jpSections,
+  isDlc = false
+}) {
+  const enTalk = enSections.get(talkSection) || new Map();
+  const jpTalk = jpSections.get(talkSection) || new Map();
 
-  const npcNamesEn = enSections.get('NpcName.fmg') || new Map();
-  const npcNamesJp = jpSections.get('NpcName.fmg') || new Map();
+  const npcNamesEn = buildNpcNameLookup(enSections.get(npcNameSection) || new Map());
+  const npcNamesJp = buildNpcNameLookup(jpSections.get(npcNameSection) || new Map());
 
   const ids = [...new Set([...enTalk.keys(), ...jpTalk.keys()])]
     .filter(id => /^\d+$/.test(id))
@@ -335,29 +323,24 @@ function parseTalkMsgEntries(enSections, jpSections) {
     if (!enText && !jpText) continue;
 
     const info = getTalkInfo(id);
-    const manualName = TALK_SECTION_NAMES[`${info.npcId}|${info.section}`];
-
     const nameEn =
-      manualName ||
-      TALK_ID_NAMES[info.npcId] ||
-      npcNamesEn.get(info.npcId) ||
-      `Unknown ${info.npcId}`;
+      lookupNpcName(npcNamesEn, info.npcId) ||
+      `Unknown ${isDlc ? 'DLC ' : ''}${info.npcId}`;
 
     const nameJp =
-      manualName ||
-      npcNamesJp.get(info.npcId) ||
+      lookupNpcName(npcNamesJp, info.npcId) ||
       nameEn;
 
-    const key = `${info.npcId}|${info.section}|${nameEn}`;
+    const key = `${talkSection}|${info.npcId}|${info.section}`;
 
     if (!grouped.has(key)) {
       grouped.set(key, {
-        section: 'TalkMsg.fmg',
+        section: talkSection,
         category: 'Dialogues',
-        id: `${info.npcId}-${info.section.replace(/\s+/g, '-')}`,
+        id: `${talkSection}-${info.npcId}-${info.section.replace(/\s+/g, '-')}`,
         segment: info.npcId,
         npcId: info.npcId,
-        npcKey: `${info.npcId}|${nameEn}`,
+        npcKey: `${talkSection}|${info.npcId}|${nameEn}`,
         nameEn,
         nameJp,
         talkSection: info.section,
@@ -389,14 +372,50 @@ function parseTalkMsgEntries(enSections, jpSections) {
   }));
 }
 
+function buildNpcNameLookup(sectionMap) {
+  const lookup = new Map();
+
+  for (const [id, name] of sectionMap.entries()) {
+    if (!id || !name) continue;
+
+    const raw = String(id);
+    const padded = raw.padStart(4, '0');
+    const unpadded = String(Number(raw));
+
+    lookup.set(raw, name);
+    lookup.set(padded, name);
+    lookup.set(unpadded, name);
+  }
+
+  return lookup;
+}
+
+function lookupNpcName(lookup, npcId) {
+  if (!npcId) return '';
+
+  const raw = String(npcId);
+  const padded = raw.padStart(4, '0');
+  const unpadded = String(Number(raw));
+
+  return lookup.get(raw) ||
+    lookup.get(padded) ||
+    lookup.get(unpadded) ||
+    '';
+}
+
 function getTalkInfo(id) {
-  const padded = String(id).padStart(9, '0');
-  const npcId = padded.slice(0, 4);
-  const sectionNumber = padded.slice(4, 6);
+  const value = String(id);
+
+  if (value.length >= 8) {
+    return {
+      npcId: value.slice(0, 4),
+      section: `Section ${value.slice(4, 6)}`
+    };
+  }
 
   return {
-    npcId,
-    section: `Section ${sectionNumber}`
+    npcId: value.padStart(4, '0'),
+    section: 'Section 00'
   };
 }
 
@@ -404,14 +423,19 @@ function collectStandaloneSections(enSections, jpSections) {
   const alreadyMerged = new Set([
     'AccessoryName.fmg',
     'AccessoryInfo.fmg',
+
     'GemName.fmg',
     'GemInfo.fmg',
+
     'GoodsName.fmg',
     'GoodsInfo.fmg',
     'GoodsInfo2.fmg',
+
     'ProtectorName.fmg',
     'ProtectorInfo.fmg',
-    'TalkMsg.fmg'
+
+    'TalkMsg.fmg',
+    'TalkMsg_dlc01.fmg'
   ]);
 
   const allSections = [...new Set([
@@ -453,6 +477,7 @@ function shouldUseTextAsName(section) {
     'ArtsName.fmg',
     'LoadingTitle.fmg',
     'NpcName.fmg',
+    'NpcName_dlc01.fmg',
     'PlaceName.fmg',
     'TutorialTitle.fmg',
     'WeaponName.fmg'
@@ -494,7 +519,7 @@ function buildIndexes() {
     categories.get(entry.category).push(entry);
 
     if (entry.category === 'Dialogues') {
-      const npcKey = entry.npcKey || `${entry.segment}|${entry.nameEn}`;
+      const npcKey = entry.npcKey || `${entry.section}|${entry.segment}|${entry.nameEn}`;
 
       if (!npcGroups.has(npcKey)) {
         npcGroups.set(npcKey, []);
@@ -506,7 +531,12 @@ function buildIndexes() {
 }
 
 function renderCategoryMenu() {
-  const names = CATEGORY_ORDER.filter(name => categories.has(name));
+  const orderedNames = CATEGORY_ORDER.filter(name => categories.has(name));
+  const extraNames = [...categories.keys()]
+    .filter(name => !CATEGORY_ORDER.includes(name))
+    .sort((a, b) => a.localeCompare(b));
+
+  const names = [...orderedNames, ...extraNames];
 
   categoryList.innerHTML = names.map(name => `
     <button class="menu-item" data-category="${escapeHtml(name)}">
@@ -525,6 +555,7 @@ function render() {
   const visible = entries.filter(e =>
     !q ||
     e.category.toLowerCase().includes(q) ||
+    String(e.originalCategory || '').toLowerCase().includes(q) ||
     e.section.toLowerCase().includes(q) ||
     e.id.includes(q) ||
     getName(e, 'en').toLowerCase().includes(q) ||
@@ -549,6 +580,7 @@ function renderEntry(e) {
   const lang = activeLanguage;
   const metaParts = [e.category];
 
+  if (e.originalCategory) metaParts.push(e.originalCategory);
   if (e.category !== e.section && e.section) metaParts.push(e.section);
   if (e.segment) metaParts.push(`NPC ${e.segment}`);
   if (e.talkSection) metaParts.push(e.talkSection);
@@ -593,7 +625,7 @@ function renderEntry(e) {
               ? `
                 <button
                   class="entry-name entry-name-link"
-                  data-dialogue-key="${escapeAttribute(e.npcKey || `${e.segment}|${e.nameEn}`)}"
+                  data-dialogue-key="${escapeAttribute(e.npcKey || `${e.section}|${e.segment}|${e.nameEn}`)}"
                   type="button"
                 >
                   <span class="entry-name-content">${escapeHtml(name)}</span>
@@ -635,8 +667,7 @@ function getText(entry, lang) {
 }
 
 function formatRawTextWithIds(entry, lang) {
-  const text = getText(entry, lang);
-  return text || '';
+  return getText(entry, lang) || '';
 }
 
 function formatRawTextClean(entry, lang) {
