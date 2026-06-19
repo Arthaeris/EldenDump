@@ -701,8 +701,8 @@ function renderEntry(e) {
   const name = getName(e, lang);
   const text = getText(e, lang);
 
-  const hasEnglish = Boolean(getName(e, 'en') || getText(e, 'en'));
-  const hasJapanese = Boolean(getName(e, 'jp') || getText(e, 'jp'));
+  const hasEnglish = hasDirectLanguage(e, 'en');
+const hasJapanese = hasDirectLanguage(e, 'jp');
 
   const languageControl =
     hasEnglish && hasJapanese
