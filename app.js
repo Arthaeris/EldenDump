@@ -1204,12 +1204,20 @@ document.addEventListener('click', async event => {
     if (!card) return;
 
     const mode = card.dataset.mode || 'ids';
-    const lang = card.dataset.lang || 'en';
-    const suffix = lang === 'jp' ? 'Jp' : 'En';
+const lang = card.dataset.lang || 'en';
+const suffix = lang === 'jp' ? 'Jp' : 'En';
 
-    let text;
+let text;
 
-if (mode === 'clean') {
+if (card.classList.contains('full-dialogue-entry')) {
+  if (mode === 'clean') {
+    text = card.dataset.copyClean;
+  } else if (mode === 'code') {
+    text = card.dataset.copyCode;
+  } else {
+    text = card.dataset.copyIds;
+  }
+} else if (mode === 'clean') {
   text = card.dataset[`copyClean${suffix}`];
 } else if (mode === 'code') {
   text = card.dataset[`copyCode${suffix}`];
