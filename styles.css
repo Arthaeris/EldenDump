@@ -292,18 +292,17 @@ input[type="search"] {
   display: none;
 }
 
+.entry[data-mode="clean"] .entry-text-clean {
+  display: block;
+}
+
 .entry[data-mode="code"] .entry-id,
 .entry[data-mode="code"] .entry-text-ids,
 .entry[data-mode="code"] .entry-text-clean {
   display: none;
 }
 
-.entry[data-mode="clean"] .entry-id,
-.entry[data-mode="clean"] .entry-text-ids {
-  display: none;
-}
-
-.entry[data-mode="clean"] .entry-text-clean {
+.entry[data-mode="code"] .entry-text-code {
   display: block;
 }
 
