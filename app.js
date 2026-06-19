@@ -51,27 +51,26 @@ const EXCLUDED_SECTION_CORES = new Set([
 ]);
 
 const CATEGORY_ORDER = [
+  'Japanese-Exclusive',
+  'NPCs',
+  'Dialogues',
+  'Locations',
   'Talismans',
   'Weapons',
   'Armor',
   'Items',
+  'Item Prompts',
   'Ashes of War',
   'Ashes of War (Item)',
   'Arrow/Bolt Types',
-  'Weapon Effects',
-  'NPCs',
-  'Dialogues',
-  'Locations',
   'Messages',
   'Interactions',
-  'Item Prompts',
   'Event Texts',
   'UI Messages',
   'UI Prompts',
   'Loading Screen Tutorials',
   'Tutorials',
-  'Multiplayer Prompts',
-  'Japanese-Exclusive'
+  'Multiplayer Prompts'
 ];
 
 const MERGE_RULES = [
