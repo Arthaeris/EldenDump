@@ -983,21 +983,27 @@ function showDialogue(npcKey) {
   const group = npcGroups.get(npcKey) || [];
   const first = group[0];
 
-  dialogueTitle.innerHTML = `
-    ${first ? escapeHtml(getName(first, activeLanguage)) : 'Dialogues'}
-    <button id="dialogueModeBtn" class="secondary dialogue-mode-btn">
-      ${dialogueDisplayMode === 'cards' ? 'Full Dialogue' : 'Cards'}
-    </button>
-  `;
+  dialogueTitle.textContent =
+    first ? getName(first, activeLanguage) : 'Dialogues';
 
-  const modeBtn = dialogueTitle.querySelector('#dialogueModeBtn');
+  const modeBtn = document.querySelector('#dialogueModeBtn');
 
   if (modeBtn) {
-    modeBtn.addEventListener('click', event => {
+    modeBtn.textContent =
+      dialogueDisplayMode === 'cards'
+        ? 'Full Dialogue'
+        : 'Cards';
+
+    modeBtn.onclick = event => {
       event.stopPropagation();
-      dialogueDisplayMode = dialogueDisplayMode === 'cards' ? 'full' : 'cards';
+
+      dialogueDisplayMode =
+        dialogueDisplayMode === 'cards'
+          ? 'full'
+          : 'cards';
+
       showDialogue(currentDialogueKey);
-    });
+    };
   }
 
   if (dialogueDisplayMode === 'full') {
@@ -1017,7 +1023,10 @@ function showDialogue(npcKey) {
   npcView.hidden = true;
   dialogueView.hidden = false;
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
 }
 
 function renderFullDialogue(group) {
