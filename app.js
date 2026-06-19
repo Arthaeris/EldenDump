@@ -874,6 +874,10 @@ function getCopyTextClean(entry, lang) {
   return lines.join('\n').trim();
 }
 
+function getCopyTextCode(entry, lang) {
+  return `\`\`\`\n${getCopyTextClean(entry, lang)}\n\`\`\``;
+}
+
 function getCleanText(text) {
   return String(text || '')
     .replace(/\[(\d+)\]\s*/g, '')
