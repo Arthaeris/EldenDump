@@ -254,11 +254,15 @@ function parseTalkMsgSection(section) {
     .filter(Boolean);
 
   const parsed = [];
+
   let segment = '';
   let talkSection = '';
   let npcName = '';
 
   for (const line of lines) {
+
+    // Named NPC block:
+    // Fia, Deathbed Companion [3220]
     const namedNpcMatch = line.match(/^(.+?)\s*\[(\d{4})\]\s*$/);
 
     if (namedNpcMatch) {
@@ -268,6 +272,8 @@ function parseTalkMsgSection(section) {
       continue;
     }
 
+    // Unnamed NPC block:
+    // 0208
     if (/^\d{4}$/.test(line)) {
       segment = line;
       npcName = TALK_ID_NAMES[segment] || `Unknown ${segment}`;
@@ -275,6 +281,8 @@ function parseTalkMsgSection(section) {
       continue;
     }
 
+    // Section header within current NPC block:
+    // Section 01
     if (/^Section\s+\d+/i.test(line)) {
       talkSection = line;
 
@@ -289,6 +297,8 @@ function parseTalkMsgSection(section) {
       continue;
     }
 
+    // Dialogue line:
+    // [322001000] Greetings...
     const match = line.match(/^\[(\d+)\]\s*(.*)$/s);
 
     if (!match) continue;
@@ -296,24 +306,33 @@ function parseTalkMsgSection(section) {
     const id = match[1];
     const body = match[2].trim();
 
+    // Skip known dummy entries
     if (id === '100' && body === '(dummyText)') continue;
     if (id === '200' && body === '(dummyText)') continue;
 
     parsed.push({
       section: section.name,
       category: 'Dialogues',
+
+      // Current NPC block
       segment,
+      npcId: segment,
+      npcName: npcName || `Unknown ${segment || 'NPC'}`,
+
+      // Current subsection
       talkSection,
+
+      // Dialogue line
       id,
       name: npcName || `Unknown ${segment || 'NPC'}`,
       text: cleanBodyText(body),
+
       type: 'talk'
     });
   }
 
   return parsed;
 }
-
 function mergeTalismans(sectionEntries) {
   return mergeNameInfoSections({
     category: 'Talismans',
