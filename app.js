@@ -117,7 +117,7 @@ const MERGE_RULES = [
   {
     category: 'Items',
     nameCore: 'GoodsName',
-    infoCores: ['GoodsInfo', 'GoodsInfo2'],
+    infoCores: ['GoodsInfo', 'GoodsInfo2', 'GoodsCaption'],
     separator: true
   }
 ];
