@@ -776,6 +776,55 @@ async function loadDump() {
 
 search.addEventListener('input', render);
 
+
+document.addEventListener('click', async event => {
+  const copyButton = event.target.closest('.copy-btn');
+
+  if (copyButton) {
+    event.stopPropagation();
+
+    const card = copyButton.closest('.entry');
+    if (!card) return;
+
+    const mode = card.dataset.mode || 'ids';
+    const text =
+      mode === 'clean'
+        ? card.dataset.copyClean
+        : card.dataset.copyIds;
+
+    try {
+      await navigator.clipboard.writeText(decodeHtml(text));
+      copyButton.textContent = 'Copied';
+
+      setTimeout(() => {
+        copyButton.textContent = 'Copy';
+      }, 900);
+    } catch {
+      copyButton.textContent = 'Failed';
+
+      setTimeout(() => {
+        copyButton.textContent = 'Copy';
+      }, 900);
+    }
+
+    return;
+  }
+
+  const card = event.target.closest('.entry');
+
+  if (!card) return;
+
+  const currentMode = card.dataset.mode || 'ids';
+  card.dataset.mode = currentMode === 'ids' ? 'clean' : 'ids';
+});
+
+function decodeHtml(value) {
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = value;
+  return textarea.value;
+}
+
+
 menuBtn.addEventListener('click', openMenu);
 closeMenuBtn.addEventListener('click', closeMenu);
 menuOverlay.addEventListener('click', closeMenu);
