@@ -627,8 +627,27 @@ function renderEntry(e) {
       <div class="entry-section">${escapeHtml(metaParts.join(' · '))}</div>
 
       <div class="entry-header">
-        ${e.name ? `<div class="entry-name">${escapeHtml(e.name)}</div>` : ''}
-        ${e.type !== 'talk' ? `<div class="entry-id">[${escapeHtml(e.id)}]</div>` : ''}
+        ${
+          e.name
+            ? e.type === 'talk'
+              ? `
+                <button
+                  class="entry-name entry-name-link"
+                  data-dialogue-name="${escapeAttribute(e.name)}"
+                  type="button"
+                >
+                  ${escapeHtml(e.name)}
+                </button>
+              `
+              : `<div class="entry-name">${escapeHtml(e.name)}</div>`
+            : ''
+        }
+
+        ${
+          e.type !== 'talk'
+            ? `<div class="entry-id">[${escapeHtml(e.id)}]</div>`
+            : ''
+        }
       </div>
 
       ${
