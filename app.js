@@ -1123,10 +1123,15 @@ document.addEventListener('click', async event => {
     const lang = card.dataset.lang || 'en';
     const suffix = lang === 'jp' ? 'Jp' : 'En';
 
-    const text =
-      mode === 'clean'
-        ? card.dataset[`copyClean${suffix}`]
-        : card.dataset[`copyIds${suffix}`];
+    let text;
+
+if (mode === 'clean') {
+  text = card.dataset[`copyClean${suffix}`];
+} else if (mode === 'code') {
+  text = card.dataset[`copyCode${suffix}`];
+} else {
+  text = card.dataset[`copyIds${suffix}`];
+}
 
     try {
       await navigator.clipboard.writeText(decodeHtml(text || ''));
