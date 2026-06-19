@@ -553,6 +553,24 @@ function collectRawIds(...maps) {
   return [...ids];
 }
 
+
+
+function normalizeId(id) {
+  return String(Number(id));
+}
+
+function normalizeIdMap(map) {
+  const normalized = new Map();
+
+  for (const [id, value] of map.entries()) {
+    normalized.set(normalizeId(id), value);
+  }
+
+  return normalized;
+}
+
+
+
 function sortIds(a, b) {
   const numA = Number(a);
   const numB = Number(b);
