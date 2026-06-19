@@ -25,26 +25,19 @@ const backFromCategoryBtn = document.querySelector('#backFromCategoryBtn');
 const backFromNpcBtn = document.querySelector('#backFromNpcBtn');
 const backFromDialogueBtn = document.querySelector('#backFromDialogueBtn');
 
+const EN_SOURCE = './pc-engus-er-1.16.txt';
+const JP_SOURCE = './pc-jpnjp-er-1.16.txt';
+
 let entries = [];
 let categories = new Map();
 let npcGroups = new Map();
+let activeLanguage = 'en';
 
 const EXCLUDED_SECTIONS = new Set([
   'GemEffect.fmg',
   'MagicInfo.fmg',
   'MagicName.fmg',
   'TextEmbedImageName_win64.fmg'
-]);
-
-const NAME_FIRST_SECTIONS = new Set([
-  'AccessoryName.fmg',
-  'BloodMsg.fmg',
-  'GemName.fmg',
-  'GoodsName.fmg',
-  'LoadingTitle.fmg',
-  'ProtectorName.fmg',
-  'TutorialTitle.fmg',
-  'WeaponName.fmg'
 ]);
 
 const SECTION_CATEGORY = {
@@ -164,351 +157,250 @@ const TALK_SECTION_NAMES = {
   'PRE_0100|Section 01': 'Intro Narrator'
 };
 
-function parseEntries(text) {
-  const normalized = normalizeText(text);
-  const rawSections = splitIntoSections(normalized);
-  const sectionEntries = new Map();
-
-  for (const section of rawSections) {
-    if (EXCLUDED_SECTIONS.has(section.name)) continue;
-
-    if (section.name === 'TalkMsg.fmg') {
-      sectionEntries.set(section.name, parseTalkMsgSection(section));
-    } else if (NAME_FIRST_SECTIONS.has(section.name)) {
-      sectionEntries.set(section.name, parseNameFirstSection(section));
-    } else {
-      sectionEntries.set(section.name, parseIdFirstSection(section));
-    }
-  }
-
-  const parsed = [
-    ...mergeTalismans(sectionEntries),
-    ...mergeAshOfWarItems(sectionEntries),
-    ...mergeItems(sectionEntries),
-    ...mergeArmor(sectionEntries),
-    ...collectStandaloneSections(sectionEntries)
-  ];
-
-  return parsed.map(entry => ({
-    ...entry,
-    category: entry.category || SECTION_CATEGORY[entry.section] || entry.section
-  }));
-}
-
-function normalizeText(text) {
-  return (text || '')
+function parseXmlDump(rawText) {
+  const normalized = String(rawText || '')
     .replace(/\r/g, '')
     .replace(/\u00a0/g, ' ')
-    .replace(/\u2028/g, '\n')
-    .trim();
-}
+    .replace(/\u2028/g, '\n');
 
-function splitIntoSections(text) {
-  const sectionRegex = /^([A-Za-z0-9_]+\.fmg)\s*$/gm;
-  const matches = [...text.matchAll(sectionRegex)];
-  const sections = [];
+  const sections = new Map();
 
-  for (let i = 0; i < matches.length; i++) {
-    const current = matches[i];
-    const next = matches[i + 1];
+  const sectionRegex = /<filename>\s*([^<]+?)\s*<\/filename>[\s\S]*?<entries>\s*([\s\S]*?)\s*<\/entries>/g;
+  const textRegex = /<text\s+id="([^"]+)"\s*>([\s\S]*?)<\/text>/g;
 
-    sections.push({
-      name: current[1],
-      text: text.slice(
-        current.index + current[0].length,
-        next ? next.index : text.length
-      ).trim()
-    });
+  let sectionMatch;
+
+  while ((sectionMatch = sectionRegex.exec(normalized))) {
+    const sectionName = sectionMatch[1].trim();
+    const sectionBody = sectionMatch[2];
+
+    if (EXCLUDED_SECTIONS.has(sectionName)) continue;
+
+    if (!sections.has(sectionName)) {
+      sections.set(sectionName, new Map());
+    }
+
+    const sectionMap = sections.get(sectionName);
+    let textMatch;
+
+    while ((textMatch = textRegex.exec(sectionBody))) {
+      const id = textMatch[1].trim();
+      const value = cleanBodyText(decodeEntities(textMatch[2]));
+
+      if (!id || !value || value === '%null%') continue;
+
+      sectionMap.set(id, value);
+    }
   }
 
   return sections;
 }
 
-function parseIdFirstSection(section) {
-  const matches = [...section.text.matchAll(/\[(\d+)\]\s*/g)];
+function buildEntriesFromDumps(enSections, jpSections) {
+  const built = [];
 
-  return matches.map((match, index) => {
-    const nextMatch = matches[index + 1];
-    const id = match[1];
-    const start = match.index + match[0].length;
-    const end = nextMatch ? nextMatch.index : section.text.length;
-    const body = section.text.slice(start, end).trim();
-
-    return {
-      section: section.name,
-      id,
-      name: '',
-      text: cleanBodyText(body),
-      type: 'id-first',
-      category: SECTION_CATEGORY[section.name] || section.name
-    };
-  }).filter(entry => entry.id && entry.text);
-}
-
-function parseNameFirstSection(section) {
-  const matches = [...section.text.matchAll(/([^\n\[]+?)\s*\[(\d+)\]/g)];
-
-  return matches.map((match, index) => {
-    const nextMatch = matches[index + 1];
-    const name = cleanBodyText(match[1]);
-    const id = match[2];
-    const start = match.index + match[0].length;
-    const end = nextMatch ? nextMatch.index : section.text.length;
-    const body = section.text.slice(start, end).trim();
-
-    return {
-      section: section.name,
-      id,
-      name,
-      text: cleanBodyText(body),
-      type: 'name-first',
-      category: SECTION_CATEGORY[section.name] || section.name
-    };
-  }).filter(entry => entry.id && (entry.name || entry.text));
-}
-
-function parseTalkMsgSection(section) {
-  const lines = section.text
-    .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean);
-
-  const npcNameById = {};
-
-  for (const line of lines) {
-    const namedNpcMatch = line.match(/^(.+?)\s*\[(\d{4})\]\s*$/);
-
-    if (namedNpcMatch) {
-      npcNameById[namedNpcMatch[2]] = cleanBodyText(namedNpcMatch[1]);
-    }
-  }
-
-  const grouped = new Map();
-
-  let segment = '';
-  let talkSection = '';
-  let npcName = '';
-
-  for (const line of lines) {
-    const namedNpcMatch = line.match(/^(.+?)\s*\[(\d{4})\]\s*$/);
-
-    if (namedNpcMatch) {
-      segment = namedNpcMatch[2];
-      npcName = cleanBodyText(namedNpcMatch[1]);
-      talkSection = '';
-      continue;
-    }
-
-    if (/^\d{4}$/.test(line)) {
-      segment = line;
-      npcName = TALK_ID_NAMES[segment] || `Unknown ${segment}`;
-      talkSection = '';
-      continue;
-    }
-
-    if (/^Section\s+\d+/i.test(line)) {
-      talkSection = line;
-      continue;
-    }
-
-    const dialogueParts = splitDialogueLine(line);
-
-    for (const part of dialogueParts) {
-      const id = part.id;
-      const body = part.text;
-
-      if (id === '100' && body === '(dummyText)') continue;
-      if (id === '200' && body === '(dummyText)') continue;
-
-      const derivedNpcId = id.length >= 4 ? id.substring(0, 4) : segment;
-      const finalNpcId = derivedNpcId || segment || '0000';
-      const finalSection = talkSection || 'Section Unknown';
-
-      const mappedName =
-        TALK_SECTION_NAMES[`${segment}|${finalSection}`] ||
-        (!segment && finalSection === 'Section 01'
-          ? TALK_SECTION_NAMES[`PRE_0100|${finalSection}`]
-          : '');
-
-      let finalNpcName = mappedName || npcName;
-
-      if (
-        !mappedName &&
-        (!finalNpcName || finalNpcName.startsWith('Unknown')) &&
-        npcNameById[finalNpcId]
-      ) {
-        finalNpcName = npcNameById[finalNpcId];
-      }
-
-      if (!finalNpcName) {
-        finalNpcName = `Unknown ${finalNpcId}`;
-      }
-
-      const key = `${finalNpcId}|${finalNpcName}|${finalSection}`;
-
-      if (!grouped.has(key)) {
-        grouped.set(key, {
-          section: section.name,
-          category: 'Dialogues',
-          segment: finalNpcId,
-          npcId: finalNpcId,
-          npcName: finalNpcName,
-          talkSection: finalSection,
-          id: `${finalNpcId}-${finalSection.replace(/\s+/g, '-')}`,
-          name: finalNpcName,
-          lines: [],
-          type: 'talk'
-        });
-      }
-
-      grouped.get(key).lines.push({
-        id,
-        text: cleanBodyText(body)
-      });
-    }
-  }
-
-  return [...grouped.values()]
-    .map(group => ({
-      section: group.section,
-      category: group.category,
-      segment: group.segment,
-      npcId: group.npcId,
-      npcName: group.npcName,
-      talkSection: group.talkSection,
-      id: group.id,
-      name: group.name,
-      text: group.lines
-        .map(line => `[${line.id}] ${line.text}`)
-        .join('\n'),
-      type: group.type
-    }))
-    .filter(entry => entry.text);
-}
-
-
-
-function splitDialogueLine(line) {
-  const cleaned = line
-    .replace(/\(\s*(?=\[\d+\])/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  const matches = [...cleaned.matchAll(/\[(\d+)\]\s*/g)];
-
-  if (!matches.length) return [];
-
-  return matches.map((match, index) => {
-    const nextMatch = matches[index + 1];
-
-    const id = match[1];
-    const start = match.index + match[0].length;
-    const end = nextMatch ? nextMatch.index : cleaned.length;
-
-    const text = cleaned
-      .slice(start, end)
-      .replace(/\(\s*$/g, '')
-      .trim();
-
-    return { id, text };
-  }).filter(part => part.id && part.text);
-}
-
-
-
-function mergeTalismans(sectionEntries) {
-  return mergeNameInfoSections({
+  built.push(...mergeNameInfoSections({
     category: 'Talismans',
     nameSection: 'AccessoryName.fmg',
-    infoSection: 'AccessoryInfo.fmg',
-    sectionEntries
-  });
-}
+    infoSections: ['AccessoryInfo.fmg'],
+    enSections,
+    jpSections
+  }));
 
-function mergeAshOfWarItems(sectionEntries) {
-  return mergeNameInfoSections({
+  built.push(...mergeNameInfoSections({
     category: 'Ashes of War (Item)',
     nameSection: 'GemName.fmg',
-    infoSection: 'GemInfo.fmg',
-    sectionEntries
-  });
-}
+    infoSections: ['GemInfo.fmg'],
+    enSections,
+    jpSections
+  }));
 
-function mergeArmor(sectionEntries) {
-  return mergeNameInfoSections({
+  built.push(...mergeNameInfoSections({
     category: 'Armor',
     nameSection: 'ProtectorName.fmg',
-    infoSection: 'ProtectorInfo.fmg',
-    sectionEntries,
+    infoSections: ['ProtectorInfo.fmg'],
+    enSections,
+    jpSections,
     separator: true
+  }));
+
+  built.push(...mergeItems(enSections, jpSections));
+  built.push(...parseTalkMsgEntries(enSections, jpSections));
+  built.push(...collectStandaloneSections(enSections, jpSections));
+
+  return built.filter(entry =>
+    entry.id &&
+    (
+      entry.nameEn ||
+      entry.nameJp ||
+      entry.textEn ||
+      entry.textJp
+    )
+  );
+}
+
+function mergeNameInfoSections({
+  category,
+  nameSection,
+  infoSections,
+  enSections,
+  jpSections,
+  separator = false
+}) {
+  const ids = collectIds(enSections, jpSections, [nameSection, ...infoSections]);
+
+  return ids.map(id => {
+    const nameEn = getValue(enSections, nameSection, id);
+    const nameJp = getValue(jpSections, nameSection, id);
+
+    const textEnParts = infoSections
+      .map(section => getValue(enSections, section, id))
+      .filter(Boolean);
+
+    const textJpParts = infoSections
+      .map(section => getValue(jpSections, section, id))
+      .filter(Boolean);
+
+    return {
+      section: [nameSection, ...infoSections].join(' + '),
+      category,
+      id,
+      nameEn,
+      nameJp,
+      textEn: textEnParts.join(separator ? '\n---\n' : '\n\n'),
+      textJp: textJpParts.join(separator ? '\n---\n' : '\n\n'),
+      type: 'merged'
+    };
   });
 }
 
-function mergeNameInfoSections({ category, nameSection, infoSection, sectionEntries, separator = false }) {
-  const names = sectionEntries.get(nameSection) || [];
-  const infos = sectionEntries.get(infoSection) || [];
-
-  const nameMap = mapById(names);
-  const infoMap = mapById(infos);
-  const ids = uniqueIds([...names, ...infos]);
+function mergeItems(enSections, jpSections) {
+  const sections = ['GoodsName.fmg', 'GoodsInfo.fmg', 'GoodsInfo2.fmg'];
+  const ids = collectIds(enSections, jpSections, sections);
 
   return ids.map(id => {
-    const nameEntry = nameMap.get(id);
-    const infoEntry = infoMap.get(id);
+    const nameEn = getValue(enSections, 'GoodsName.fmg', id);
+    const nameJp = getValue(jpSections, 'GoodsName.fmg', id);
 
-    const parts = [];
+    const enTop = [
+      getValue(enSections, 'GoodsInfo.fmg', id)
+    ].filter(Boolean);
 
-    if (infoEntry?.text) parts.push(infoEntry.text);
-    if (nameEntry?.text) parts.push(nameEntry.text);
+    const jpTop = [
+      getValue(jpSections, 'GoodsInfo.fmg', id)
+    ].filter(Boolean);
 
-    return {
-      section: `${nameSection} + ${infoSection}`,
-      category,
-      id,
-      name: nameEntry?.name || '',
-      text: separator ? parts.join('\n---\n') : parts.join('\n\n'),
-      type: 'merged'
-    };
-  }).filter(entry => entry.id && (entry.name || entry.text));
-}
+    const enParts = [];
+    const jpParts = [];
 
-function mergeItems(sectionEntries) {
-  const names = sectionEntries.get('GoodsName.fmg') || [];
-  const infos = sectionEntries.get('GoodsInfo.fmg') || [];
-  const infos2 = sectionEntries.get('GoodsInfo2.fmg') || [];
+    if (enTop.length) enParts.push(enTop.join('\n\n'));
+    if (jpTop.length) jpParts.push(jpTop.join('\n\n'));
 
-  const nameMap = mapById(names);
-  const infoMap = mapById(infos);
-  const info2Map = mapById(infos2);
-  const ids = uniqueIds([...names, ...infos, ...infos2]);
+    const enInfo2 = getValue(enSections, 'GoodsInfo2.fmg', id);
+    const jpInfo2 = getValue(jpSections, 'GoodsInfo2.fmg', id);
 
-  return ids.map(id => {
-    const nameEntry = nameMap.get(id);
-    const infoEntry = infoMap.get(id);
-    const info2Entry = info2Map.get(id);
-
-    const topParts = [];
-
-    if (infoEntry?.text) topParts.push(infoEntry.text);
-    if (nameEntry?.text) topParts.push(nameEntry.text);
-
-    const parts = [];
-
-    if (topParts.length) parts.push(topParts.join('\n\n'));
-    if (info2Entry?.text) parts.push(info2Entry.text);
+    if (enInfo2) enParts.push(enInfo2);
+    if (jpInfo2) jpParts.push(jpInfo2);
 
     return {
       section: 'GoodsName.fmg + GoodsInfo.fmg + GoodsInfo2.fmg',
       category: 'Items',
       id,
-      name: nameEntry?.name || '',
-      text: parts.join('\n---\n'),
+      nameEn,
+      nameJp,
+      textEn: enParts.join('\n---\n'),
+      textJp: jpParts.join('\n---\n'),
       type: 'merged'
     };
-  }).filter(entry => entry.id && (entry.name || entry.text));
+  });
 }
 
-function collectStandaloneSections(sectionEntries) {
+function parseTalkMsgEntries(enSections, jpSections) {
+  const enTalk = enSections.get('TalkMsg.fmg') || new Map();
+  const jpTalk = jpSections.get('TalkMsg.fmg') || new Map();
+
+  const npcNamesEn = enSections.get('NpcName.fmg') || new Map();
+  const npcNamesJp = jpSections.get('NpcName.fmg') || new Map();
+
+  const ids = [...new Set([...enTalk.keys(), ...jpTalk.keys()])]
+    .filter(id => /^\d+$/.test(id))
+    .sort((a, b) => Number(a) - Number(b));
+
+  const grouped = new Map();
+
+  for (const id of ids) {
+    const enText = enTalk.get(id) || '';
+    const jpText = jpTalk.get(id) || '';
+
+    if (!enText && !jpText) continue;
+
+    const info = getTalkInfo(id);
+    const manualName = TALK_SECTION_NAMES[`${info.npcId}|${info.section}`];
+
+    const nameEn =
+      manualName ||
+      TALK_ID_NAMES[info.npcId] ||
+      npcNamesEn.get(info.npcId) ||
+      `Unknown ${info.npcId}`;
+
+    const nameJp =
+      manualName ||
+      npcNamesJp.get(info.npcId) ||
+      nameEn;
+
+    const key = `${info.npcId}|${info.section}|${nameEn}`;
+
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        section: 'TalkMsg.fmg',
+        category: 'Dialogues',
+        id: `${info.npcId}-${info.section.replace(/\s+/g, '-')}`,
+        segment: info.npcId,
+        npcId: info.npcId,
+        npcKey: `${info.npcId}|${nameEn}`,
+        nameEn,
+        nameJp,
+        talkSection: info.section,
+        linesEn: [],
+        linesJp: [],
+        type: 'talk'
+      });
+    }
+
+    const group = grouped.get(key);
+
+    if (enText) group.linesEn.push(`[${id}] ${enText}`);
+    if (jpText) group.linesJp.push(`[${id}] ${jpText}`);
+  }
+
+  return [...grouped.values()].map(group => ({
+    section: group.section,
+    category: group.category,
+    id: group.id,
+    segment: group.segment,
+    npcId: group.npcId,
+    npcKey: group.npcKey,
+    nameEn: group.nameEn,
+    nameJp: group.nameJp,
+    talkSection: group.talkSection,
+    textEn: group.linesEn.join('\n'),
+    textJp: group.linesJp.join('\n'),
+    type: group.type
+  }));
+}
+
+function getTalkInfo(id) {
+  const padded = String(id).padStart(9, '0');
+  const npcId = padded.slice(0, 4);
+  const sectionNumber = padded.slice(4, 6);
+
+  return {
+    npcId,
+    section: `Section ${sectionNumber}`
+  };
+}
+
+function collectStandaloneSections(enSections, jpSections) {
   const alreadyMerged = new Set([
     'AccessoryName.fmg',
     'AccessoryInfo.fmg',
@@ -518,29 +410,76 @@ function collectStandaloneSections(sectionEntries) {
     'GoodsInfo.fmg',
     'GoodsInfo2.fmg',
     'ProtectorName.fmg',
-    'ProtectorInfo.fmg'
+    'ProtectorInfo.fmg',
+    'TalkMsg.fmg'
   ]);
+
+  const allSections = [...new Set([
+    ...enSections.keys(),
+    ...jpSections.keys()
+  ])];
 
   const collected = [];
 
-  for (const [sectionName, items] of sectionEntries.entries()) {
-    if (alreadyMerged.has(sectionName)) continue;
+  for (const section of allSections) {
+    if (alreadyMerged.has(section)) continue;
+    if (EXCLUDED_SECTIONS.has(section)) continue;
 
-    collected.push(...items.map(item => ({
-      ...item,
-      category: SECTION_CATEGORY[sectionName] || sectionName
-    })));
+    const category = SECTION_CATEGORY[section] || section;
+    const ids = collectIds(enSections, jpSections, [section]);
+
+    for (const id of ids) {
+      const enText = getValue(enSections, section, id);
+      const jpText = getValue(jpSections, section, id);
+
+      collected.push({
+        section,
+        category,
+        id,
+        nameEn: shouldUseTextAsName(section) ? enText : '',
+        nameJp: shouldUseTextAsName(section) ? jpText : '',
+        textEn: shouldUseTextAsName(section) ? '' : enText,
+        textJp: shouldUseTextAsName(section) ? '' : jpText,
+        type: 'single'
+      });
+    }
   }
 
   return collected;
 }
 
-function mapById(items) {
-  return new Map(items.map(item => [item.id, item]));
+function shouldUseTextAsName(section) {
+  return [
+    'ArtsName.fmg',
+    'LoadingTitle.fmg',
+    'NpcName.fmg',
+    'PlaceName.fmg',
+    'TutorialTitle.fmg',
+    'WeaponName.fmg'
+  ].includes(section);
 }
 
-function uniqueIds(items) {
-  return [...new Set(items.map(item => item.id))];
+function collectIds(enSections, jpSections, sectionNames) {
+  const ids = new Set();
+
+  for (const section of sectionNames) {
+    const enMap = enSections.get(section);
+    const jpMap = jpSections.get(section);
+
+    if (enMap) {
+      for (const id of enMap.keys()) ids.add(id);
+    }
+
+    if (jpMap) {
+      for (const id of jpMap.keys()) ids.add(id);
+    }
+  }
+
+  return [...ids].sort((a, b) => Number(a) - Number(b));
+}
+
+function getValue(sectionMap, section, id) {
+  return sectionMap.get(section)?.get(id) || '';
 }
 
 function buildIndexes() {
@@ -555,7 +494,7 @@ function buildIndexes() {
     categories.get(entry.category).push(entry);
 
     if (entry.category === 'Dialogues') {
-      const npcKey = entry.name || `Unknown ${entry.segment || 'NPC'}`;
+      const npcKey = entry.npcKey || `${entry.segment}|${entry.nameEn}`;
 
       if (!npcGroups.has(npcKey)) {
         npcGroups.set(npcKey, []);
@@ -588,8 +527,10 @@ function render() {
     e.category.toLowerCase().includes(q) ||
     e.section.toLowerCase().includes(q) ||
     e.id.includes(q) ||
-    e.name.toLowerCase().includes(q) ||
-    e.text.toLowerCase().includes(q) ||
+    getName(e, 'en').toLowerCase().includes(q) ||
+    getName(e, 'jp').toLowerCase().includes(q) ||
+    getText(e, 'en').toLowerCase().includes(q) ||
+    getText(e, 'jp').toLowerCase().includes(q) ||
     String(e.segment || '').includes(q) ||
     String(e.talkSection || '').toLowerCase().includes(q)
   );
@@ -605,41 +546,60 @@ function render() {
 }
 
 function renderEntry(e) {
+  const lang = activeLanguage;
   const metaParts = [e.category];
 
   if (e.category !== e.section && e.section) metaParts.push(e.section);
   if (e.segment) metaParts.push(`NPC ${e.segment}`);
   if (e.talkSection) metaParts.push(e.talkSection);
 
-  const textWithIds = formatEntryText(e.text);
-  const textWithoutIds = formatCleanEntryText(e.text);
+  const name = getName(e, lang);
+  const text = getText(e, lang);
+
+  const hasJapanese = Boolean(getName(e, 'jp') || getText(e, 'jp'));
+  const languageButton = hasJapanese
+    ? `<button class="lang-btn" type="button" data-language-toggle>${lang === 'en' ? 'JP' : 'EN'}</button>`
+    : '';
 
   return `
     <article
       class="entry"
       id="entry-${escapeHtml(e.section)}-${escapeHtml(e.id)}"
       data-mode="ids"
-      data-copy-ids="${escapeAttribute(getCopyTextWithIds(e))}"
-      data-copy-clean="${escapeAttribute(getCopyTextClean(e))}"
+      data-lang="${escapeHtml(lang)}"
+
+      data-name-en="${escapeAttribute(getName(e, 'en'))}"
+      data-name-jp="${escapeAttribute(getName(e, 'jp'))}"
+
+      data-text-ids-en="${escapeAttribute(formatRawTextWithIds(e, 'en'))}"
+      data-text-ids-jp="${escapeAttribute(formatRawTextWithIds(e, 'jp'))}"
+      data-text-clean-en="${escapeAttribute(formatRawTextClean(e, 'en'))}"
+      data-text-clean-jp="${escapeAttribute(formatRawTextClean(e, 'jp'))}"
+
+      data-copy-ids-en="${escapeAttribute(getCopyTextWithIds(e, 'en'))}"
+      data-copy-ids-jp="${escapeAttribute(getCopyTextWithIds(e, 'jp'))}"
+      data-copy-clean-en="${escapeAttribute(getCopyTextClean(e, 'en'))}"
+      data-copy-clean-jp="${escapeAttribute(getCopyTextClean(e, 'jp'))}"
     >
       <button class="copy-btn" type="button">Copy</button>
+      ${languageButton}
 
       <div class="entry-section">${escapeHtml(metaParts.join(' · '))}</div>
 
       <div class="entry-header">
         ${
-          e.name
+          name
             ? e.type === 'talk'
               ? `
                 <button
                   class="entry-name entry-name-link"
-                  data-dialogue-name="${escapeAttribute(e.name)}"
+                  data-dialogue-key="${escapeAttribute(e.npcKey || `${e.segment}|${e.nameEn}`)}"
                   type="button"
                 >
-                  ${escapeHtml(e.name)}
+                  <span class="entry-name-content">${escapeHtml(name)}</span>
                 </button>
               `
-              : `<div class="entry-name">${escapeHtml(e.name)}</div>`
+              : `<div class="entry-name entry-name-content">${escapeHtml(name)}</div>`
             : ''
         }
 
@@ -651,15 +611,36 @@ function renderEntry(e) {
       </div>
 
       ${
-        e.text
+        text
           ? `
-            <div class="entry-text entry-text-ids">${textWithIds}</div>
-            <div class="entry-text entry-text-clean">${textWithoutIds}</div>
+            <div class="entry-text entry-text-ids">${formatEntryText(formatRawTextWithIds(e, lang))}</div>
+            <div class="entry-text entry-text-clean">${formatEntryText(formatRawTextClean(e, lang))}</div>
           `
           : ''
       }
     </article>
   `;
+}
+
+function getName(entry, lang) {
+  return lang === 'jp'
+    ? entry.nameJp || entry.nameEn || ''
+    : entry.nameEn || entry.nameJp || '';
+}
+
+function getText(entry, lang) {
+  return lang === 'jp'
+    ? entry.textJp || entry.textEn || ''
+    : entry.textEn || entry.textJp || '';
+}
+
+function formatRawTextWithIds(entry, lang) {
+  const text = getText(entry, lang);
+  return text || '';
+}
+
+function formatRawTextClean(entry, lang) {
+  return getCleanText(getText(entry, lang));
 }
 
 function formatEntryText(text) {
@@ -668,36 +649,34 @@ function formatEntryText(text) {
     .replace(/\n/g, '<br>');
 }
 
-function formatCleanEntryText(text) {
-  return escapeHtml(getCleanText(text))
-    .replace(/\n---\n/g, '<hr>')
-    .replace(/\n/g, '<br>');
-}
-
-function getCopyTextWithIds(e) {
-  if (e.type === 'talk') {
-    return e.text || '';
+function getCopyTextWithIds(entry, lang) {
+  if (entry.type === 'talk') {
+    return getText(entry, lang);
   }
 
   const lines = [];
+  const name = getName(entry, lang);
+  const text = getText(entry, lang);
 
-  if (e.name) lines.push(`${e.name} [${e.id}]`);
-  else lines.push(`[${e.id}]`);
+  if (name) lines.push(`${name} [${entry.id}]`);
+  else lines.push(`[${entry.id}]`);
 
-  if (e.text) lines.push(e.text);
+  if (text) lines.push(text);
 
   return lines.join('\n').trim();
 }
 
-function getCopyTextClean(e) {
-  if (e.type === 'talk') {
-    return getCleanText(e.text);
+function getCopyTextClean(entry, lang) {
+  if (entry.type === 'talk') {
+    return getCleanText(getText(entry, lang));
   }
 
   const lines = [];
+  const name = getName(entry, lang);
+  const text = getText(entry, lang);
 
-  if (e.name) lines.push(e.name);
-  if (e.text) lines.push(getCleanText(e.text));
+  if (name) lines.push(name);
+  if (text) lines.push(getCleanText(text));
 
   return lines.join('\n').trim();
 }
@@ -712,8 +691,24 @@ function getCleanText(text) {
     .join('\n');
 }
 
-function escapeAttribute(value) {
-  return escapeHtml(value).replace(/"/g, '&quot;');
+function updateCardLanguage(card, lang) {
+  card.dataset.lang = lang;
+
+  const suffix = lang === 'jp' ? 'Jp' : 'En';
+
+  const name = card.dataset[`name${suffix}`] || '';
+  const textIds = card.dataset[`textIds${suffix}`] || '';
+  const textClean = card.dataset[`textClean${suffix}`] || '';
+
+  const nameEl = card.querySelector('.entry-name-content');
+  const idsEl = card.querySelector('.entry-text-ids');
+  const cleanEl = card.querySelector('.entry-text-clean');
+  const langBtn = card.querySelector('[data-language-toggle]');
+
+  if (nameEl) nameEl.innerHTML = escapeHtml(decodeHtml(name));
+  if (idsEl) idsEl.innerHTML = formatEntryText(decodeHtml(textIds));
+  if (cleanEl) cleanEl.innerHTML = formatEntryText(decodeHtml(textClean));
+  if (langBtn) langBtn.textContent = lang === 'en' ? 'JP' : 'EN';
 }
 
 function showHome() {
@@ -743,22 +738,27 @@ function showCategory(categoryName) {
 }
 
 function showNpcIndex() {
-  const names = [...npcGroups.keys()].sort((a, b) => a.localeCompare(b));
+  const groups = [...npcGroups.entries()].sort((a, b) => {
+    const aName = getName(a[1][0], activeLanguage);
+    const bName = getName(b[1][0], activeLanguage);
+    return aName.localeCompare(bName);
+  });
 
-  npcList.innerHTML = names.map(name => {
-    const group = npcGroups.get(name) || [];
+  npcList.innerHTML = groups.map(([key, group]) => {
+    const first = group[0];
+    const name = getName(first, activeLanguage);
     const segmentCount = new Set(group.map(entry => entry.segment).filter(Boolean)).size;
 
     return `
-      <button class="npc-item" data-npc="${escapeHtml(name)}">
+      <button class="npc-item" data-npc-key="${escapeAttribute(key)}">
         <span>${escapeHtml(name)}</span>
         <small>${group.length} sections · ${segmentCount} segments</small>
       </button>
     `;
   }).join('');
 
-  npcList.querySelectorAll('[data-npc]').forEach(button => {
-    button.addEventListener('click', () => showDialogue(button.dataset.npc));
+  npcList.querySelectorAll('[data-npc-key]').forEach(button => {
+    button.addEventListener('click', () => showDialogue(button.dataset.npcKey));
   });
 
   searchView.hidden = true;
@@ -770,10 +770,12 @@ function showNpcIndex() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function showDialogue(npcName) {
-  const group = npcGroups.get(npcName) || [];
+function showDialogue(npcKey) {
+  const group = npcGroups.get(npcKey) || [];
+  const first = group[0];
 
-  dialogueTitle.textContent = npcName;
+  dialogueTitle.textContent = first ? getName(first, activeLanguage) : 'Dialogues';
+
   dialogueResults.innerHTML = group.length
     ? group.map(renderEntry).join('')
     : '<div class="empty">No dialogue found.</div>';
@@ -803,6 +805,12 @@ function cleanBodyText(value) {
     .trim();
 }
 
+function decodeEntities(value) {
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = value;
+  return textarea.value;
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, char => ({
     '&': '&amp;',
@@ -813,30 +821,50 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function escapeAttribute(value) {
+  return escapeHtml(value).replace(/"/g, '&quot;');
+}
+
 async function loadDump() {
-  results.innerHTML = '<div class="empty">Loading EldenDump.html…</div>';
+  results.innerHTML = '<div class="empty">Loading language files…</div>';
 
   try {
-    const response = await fetch('./EldenDump.html');
+    const [enResponse, jpResponse] = await Promise.all([
+      fetch(EN_SOURCE),
+      fetch(JP_SOURCE)
+    ]);
 
-    if (!response.ok) {
-      throw new Error('Could not load EldenDump.html');
+    if (!enResponse.ok) {
+      throw new Error(`Could not load ${EN_SOURCE}`);
     }
 
-    const html = await response.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const text = doc.body?.innerText || html;
+    if (!jpResponse.ok) {
+      throw new Error(`Could not load ${JP_SOURCE}`);
+    }
 
-    entries = parseEntries(text);
+    const [enText, jpText] = await Promise.all([
+      enResponse.text(),
+      jpResponse.text()
+    ]);
+
+    const enSections = parseXmlDump(enText);
+    const jpSections = parseXmlDump(jpText);
+
+    entries = buildEntriesFromDumps(enSections, jpSections);
+
     buildIndexes();
     renderCategoryMenu();
     render();
   } catch (error) {
+    console.error(error);
+
     count.textContent = '0 entries';
     results.innerHTML = `
       <div class="empty">
-        Could not load <code>EldenDump.html</code>.<br>
-        Make sure it is in the same folder as <code>index.html</code>.
+        Could not load the language source files.<br>
+        Make sure these files are in the same folder as <code>index.html</code>:<br>
+        <code>pc-engus-er-1.16.txt</code><br>
+        <code>pc-jpnjp-er-1.16.txt</code>
       </div>
     `;
   }
@@ -845,15 +873,25 @@ async function loadDump() {
 search.addEventListener('input', render);
 
 document.addEventListener('click', async event => {
-  const dialogueNameButton = event.target.closest('[data-dialogue-name]');
+  const languageButton = event.target.closest('[data-language-toggle]');
+
+  if (languageButton) {
+    event.stopPropagation();
+
+    const card = languageButton.closest('.entry');
+    if (!card) return;
+
+    const nextLang = card.dataset.lang === 'en' ? 'jp' : 'en';
+    updateCardLanguage(card, nextLang);
+
+    return;
+  }
+
+  const dialogueNameButton = event.target.closest('[data-dialogue-key]');
 
   if (dialogueNameButton) {
     event.stopPropagation();
-
-    showDialogue(
-      decodeHtml(dialogueNameButton.dataset.dialogueName)
-    );
-
+    showDialogue(decodeHtml(dialogueNameButton.dataset.dialogueKey));
     return;
   }
 
@@ -866,13 +904,16 @@ document.addEventListener('click', async event => {
     if (!card) return;
 
     const mode = card.dataset.mode || 'ids';
+    const lang = card.dataset.lang || 'en';
+    const suffix = lang === 'jp' ? 'Jp' : 'En';
+
     const text =
       mode === 'clean'
-        ? card.dataset.copyClean
-        : card.dataset.copyIds;
+        ? card.dataset[`copyClean${suffix}`]
+        : card.dataset[`copyIds${suffix}`];
 
     try {
-      await navigator.clipboard.writeText(decodeHtml(text));
+      await navigator.clipboard.writeText(decodeHtml(text || ''));
       copyButton.textContent = 'Copied';
 
       setTimeout(() => {
