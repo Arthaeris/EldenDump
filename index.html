@@ -11,8 +11,44 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
+  <aside id="menu" class="menu">
+    <div class="menu-header">
+      <h2>Navigation</h2>
+      <button id="closeMenuBtn" class="secondary">✕</button>
+    </div>
+
+    <div class="menu-section">
+      <button id="homeBtn" class="menu-item">🏠 Home</button>
+    </div>
+
+    <div class="menu-section">
+      <h3>Categories</h3>
+      <div id="categoryList"></div>
+    </div>
+
+    <div class="menu-section">
+      <h3>Dialogues</h3>
+      <button id="npcIndexBtn" class="menu-item">
+        NPC Index
+      </button>
+    </div>
+  </aside>
+
+  <div id="menuOverlay" class="menu-overlay"></div>
+
   <header>
-    <h1>EldenDump</h1>
+    <div class="header-row">
+      <button
+        id="menuBtn"
+        class="menu-toggle"
+        aria-label="Open navigation">
+        ☰
+      </button>
+
+      <h1>EldenDump</h1>
+    </div>
+
     <p>
       Search all Elden Ring FMG entries, dialogue, item names,
       descriptions, locations, and system text.
@@ -20,20 +56,77 @@
   </header>
 
   <main>
-    <section class="toolbar">
-      <input
-        id="search"
-        type="search"
-        placeholder="Search names, IDs, dialogue, descriptions..."
-      />
-      <span id="count">0 entries</span>
+
+    <section id="searchView">
+
+      <section class="toolbar">
+        <input
+          id="search"
+          type="search"
+          placeholder="Search names, IDs, dialogue, descriptions..."
+        />
+        <span id="count">0 entries</span>
+      </section>
+
+      <section
+        id="results"
+        class="results"
+        aria-live="polite">
+      </section>
+
     </section>
 
-    <section
-      id="results"
-      class="results"
-      aria-live="polite">
+    <section id="categoryView" hidden>
+
+      <div class="view-header">
+        <button id="backFromCategoryBtn" class="secondary">
+          ← Back
+        </button>
+
+        <h2 id="categoryTitle"></h2>
+      </div>
+
+      <section
+        id="categoryResults"
+        class="results">
+      </section>
+
     </section>
+
+    <section id="npcView" hidden>
+
+      <div class="view-header">
+        <button id="backFromNpcBtn" class="secondary">
+          ← Back
+        </button>
+
+        <h2>Dialogues</h2>
+      </div>
+
+      <section
+        id="npcList"
+        class="results">
+      </section>
+
+    </section>
+
+    <section id="dialogueView" hidden>
+
+      <div class="view-header">
+        <button id="backFromDialogueBtn" class="secondary">
+          ← Back
+        </button>
+
+        <h2 id="dialogueTitle"></h2>
+      </div>
+
+      <section
+        id="dialogueResults"
+        class="results">
+      </section>
+
+    </section>
+
   </main>
 
   <footer>
