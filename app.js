@@ -50,6 +50,16 @@ const EXCLUDED_SECTION_CORES = new Set([
   'MovieSubtitle'
 ]);
 
+
+const CATEGORY_SEPARATOR_BEFORE = new Set([
+  'NPCs',
+  'Talismans',
+  'Ashes of War',
+  'Tutorials',
+  'Messages'
+]);
+
+
 const CATEGORY_ORDER = [
   'Japanese-Exclusive',
   'NPCs',
@@ -57,19 +67,19 @@ const CATEGORY_ORDER = [
   'Locations',
   'Talismans',
   'Weapons',
+  'Arrow/Bolt Types',
   'Armor',
   'Items',
-  'Item Prompts',
   'Ashes of War',
   'Ashes of War (Item)',
-  'Arrow/Bolt Types',
+  'Tutorials',
+  'Loading Screen Tutorials',
   'Messages',
   'Interactions',
   'Event Texts',
   'UI Messages',
   'UI Prompts',
-  'Loading Screen Tutorials',
-  'Tutorials',
+  'Item Prompts',
   'Multiplayer Prompts'
 ];
 
