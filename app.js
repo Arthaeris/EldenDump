@@ -22,6 +22,48 @@ const NAME_FIRST_SECTIONS = new Set([
   'WeaponName.fmg'
 ]);
 
+const TALK_ID_NAMES = {
+  '0208': 'Dungeater',
+  '0207': 'Enia',
+  '0206': 'Intro Narrator',
+  '0205': 'Melina',
+  '0204': 'Melina',
+  '0201': 'Mohg',
+  '0165': 'Ranni',
+  '0160': 'Ranni',
+  '0150': 'Intro Narrator',
+  '0140': 'Intro Narrator',
+  '0130': 'Intro Narrator',
+  '0120': 'Intro Narrator',
+  '0110': 'Godfrey',
+  '0100': 'Intro Narrator'
+};
+
+const TALK_SECTION_NAMES = {
+  '0203|Section 00': 'Rykard',
+  '0203|Section 91': 'Jerren',
+  '0202|Section 10': 'Morgott',
+  '0202|Section 11': 'Morgott',
+  '0202|Section 30': 'Maliketh',
+  '0202|Section 40': 'Rennala',
+  '0202|Section 45': 'Rennala',
+  '0202|Section 50': 'Rennala',
+  '0202|Section 55': 'Rennala',
+  '0202|Section 60': 'Malenia',
+  '0202|Section 65': 'Malenia',
+  '0202|Section 70': 'Malenia',
+  '0202|Section 75': 'Malenia',
+  '0202|Section 90': 'Unknown',
+  '0200|Section 10': 'Melina',
+  '0200|Section 15': 'Melina',
+  '0200|Section 30': 'Margit',
+  '0200|Section 40': 'Godrick',
+  '0200|Section 50': 'Godrick',
+  '0200|Section 70': 'Godfrey',
+  '0200|Section 80': 'Godfrey',
+  '|Section 01': 'Intro Narrator'
+};
+
 function parseEntries(text) {
   const normalized = normalizeText(text);
   const sections = splitIntoSections(normalized);
@@ -46,6 +88,7 @@ function normalizeText(text) {
   return (text || '')
     .replace(/\r/g, '')
     .replace(/\u00a0/g, ' ')
+    .replace(/\u2028/g, '\n')
     .trim();
 }
 
@@ -75,14 +118,10 @@ function parseIdFirstSection(section) {
 
   return matches.map((match, index) => {
     const nextMatch = matches[index + 1];
-
     const id = match[1];
     const start = match.index + match[0].length;
     const end = nextMatch ? nextMatch.index : section.text.length;
-
-    const body = section.text
-      .slice(start, end)
-      .trim();
+    const body = section.text.slice(start, end).trim();
 
     return {
       section: section.name,
@@ -99,16 +138,11 @@ function parseNameFirstSection(section) {
 
   return matches.map((match, index) => {
     const nextMatch = matches[index + 1];
-
     const name = cleanBodyText(match[1]);
     const id = match[2];
-
     const start = match.index + match[0].length;
     const end = nextMatch ? nextMatch.index : section.text.length;
-
-    const body = section.text
-      .slice(start, end)
-      .trim();
+    const body = section.text.slice(start, end).trim();
 
     return {
       section: section.name,
@@ -129,15 +163,36 @@ function parseTalkMsgSection(section) {
   const parsed = [];
   let segment = '';
   let talkSection = '';
+  let npcName = '';
 
   for (const line of lines) {
-    if (/^\d+$/.test(line)) {
+    const namedNpcMatch = line.match(/^(.+?)\s*\[(\d{4})\]\s*$/);
+
+    if (namedNpcMatch) {
+      npcName = cleanBodyText(namedNpcMatch[1]);
+      segment = namedNpcMatch[2];
+      talkSection = '';
+      continue;
+    }
+
+    if (/^\d{4}$/.test(line)) {
       segment = line;
+      npcName = TALK_ID_NAMES[segment] || '';
+      talkSection = '';
       continue;
     }
 
     if (/^Section\s+\d+/i.test(line)) {
       talkSection = line;
+
+      const sectionSpecificName =
+        TALK_SECTION_NAMES[`${segment}|${talkSection}`] ||
+        TALK_SECTION_NAMES[`|${talkSection}`];
+
+      if (sectionSpecificName) {
+        npcName = sectionSpecificName;
+      }
+
       continue;
     }
 
@@ -156,7 +211,7 @@ function parseTalkMsgSection(section) {
       segment,
       talkSection,
       id,
-      name: '',
+      name: npcName,
       text: cleanBodyText(body),
       type: 'talk'
     });
@@ -198,7 +253,7 @@ function render() {
 function renderEntry(e) {
   const metaParts = [e.section];
 
-  if (e.segment) metaParts.push(`Segment ${e.segment}`);
+  if (e.segment) metaParts.push(`NPC ${e.segment}`);
   if (e.talkSection) metaParts.push(e.talkSection);
 
   return `
@@ -206,19 +261,11 @@ function renderEntry(e) {
       <div class="entry-section">${escapeHtml(metaParts.join(' · '))}</div>
 
       <div class="entry-header">
-        ${
-          e.name
-            ? `<div class="entry-name">${escapeHtml(e.name)}</div>`
-            : ''
-        }
+        ${e.name ? `<div class="entry-name">${escapeHtml(e.name)}</div>` : ''}
         <div class="entry-id">[${escapeHtml(e.id)}]</div>
       </div>
 
-      ${
-        e.text
-          ? `<div class="entry-text">${escapeHtml(e.text).replace(/\n/g, '<br>')}</div>`
-          : ''
-      }
+      ${e.text ? `<div class="entry-text">${escapeHtml(e.text).replace(/\n/g, '<br>')}</div>` : ''}
     </article>
   `;
 }
@@ -244,7 +291,6 @@ async function loadDump() {
     }
 
     const html = await response.text();
-
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const text = doc.body?.innerText || html;
 
