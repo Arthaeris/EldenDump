@@ -1020,6 +1020,62 @@ function showDialogue(npcKey) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function renderFullDialogue(group) {
+  const lang = activeLanguage;
+  const first = group[0];
+
+  const name = first ? getName(first, lang) : '';
+  const lines = [];
+
+  if (name) {
+    lines.push(name);
+    lines.push('');
+  }
+
+  for (const entry of group) {
+    if (entry.talkSection) {
+      lines.push(entry.talkSection);
+    }
+
+    const text = getText(entry, lang);
+
+    if (text) {
+      lines.push(text);
+    }
+
+    lines.push('');
+  }
+
+  const rawText = lines.join('\n').trim();
+  const cleanText = getCleanText(rawText);
+  const codeText = `\`\`\`\n${cleanText}\n\`\`\``;
+
+  return `
+    <article
+      class="entry full-dialogue-entry"
+      data-mode="ids"
+      data-lang="${escapeHtml(lang)}"
+      data-copy-ids="${escapeAttribute(rawText)}"
+      data-copy-clean="${escapeAttribute(cleanText)}"
+      data-copy-code="${escapeAttribute(codeText)}"
+    >
+      <div class="entry-actions">
+        <button class="copy-btn" type="button">Copy</button>
+      </div>
+
+      <div class="entry-section">Full Dialogue</div>
+
+      <div class="entry-header">
+        <div class="entry-name">${escapeHtml(name)}</div>
+      </div>
+
+      <div class="entry-text entry-text-ids">${formatEntryText(rawText)}</div>
+      <div class="entry-text entry-text-clean">${formatEntryText(cleanText)}</div>
+      <div class="entry-text entry-text-code">${formatEntryText(codeText)}</div>
+    </article>
+  `;
+}
+
 function openMenu() {
   menu.classList.add('open');
   menuOverlay.classList.add('open');
