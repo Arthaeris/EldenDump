@@ -288,15 +288,6 @@ function parseTalkMsgSection(section) {
 
     if (/^Section\s+\d+/i.test(line)) {
       talkSection = line;
-
-      const sectionSpecificName =
-        TALK_SECTION_NAMES[`${segment}|${talkSection}`] ||
-        TALK_SECTION_NAMES[`|${talkSection}`];
-
-      if (sectionSpecificName) {
-        npcName = sectionSpecificName;
-      }
-
       continue;
     }
 
@@ -310,22 +301,24 @@ function parseTalkMsgSection(section) {
       if (id === '200' && body === '(dummyText)') continue;
 
       const derivedNpcId = id.length >= 4 ? id.substring(0, 4) : segment;
+      const finalNpcId = derivedNpcId || segment || '0000';
+      const finalSection = talkSection || 'Section Unknown';
 
-      let finalNpcName = npcName;
+      const mappedName = TALK_SECTION_NAMES[`${segment}|${finalSection}`];
+      let finalNpcName = mappedName || npcName;
 
       if (
+        !mappedName &&
         (!finalNpcName || finalNpcName.startsWith('Unknown')) &&
-        npcNameById[derivedNpcId]
+        npcNameById[finalNpcId]
       ) {
-        finalNpcName = npcNameById[derivedNpcId];
+        finalNpcName = npcNameById[finalNpcId];
       }
 
       if (!finalNpcName) {
-        finalNpcName = `Unknown ${derivedNpcId || segment || 'NPC'}`;
+        finalNpcName = `Unknown ${finalNpcId}`;
       }
 
-      const finalNpcId = derivedNpcId || segment || '0000';
-      const finalSection = talkSection || 'Section Unknown';
       const key = `${finalNpcId}|${finalNpcName}|${finalSection}`;
 
       if (!grouped.has(key)) {
@@ -366,32 +359,6 @@ function parseTalkMsgSection(section) {
       type: group.type
     }))
     .filter(entry => entry.text);
-}
-
-function splitDialogueLine(line) {
-  const cleaned = line
-    .replace(/\(\s*(?=\[\d+\])/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  const matches = [...cleaned.matchAll(/\[(\d+)\]\s*/g)];
-
-  if (!matches.length) return [];
-
-  return matches.map((match, index) => {
-    const nextMatch = matches[index + 1];
-
-    const id = match[1];
-    const start = match.index + match[0].length;
-    const end = nextMatch ? nextMatch.index : cleaned.length;
-
-    const text = cleaned
-      .slice(start, end)
-      .replace(/\(\s*$/g, '')
-      .trim();
-
-    return { id, text };
-  }).filter(part => part.id && part.text);
 }
 
 function mergeTalismans(sectionEntries) {
