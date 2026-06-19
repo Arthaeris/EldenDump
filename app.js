@@ -978,16 +978,39 @@ function showNpcIndex() {
 }
 
 function showDialogue(npcKey) {
+  currentDialogueKey = npcKey;
+
   const group = npcGroups.get(npcKey) || [];
   const first = group[0];
 
-  dialogueTitle.textContent = first ? getName(first, activeLanguage) : 'Dialogues';
+  dialogueTitle.innerHTML = `
+    ${first ? escapeHtml(getName(first, activeLanguage)) : 'Dialogues'}
+    <button id="dialogueModeBtn" class="secondary dialogue-mode-btn">
+      ${dialogueDisplayMode === 'cards' ? 'Full Dialogue' : 'Cards'}
+    </button>
+  `;
 
-  renderEntryList({
-    target: dialogueResults,
-    items: group,
-    emptyText: 'No dialogue found.'
-  });
+  const modeBtn = dialogueTitle.querySelector('#dialogueModeBtn');
+
+  if (modeBtn) {
+    modeBtn.addEventListener('click', event => {
+      event.stopPropagation();
+      dialogueDisplayMode = dialogueDisplayMode === 'cards' ? 'full' : 'cards';
+      showDialogue(currentDialogueKey);
+    });
+  }
+
+  if (dialogueDisplayMode === 'full') {
+    dialogueResults.innerHTML = group.length
+      ? renderFullDialogue(group)
+      : '<div class="empty">No dialogue found.</div>';
+  } else {
+    renderEntryList({
+      target: dialogueResults,
+      items: group,
+      emptyText: 'No dialogue found.'
+    });
+  }
 
   searchView.hidden = true;
   categoryView.hidden = true;
