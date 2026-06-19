@@ -34,6 +34,8 @@ let entries = [];
 let categories = new Map();
 let npcGroups = new Map();
 let activeLanguage = 'en';
+let dialogueDisplayMode = 'cards';
+let currentDialogueKey = '';
 
 let currentRenderTarget = results;
 let currentVisibleEntries = [];
