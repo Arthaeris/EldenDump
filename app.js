@@ -564,8 +564,19 @@ function renderEntry(e) {
   if (e.segment) metaParts.push(`NPC ${e.segment}`);
   if (e.talkSection) metaParts.push(e.talkSection);
 
+  const textWithIds = formatEntryText(e.text, e);
+  const textWithoutIds = formatCleanEntryText(e.text);
+
   return `
-    <article class="entry" id="entry-${escapeHtml(e.section)}-${escapeHtml(e.id)}">
+    <article
+      class="entry"
+      id="entry-${escapeHtml(e.section)}-${escapeHtml(e.id)}"
+      data-mode="ids"
+      data-copy-ids="${escapeAttribute(getCopyTextWithIds(e))}"
+      data-copy-clean="${escapeAttribute(getCopyTextClean(e))}"
+    >
+      <button class="copy-btn" type="button">Copy</button>
+
       <div class="entry-section">${escapeHtml(metaParts.join(' · '))}</div>
 
       <div class="entry-header">
@@ -573,7 +584,14 @@ function renderEntry(e) {
         <div class="entry-id">[${escapeHtml(e.id)}]</div>
       </div>
 
-      ${e.text ? `<div class="entry-text">${formatEntryText(e.text)}</div>` : ''}
+      ${
+        e.text
+          ? `
+            <div class="entry-text entry-text-ids">${textWithIds}</div>
+            <div class="entry-text entry-text-clean">${textWithoutIds}</div>
+          `
+          : ''
+      }
     </article>
   `;
 }
