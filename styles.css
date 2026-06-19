@@ -435,10 +435,11 @@ footer {
   }
 
   .entry-actions {
-    left: 12px;
-    right: auto;
-    flex-wrap: wrap;
-  }
+  left: auto;
+  right: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
 
   .entry-header {
     flex-direction: column;
