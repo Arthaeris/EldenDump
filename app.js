@@ -74,10 +74,11 @@ const CATEGORY_ORDER = [
 
 const MERGE_RULES = [
   {
-    category: 'Talismans',
-    nameCore: 'AccessoryName',
-    infoCores: ['AccessoryInfo']
-  },
+  category: 'Talismans',
+  nameCore: 'AccessoryName',
+  infoCores: ['AccessoryInfo', 'AccessoryCaption'],
+  separator: true
+},
   {
     category: 'Ashes of War (Item)',
     nameCore: 'GemName',
