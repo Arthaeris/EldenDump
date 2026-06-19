@@ -33,59 +33,12 @@ let categories = new Map();
 let npcGroups = new Map();
 let activeLanguage = 'en';
 
-const EXCLUDED_SECTIONS = new Set([
-  'GemEffect.fmg',
-  'MagicInfo.fmg',
-  'MagicName.fmg',
-  'TextEmbedImageName_win64.fmg'
+const EXCLUDED_SECTION_CORES = new Set([
+  'GemEffect',
+  'MagicInfo',
+  'MagicName',
+  'TextEmbedImageName_win64'
 ]);
-
-const SECTION_CATEGORY = {
-  'AccessoryInfo.fmg': 'Talismans',
-  'AccessoryName.fmg': 'Talismans',
-
-  'ActionButtonText.fmg': 'Interactions',
-  'ArtsName.fmg': 'Ashes of War',
-
-  'BloodMsg.fmg': 'Messages',
-
-  'EventTextForMap.fmg': 'Event Texts',
-  'EventTextForTalk.fmg': 'UI Messages',
-
-  'GemInfo.fmg': 'Ashes of War (Item)',
-  'GemName.fmg': 'Ashes of War (Item)',
-
-  'GoodsDialog.fmg': 'Item Prompts',
-  'GoodsInfo.fmg': 'Items',
-  'GoodsInfo2.fmg': 'Items',
-  'GoodsName.fmg': 'Items',
-
-  'GR_Dialogues.fmg': 'UI Prompts',
-  'GR_KeyGuide.fmg': 'UI Prompts',
-  'GR_LineHelp.fmg': 'UI Prompts',
-  'GR_MenuText.fmg': 'UI Prompts',
-  'GR_System_Message_win64.fmg': 'UI Prompts',
-
-  'LoadingTitle.fmg': 'Loading Screen Tutorials',
-  'NetworkMessage.fmg': 'Multiplayer Prompts',
-
-  'NpcName.fmg': 'NPCs',
-  'NpcName_dlc01.fmg': 'NPCs',
-
-  'PlaceName.fmg': 'Locations',
-
-  'ProtectorInfo.fmg': 'Armor',
-  'ProtectorName.fmg': 'Armor',
-
-  'TalkMsg.fmg': 'Dialogues',
-  'TalkMsg_dlc01.fmg': 'Dialogues',
-
-  'TutorialTitle.fmg': 'Tutorials',
-
-  'WeaponEffect.fmg': 'Weapon Effects',
-  'WeaponInfo.fmg': 'Arrow/Bolt Types',
-  'WeaponName.fmg': 'Weapons'
-};
 
 const CATEGORY_ORDER = [
   'Talismans',
@@ -111,6 +64,31 @@ const CATEGORY_ORDER = [
   'Japanese-Exclusive'
 ];
 
+const MERGE_RULES = [
+  {
+    category: 'Talismans',
+    nameCore: 'AccessoryName',
+    infoCores: ['AccessoryInfo']
+  },
+  {
+    category: 'Ashes of War (Item)',
+    nameCore: 'GemName',
+    infoCores: ['GemInfo']
+  },
+  {
+    category: 'Armor',
+    nameCore: 'ProtectorName',
+    infoCores: ['ProtectorInfo'],
+    separator: true
+  },
+  {
+    category: 'Items',
+    nameCore: 'GoodsName',
+    infoCores: ['GoodsInfo', 'GoodsInfo2'],
+    separator: true
+  }
+];
+
 function parseXmlDump(rawText) {
   const normalized = String(rawText || '')
     .replace(/\r/g, '')
@@ -127,8 +105,9 @@ function parseXmlDump(rawText) {
   while ((sectionMatch = sectionRegex.exec(normalized))) {
     const sectionName = sectionMatch[1].trim();
     const sectionBody = sectionMatch[2];
+    const core = getSectionCore(sectionName);
 
-    if (EXCLUDED_SECTIONS.has(sectionName)) continue;
+    if (EXCLUDED_SECTION_CORES.has(core)) continue;
 
     if (!sections.has(sectionName)) {
       sections.set(sectionName, new Map());
@@ -152,51 +131,11 @@ function parseXmlDump(rawText) {
 
 function buildEntriesFromDumps(enSections, jpSections) {
   const built = [];
+  const usedSections = new Set();
 
-  built.push(...mergeNameInfoSections({
-    category: 'Talismans',
-    nameSection: 'AccessoryName.fmg',
-    infoSections: ['AccessoryInfo.fmg'],
-    enSections,
-    jpSections
-  }));
-
-  built.push(...mergeNameInfoSections({
-    category: 'Ashes of War (Item)',
-    nameSection: 'GemName.fmg',
-    infoSections: ['GemInfo.fmg'],
-    enSections,
-    jpSections
-  }));
-
-  built.push(...mergeNameInfoSections({
-    category: 'Armor',
-    nameSection: 'ProtectorName.fmg',
-    infoSections: ['ProtectorInfo.fmg'],
-    enSections,
-    jpSections,
-    separator: true
-  }));
-
-  built.push(...mergeItems(enSections, jpSections));
-
-  built.push(...parseTalkMsgEntries({
-    talkSection: 'TalkMsg.fmg',
-    npcNameSection: 'NpcName.fmg',
-    enSections,
-    jpSections,
-    isDlc: false
-  }));
-
-  built.push(...parseTalkMsgEntries({
-    talkSection: 'TalkMsg_dlc01.fmg',
-    npcNameSection: 'NpcName_dlc01.fmg',
-    enSections,
-    jpSections,
-    isDlc: true
-  }));
-
-  built.push(...collectStandaloneSections(enSections, jpSections));
+  built.push(...buildMergedEntries(enSections, jpSections, usedSections));
+  built.push(...buildDialogueEntries(enSections, jpSections, usedSections));
+  built.push(...collectStandaloneSections(enSections, jpSections, usedSections));
 
   return built
     .filter(entry =>
@@ -211,19 +150,38 @@ function buildEntriesFromDumps(enSections, jpSections) {
     .map(markJapaneseExclusive);
 }
 
-function markJapaneseExclusive(entry) {
-  const hasEnglish = Boolean(entry.nameEn || entry.textEn);
-  const hasJapanese = Boolean(entry.nameJp || entry.textJp);
+function buildMergedEntries(enSections, jpSections, usedSections) {
+  const allSections = getAllSections(enSections, jpSections);
+  const built = [];
 
-  if (!hasEnglish && hasJapanese) {
-    return {
-      ...entry,
-      originalCategory: entry.category,
-      category: 'Japanese-Exclusive'
-    };
+  for (const rule of MERGE_RULES) {
+    const nameSections = allSections.filter(section =>
+      getSectionCore(section) === rule.nameCore
+    );
+
+    for (const nameSection of nameSections) {
+      const suffix = getSectionSuffix(nameSection);
+      const infoSections = rule.infoCores
+        .map(core => findSectionByCoreAndSuffix(allSections, core, suffix))
+        .filter(Boolean);
+
+      if (!infoSections.length) continue;
+
+      built.push(...mergeNameInfoSections({
+        category: rule.category,
+        nameSection,
+        infoSections,
+        enSections,
+        jpSections,
+        separator: Boolean(rule.separator)
+      }));
+
+      usedSections.add(nameSection);
+      infoSections.forEach(section => usedSections.add(section));
+    }
   }
 
-  return entry;
+  return built;
 }
 
 function mergeNameInfoSections({
@@ -234,7 +192,8 @@ function mergeNameInfoSections({
   jpSections,
   separator = false
 }) {
-  const ids = collectIds(enSections, jpSections, [nameSection, ...infoSections]);
+  const sections = [nameSection, ...infoSections];
+  const ids = collectIds(enSections, jpSections, sections);
 
   return ids.map(id => {
     const nameEn = getValue(enSections, nameSection, id);
@@ -249,7 +208,7 @@ function mergeNameInfoSections({
       .filter(Boolean);
 
     return {
-      section: [nameSection, ...infoSections].join(' + '),
+      section: sections.join(' + '),
       category,
       id,
       nameEn,
@@ -261,58 +220,53 @@ function mergeNameInfoSections({
   });
 }
 
-function mergeItems(enSections, jpSections) {
-  const sections = ['GoodsName.fmg', 'GoodsInfo.fmg', 'GoodsInfo2.fmg'];
-  const ids = collectIds(enSections, jpSections, sections);
+function buildDialogueEntries(enSections, jpSections, usedSections) {
+  const allSections = getAllSections(enSections, jpSections);
+  const talkSections = allSections.filter(section =>
+    getSectionCore(section) === 'TalkMsg'
+  );
 
-  return ids.map(id => {
-    const nameEn = getValue(enSections, 'GoodsName.fmg', id);
-    const nameJp = getValue(jpSections, 'GoodsName.fmg', id);
+  const built = [];
 
-    const enParts = [];
-    const jpParts = [];
+  for (const talkSection of talkSections) {
+    const suffix = getSectionSuffix(talkSection);
+    const npcNameSection =
+      findSectionByCoreAndSuffix(allSections, 'NpcName', suffix) ||
+      findSectionByCoreAndSuffix(allSections, 'NpcName', '');
 
-    const enInfo = getValue(enSections, 'GoodsInfo.fmg', id);
-    const jpInfo = getValue(jpSections, 'GoodsInfo.fmg', id);
+    built.push(...parseTalkMsgEntries({
+      talkSection,
+      npcNameSection,
+      enSections,
+      jpSections
+    }));
 
-    const enInfo2 = getValue(enSections, 'GoodsInfo2.fmg', id);
-    const jpInfo2 = getValue(jpSections, 'GoodsInfo2.fmg', id);
+    usedSections.add(talkSection);
+  }
 
-    if (enInfo) enParts.push(enInfo);
-    if (jpInfo) jpParts.push(jpInfo);
-
-    if (enInfo2) enParts.push(enInfo2);
-    if (jpInfo2) jpParts.push(jpInfo2);
-
-    return {
-      section: 'GoodsName.fmg + GoodsInfo.fmg + GoodsInfo2.fmg',
-      category: 'Items',
-      id,
-      nameEn,
-      nameJp,
-      textEn: enParts.join('\n---\n'),
-      textJp: jpParts.join('\n---\n'),
-      type: 'merged'
-    };
-  });
+  return built;
 }
 
 function parseTalkMsgEntries({
   talkSection,
   npcNameSection,
   enSections,
-  jpSections,
-  isDlc = false
+  jpSections
 }) {
   const enTalk = enSections.get(talkSection) || new Map();
   const jpTalk = jpSections.get(talkSection) || new Map();
 
-  const npcNamesEn = buildNpcNameLookup(enSections.get(npcNameSection) || new Map());
-  const npcNamesJp = buildNpcNameLookup(jpSections.get(npcNameSection) || new Map());
+  const npcNamesEn = buildNpcNameLookup(
+    npcNameSection ? enSections.get(npcNameSection) || new Map() : new Map()
+  );
 
-  const ids = [...new Set([...enTalk.keys(), ...jpTalk.keys()])]
+  const npcNamesJp = buildNpcNameLookup(
+    npcNameSection ? jpSections.get(npcNameSection) || new Map() : new Map()
+  );
+
+  const ids = collectRawIds(enTalk, jpTalk)
     .filter(id => /^\d+$/.test(id))
-    .sort((a, b) => Number(a) - Number(b));
+    .sort(sortIds);
 
   const grouped = new Map();
 
@@ -323,9 +277,10 @@ function parseTalkMsgEntries({
     if (!enText && !jpText) continue;
 
     const info = getTalkInfo(id);
+
     const nameEn =
       lookupNpcName(npcNamesEn, info.npcId) ||
-      `Unknown ${isDlc ? 'DLC ' : ''}${info.npcId}`;
+      `Unknown ${info.npcId}`;
 
     const nameJp =
       lookupNpcName(npcNamesJp, info.npcId) ||
@@ -419,51 +374,32 @@ function getTalkInfo(id) {
   };
 }
 
-function collectStandaloneSections(enSections, jpSections) {
-  const alreadyMerged = new Set([
-    'AccessoryName.fmg',
-    'AccessoryInfo.fmg',
-
-    'GemName.fmg',
-    'GemInfo.fmg',
-
-    'GoodsName.fmg',
-    'GoodsInfo.fmg',
-    'GoodsInfo2.fmg',
-
-    'ProtectorName.fmg',
-    'ProtectorInfo.fmg',
-
-    'TalkMsg.fmg',
-    'TalkMsg_dlc01.fmg'
-  ]);
-
-  const allSections = [...new Set([
-    ...enSections.keys(),
-    ...jpSections.keys()
-  ])];
-
+function collectStandaloneSections(enSections, jpSections, usedSections) {
+  const allSections = getAllSections(enSections, jpSections);
   const collected = [];
 
   for (const section of allSections) {
-    if (alreadyMerged.has(section)) continue;
-    if (EXCLUDED_SECTIONS.has(section)) continue;
+    if (usedSections.has(section)) continue;
 
-    const category = SECTION_CATEGORY[section] || section;
+    const core = getSectionCore(section);
+    if (EXCLUDED_SECTION_CORES.has(core)) continue;
+
+    const category = getCategoryForSection(section);
     const ids = collectIds(enSections, jpSections, [section]);
 
     for (const id of ids) {
       const enText = getValue(enSections, section, id);
       const jpText = getValue(jpSections, section, id);
+      const asName = shouldUseTextAsName(section);
 
       collected.push({
         section,
         category,
         id,
-        nameEn: shouldUseTextAsName(section) ? enText : '',
-        nameJp: shouldUseTextAsName(section) ? jpText : '',
-        textEn: shouldUseTextAsName(section) ? '' : enText,
-        textJp: shouldUseTextAsName(section) ? '' : jpText,
+        nameEn: asName ? enText : '',
+        nameJp: asName ? jpText : '',
+        textEn: asName ? '' : enText,
+        textJp: asName ? '' : jpText,
         type: 'single'
       });
     }
@@ -473,15 +409,94 @@ function collectStandaloneSections(enSections, jpSections) {
 }
 
 function shouldUseTextAsName(section) {
-  return [
-    'ArtsName.fmg',
-    'LoadingTitle.fmg',
-    'NpcName.fmg',
-    'NpcName_dlc01.fmg',
-    'PlaceName.fmg',
-    'TutorialTitle.fmg',
-    'WeaponName.fmg'
-  ].includes(section);
+  const core = getSectionCore(section);
+
+  return (
+    core.endsWith('Name') ||
+    core.endsWith('Title') ||
+    core === 'NpcName' ||
+    core === 'PlaceName' ||
+    core === 'LoadingTitle'
+  );
+}
+
+function markJapaneseExclusive(entry) {
+  const hasEnglish = Boolean(entry.nameEn || entry.textEn);
+  const hasJapanese = Boolean(entry.nameJp || entry.textJp);
+
+  if (!hasEnglish && hasJapanese) {
+    return {
+      ...entry,
+      originalCategory: entry.category,
+      category: 'Japanese-Exclusive'
+    };
+  }
+
+  return entry;
+}
+
+function getCategoryForSection(section) {
+  const core = getSectionCore(section);
+
+  if (core === 'AccessoryName' || core === 'AccessoryInfo') return 'Talismans';
+  if (core === 'TalkMsg') return 'Dialogues';
+  if (core === 'NpcName') return 'NPCs';
+
+  if (core.startsWith('GR_')) return 'UI Prompts';
+
+  if (core.includes('Goods')) return 'Items';
+  if (core.includes('WeaponName')) return 'Weapons';
+  if (core.includes('WeaponInfo')) return 'Arrow/Bolt Types';
+  if (core.includes('WeaponEffect')) return 'Weapon Effects';
+  if (core.includes('Protector')) return 'Armor';
+  if (core.includes('Gem')) return 'Ashes of War (Item)';
+  if (core.includes('Arts')) return 'Ashes of War';
+
+  if (core.includes('PlaceName')) return 'Locations';
+  if (core.includes('BloodMsg')) return 'Messages';
+  if (core.includes('ActionButton')) return 'Interactions';
+  if (core.includes('GoodsDialog')) return 'Item Prompts';
+  if (core.includes('EventTextForMap')) return 'Event Texts';
+  if (core.includes('EventTextForTalk')) return 'UI Messages';
+  if (core.includes('Tutorial')) return 'Tutorials';
+  if (core.includes('LoadingTitle')) return 'Loading Screen Tutorials';
+  if (core.includes('Network')) return 'Multiplayer Prompts';
+
+  return cleanSectionName(section);
+}
+
+function getAllSections(enSections, jpSections) {
+  return [...new Set([
+    ...enSections.keys(),
+    ...jpSections.keys()
+  ])].sort((a, b) => a.localeCompare(b));
+}
+
+function getSectionCore(section) {
+  return String(section || '')
+    .replace(/\.fmg$/i, '')
+    .replace(/_dlc\d+$/i, '');
+}
+
+function getSectionSuffix(section) {
+  const match = String(section || '').match(/(_dlc\d+)\.fmg$/i);
+  return match ? match[1] : '';
+}
+
+function findSectionByCoreAndSuffix(allSections, core, suffix) {
+  return allSections.find(section =>
+    getSectionCore(section) === core &&
+    getSectionSuffix(section) === suffix
+  ) || '';
+}
+
+function cleanSectionName(section) {
+  return String(section || '')
+    .replace(/\.fmg$/i, '')
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\bdlc(\d+)\b/i, 'DLC $1')
+    .trim();
 }
 
 function collectIds(enSections, jpSections, sectionNames) {
@@ -500,7 +515,29 @@ function collectIds(enSections, jpSections, sectionNames) {
     }
   }
 
-  return [...ids].sort((a, b) => Number(a) - Number(b));
+  return [...ids].sort(sortIds);
+}
+
+function collectRawIds(...maps) {
+  const ids = new Set();
+
+  for (const map of maps) {
+    if (!map) continue;
+    for (const id of map.keys()) ids.add(id);
+  }
+
+  return [...ids];
+}
+
+function sortIds(a, b) {
+  const numA = Number(a);
+  const numB = Number(b);
+
+  if (Number.isFinite(numA) && Number.isFinite(numB)) {
+    return numA - numB;
+  }
+
+  return String(a).localeCompare(String(b));
 }
 
 function getValue(sectionMap, section, id) {
