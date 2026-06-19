@@ -171,7 +171,19 @@ input[type="search"] {
   right: 12px;
   padding: 7px 11px;
   font-size: 0.78rem;
-  z-index: 1;
+  z-index: 2;
+}
+
+.lang-btn {
+  position: absolute;
+  top: 12px;
+  right: 78px;
+  padding: 7px 11px;
+  font-size: 0.78rem;
+  z-index: 2;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--border);
 }
 
 .entry-section {
@@ -197,7 +209,6 @@ input[type="search"] {
   color: var(--text);
 }
 
-
 .entry-name-link {
   padding: 0;
   background: transparent;
@@ -209,6 +220,9 @@ input[type="search"] {
   text-align: left;
 }
 
+.entry-name-link:hover {
+  text-decoration: underline;
+}
 
 .entry-id {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
