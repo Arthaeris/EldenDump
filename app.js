@@ -87,7 +87,7 @@ const MERGE_RULES = [
   {
     category: 'Armor',
     nameCore: 'ProtectorName',
-    infoCores: ['ProtectorInfo'],
+    infoCores: ['ProtectorInfo', 'ProtectorCaption'],
     separator: true
   },
   {
