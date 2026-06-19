@@ -1145,8 +1145,14 @@ document.addEventListener('click', async event => {
   if (!card) return;
 
   const currentMode = card.dataset.mode || 'ids';
-  card.dataset.mode = currentMode === 'ids' ? 'clean' : 'ids';
-});
+
+if (currentMode === 'ids') {
+  card.dataset.mode = 'clean';
+} else if (currentMode === 'clean') {
+  card.dataset.mode = 'code';
+} else {
+  card.dataset.mode = 'ids';
+}
 
 function decodeHtml(value) {
   const textarea = document.createElement('textarea');
