@@ -1160,13 +1160,14 @@ if (mode === 'clean') {
 
   const currentMode = card.dataset.mode || 'ids';
 
-if (currentMode === 'ids') {
-  card.dataset.mode = 'clean';
-} else if (currentMode === 'clean') {
-  card.dataset.mode = 'code';
-} else {
-  card.dataset.mode = 'ids';
-}
+  if (currentMode === 'ids') {
+    card.dataset.mode = 'clean';
+  } else if (currentMode === 'clean') {
+    card.dataset.mode = 'code';
+  } else {
+    card.dataset.mode = 'ids';
+  }
+});
 
 function decodeHtml(value) {
   const textarea = document.createElement('textarea');
