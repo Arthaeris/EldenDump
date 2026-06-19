@@ -44,8 +44,10 @@ const EXCLUDED_SECTION_CORES = new Set([
   'GemEffect',
   'MagicInfo',
   'MagicName',
+  'MagicCaption',
   'TextEmbedImageName_win64',
-  'ToS_win64'
+  'ToS_win64',
+  'MovieSubtitle'
 ]);
 
 const CATEGORY_ORDER = [
