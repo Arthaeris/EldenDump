@@ -143,7 +143,19 @@ input[type="search"] {
 }
 
 .entry {
+  position: relative;
   padding: 16px;
+  padding-top: 54px;
+  cursor: pointer;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 7px 11px;
+  font-size: 0.78rem;
+  z-index: 1;
 }
 
 .entry-section {
@@ -177,6 +189,19 @@ input[type="search"] {
 .entry-text {
   line-height: 1.6;
   color: var(--text);
+}
+
+.entry[data-mode="ids"] .entry-text-clean {
+  display: none;
+}
+
+.entry[data-mode="clean"] .entry-id,
+.entry[data-mode="clean"] .entry-text-ids {
+  display: none;
+}
+
+.entry[data-mode="clean"] .entry-text-clean {
+  display: block;
 }
 
 .entry-text hr {
