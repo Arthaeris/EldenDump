@@ -28,16 +28,24 @@ const backFromDialogueBtn = document.querySelector('#backFromDialogueBtn');
 const EN_SOURCE = './pc-engus-er-1.16.txt';
 const JP_SOURCE = './pc-jpnjp-er-1.16.txt';
 
+const PAGE_SIZE = 80;
+
 let entries = [];
 let categories = new Map();
 let npcGroups = new Map();
 let activeLanguage = 'en';
 
+let currentRenderTarget = results;
+let currentVisibleEntries = [];
+let renderedEntryCount = 0;
+let isAppending = false;
+
 const EXCLUDED_SECTION_CORES = new Set([
   'GemEffect',
   'MagicInfo',
   'MagicName',
-  'TextEmbedImageName_win64'
+  'TextEmbedImageName_win64',
+  'ToS_win64'
 ]);
 
 const CATEGORY_ORDER = [
@@ -107,6 +115,7 @@ function parseXmlDump(rawText) {
     const sectionBody = sectionMatch[2];
     const core = getSectionCore(sectionName);
 
+    if (sectionName.includes('_dlc02')) continue;
     if (EXCLUDED_SECTION_CORES.has(core)) continue;
 
     if (!sections.has(sectionName)) {
@@ -173,7 +182,8 @@ function buildMergedEntries(enSections, jpSections, usedSections) {
         infoSections,
         enSections,
         jpSections,
-        separator: Boolean(rule.separator)
+        separator: Boolean(rule.separator),
+        isDlc: Boolean(suffix)
       }));
 
       usedSections.add(nameSection);
@@ -190,7 +200,8 @@ function mergeNameInfoSections({
   infoSections,
   enSections,
   jpSections,
-  separator = false
+  separator = false,
+  isDlc = false
 }) {
   const sections = [nameSection, ...infoSections];
   const ids = collectIds(enSections, jpSections, sections);
@@ -215,6 +226,7 @@ function mergeNameInfoSections({
       nameJp,
       textEn: textEnParts.join(separator ? '\n---\n' : '\n\n'),
       textJp: textJpParts.join(separator ? '\n---\n' : '\n\n'),
+      isDlc,
       type: 'merged'
     };
   });
@@ -238,7 +250,8 @@ function buildDialogueEntries(enSections, jpSections, usedSections) {
       talkSection,
       npcNameSection,
       enSections,
-      jpSections
+      jpSections,
+      isDlc: Boolean(suffix)
     }));
 
     usedSections.add(talkSection);
@@ -251,7 +264,8 @@ function parseTalkMsgEntries({
   talkSection,
   npcNameSection,
   enSections,
-  jpSections
+  jpSections,
+  isDlc = false
 }) {
   const enTalk = enSections.get(talkSection) || new Map();
   const jpTalk = jpSections.get(talkSection) || new Map();
@@ -301,6 +315,7 @@ function parseTalkMsgEntries({
         talkSection: info.section,
         linesEn: [],
         linesJp: [],
+        isDlc,
         type: 'talk'
       });
     }
@@ -323,6 +338,7 @@ function parseTalkMsgEntries({
     talkSection: group.talkSection,
     textEn: group.linesEn.join('\n'),
     textJp: group.linesJp.join('\n'),
+    isDlc: group.isDlc,
     type: group.type
   }));
 }
@@ -340,6 +356,10 @@ function buildNpcNameLookup(sectionMap) {
     lookup.set(raw, name);
     lookup.set(padded, name);
     lookup.set(unpadded, name);
+
+    if (/^\d{6}$/.test(raw)) {
+      lookup.set(raw.slice(1, 5), name);
+    }
   }
 
   return lookup;
@@ -386,6 +406,7 @@ function collectStandaloneSections(enSections, jpSections, usedSections) {
 
     const category = getCategoryForSection(section);
     const ids = collectIds(enSections, jpSections, [section]);
+    const isDlc = Boolean(getSectionSuffix(section));
 
     for (const id of ids) {
       const enText = getValue(enSections, section, id);
@@ -400,6 +421,7 @@ function collectStandaloneSections(enSections, jpSections, usedSections) {
         nameJp: asName ? jpText : '',
         textEn: asName ? '' : enText,
         textJp: asName ? '' : jpText,
+        isDlc,
         type: 'single'
       });
     }
@@ -444,10 +466,13 @@ function getCategoryForSection(section) {
 
   if (core.startsWith('GR_')) return 'UI Prompts';
 
+  if (core.includes('GoodsDialog')) return 'Item Prompts';
   if (core.includes('Goods')) return 'Items';
+
   if (core.includes('WeaponName')) return 'Weapons';
   if (core.includes('WeaponInfo')) return 'Arrow/Bolt Types';
   if (core.includes('WeaponEffect')) return 'Weapon Effects';
+
   if (core.includes('Protector')) return 'Armor';
   if (core.includes('Gem')) return 'Ashes of War (Item)';
   if (core.includes('Arts')) return 'Ashes of War';
@@ -455,7 +480,6 @@ function getCategoryForSection(section) {
   if (core.includes('PlaceName')) return 'Locations';
   if (core.includes('BloodMsg')) return 'Messages';
   if (core.includes('ActionButton')) return 'Interactions';
-  if (core.includes('GoodsDialog')) return 'Item Prompts';
   if (core.includes('EventTextForMap')) return 'Event Texts';
   if (core.includes('EventTextForTalk')) return 'UI Messages';
   if (core.includes('Tutorial')) return 'Tutorials';
@@ -605,12 +629,46 @@ function render() {
 
   count.textContent = `${visible.length} ${visible.length === 1 ? 'entry' : 'entries'}`;
 
-  if (!visible.length) {
-    results.innerHTML = '<div class="empty">No entries found.</div>';
+  renderEntryList({
+    target: results,
+    items: visible,
+    emptyText: 'No entries found.'
+  });
+}
+
+function renderEntryList({ target, items, emptyText }) {
+  currentRenderTarget = target;
+  currentVisibleEntries = items;
+  renderedEntryCount = 0;
+
+  if (!items.length) {
+    target.innerHTML = `<div class="empty">${emptyText}</div>`;
     return;
   }
 
-  results.innerHTML = visible.map(renderEntry).join('');
+  target.innerHTML = '';
+  appendNextEntries();
+}
+
+function appendNextEntries() {
+  if (isAppending) return;
+  if (!currentRenderTarget) return;
+  if (renderedEntryCount >= currentVisibleEntries.length) return;
+
+  isAppending = true;
+
+  const nextItems = currentVisibleEntries.slice(
+    renderedEntryCount,
+    renderedEntryCount + PAGE_SIZE
+  );
+
+  currentRenderTarget.insertAdjacentHTML(
+    'beforeend',
+    nextItems.map(renderEntry).join('')
+  );
+
+  renderedEntryCount += nextItems.length;
+  isAppending = false;
 }
 
 function renderEntry(e) {
@@ -625,9 +683,18 @@ function renderEntry(e) {
   const name = getName(e, lang);
   const text = getText(e, lang);
 
+  const hasEnglish = Boolean(getName(e, 'en') || getText(e, 'en'));
   const hasJapanese = Boolean(getName(e, 'jp') || getText(e, 'jp'));
-  const languageButton = hasJapanese
-    ? `<button class="lang-btn" type="button" data-language-toggle>${lang === 'en' ? 'JP' : 'EN'}</button>`
+
+  const languageControl =
+    hasEnglish && hasJapanese
+      ? `<button class="lang-btn" type="button" data-language-toggle>${lang === 'en' ? 'JP' : 'EN'}</button>`
+      : !hasEnglish && hasJapanese
+        ? `<span class="tag-badge lang-static">JP-only</span>`
+        : '';
+
+  const dlcBadge = e.isDlc
+    ? `<span class="tag-badge dlc-badge">DLC</span>`
     : '';
 
   return `
@@ -650,8 +717,11 @@ function renderEntry(e) {
       data-copy-clean-en="${escapeAttribute(getCopyTextClean(e, 'en'))}"
       data-copy-clean-jp="${escapeAttribute(getCopyTextClean(e, 'jp'))}"
     >
-      <button class="copy-btn" type="button">Copy</button>
-      ${languageButton}
+      <div class="entry-actions">
+        ${dlcBadge}
+        ${languageControl}
+        <button class="copy-btn" type="button">Copy</button>
+      </div>
 
       <div class="entry-section">${escapeHtml(metaParts.join(' · '))}</div>
 
@@ -792,9 +862,12 @@ function showCategory(categoryName) {
   const items = categories.get(categoryName) || [];
 
   categoryTitle.textContent = categoryName;
-  categoryResults.innerHTML = items.length
-    ? items.map(renderEntry).join('')
-    : '<div class="empty">No entries found.</div>';
+
+  renderEntryList({
+    target: categoryResults,
+    items,
+    emptyText: 'No entries found.'
+  });
 
   searchView.hidden = true;
   categoryView.hidden = false;
@@ -844,9 +917,11 @@ function showDialogue(npcKey) {
 
   dialogueTitle.textContent = first ? getName(first, activeLanguage) : 'Dialogues';
 
-  dialogueResults.innerHTML = group.length
-    ? group.map(renderEntry).join('')
-    : '<div class="empty">No dialogue found.</div>';
+  renderEntryList({
+    target: dialogueResults,
+    items: group,
+    emptyText: 'No dialogue found.'
+  });
 
   searchView.hidden = true;
   categoryView.hidden = true;
@@ -938,7 +1013,19 @@ async function loadDump() {
   }
 }
 
+function handleScroll() {
+  const distanceFromBottom =
+    document.documentElement.scrollHeight -
+    window.innerHeight -
+    window.scrollY;
+
+  if (distanceFromBottom < 900) {
+    appendNextEntries();
+  }
+}
+
 search.addEventListener('input', render);
+window.addEventListener('scroll', handleScroll, { passive: true });
 
 document.addEventListener('click', async event => {
   const languageButton = event.target.closest('[data-language-toggle]');
