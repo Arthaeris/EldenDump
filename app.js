@@ -2,7 +2,32 @@ const search = document.querySelector('#search');
 const results = document.querySelector('#results');
 const count = document.querySelector('#count');
 
+const menu = document.querySelector('#menu');
+const menuOverlay = document.querySelector('#menuOverlay');
+const menuBtn = document.querySelector('#menuBtn');
+const closeMenuBtn = document.querySelector('#closeMenuBtn');
+const homeBtn = document.querySelector('#homeBtn');
+const categoryList = document.querySelector('#categoryList');
+const npcIndexBtn = document.querySelector('#npcIndexBtn');
+
+const searchView = document.querySelector('#searchView');
+const categoryView = document.querySelector('#categoryView');
+const npcView = document.querySelector('#npcView');
+const dialogueView = document.querySelector('#dialogueView');
+
+const categoryTitle = document.querySelector('#categoryTitle');
+const categoryResults = document.querySelector('#categoryResults');
+const npcList = document.querySelector('#npcList');
+const dialogueTitle = document.querySelector('#dialogueTitle');
+const dialogueResults = document.querySelector('#dialogueResults');
+
+const backFromCategoryBtn = document.querySelector('#backFromCategoryBtn');
+const backFromNpcBtn = document.querySelector('#backFromNpcBtn');
+const backFromDialogueBtn = document.querySelector('#backFromDialogueBtn');
+
 let entries = [];
+let categories = new Map();
+let npcGroups = new Map();
 
 const EXCLUDED_SECTIONS = new Set([
   'GemEffect.fmg',
@@ -21,6 +46,61 @@ const NAME_FIRST_SECTIONS = new Set([
   'TutorialTitle.fmg',
   'WeaponName.fmg'
 ]);
+
+const SECTION_CATEGORY = {
+  'ActionButtonText.fmg': 'Interactions',
+  'ArtsName.fmg': 'Ashes of War',
+  'BloodMsg.fmg': 'Messages',
+  'EventTextForMap.fmg': 'Event Texts',
+  'EventTextForTalk.fmg': 'UI Messages',
+  'GemInfo.fmg': 'Ashes of War (Item)',
+  'GemName.fmg': 'Ashes of War (Item)',
+  'GoodsDialog.fmg': 'Item Prompts',
+  'GoodsInfo.fmg': 'Items',
+  'GoodsInfo2.fmg': 'Items',
+  'GoodsName.fmg': 'Items',
+  'GR_Dialogues.fmg': 'UI Prompts',
+  'GR_KeyGuide.fmg': 'UI Prompts',
+  'GR_LineHelp.fmg': 'UI Prompts',
+  'GR_MenuText.fmg': 'UI Prompts',
+  'GR_System_Message_win64.fmg': 'UI Prompts',
+  'LoadingTitle.fmg': 'Loading Screen Tutorials',
+  'NetworkMessage.fmg': 'Multiplayer Prompts',
+  'NpcName.fmg': 'NPCs',
+  'PlaceName.fmg': 'Locations',
+  'ProtectorInfo.fmg': 'Armor',
+  'ProtectorName.fmg': 'Armor',
+  'TalkMsg.fmg': 'Dialogues',
+  'TutorialTitle.fmg': 'Tutorials',
+  'WeaponEffect.fmg': 'Weapon Effects',
+  'WeaponInfo.fmg': 'Arrow/Bolt Types',
+  'WeaponName.fmg': 'Weapons',
+  'AccessoryInfo.fmg': 'Talismans',
+  'AccessoryName.fmg': 'Talismans'
+};
+
+const CATEGORY_ORDER = [
+  'Talismans',
+  'Weapons',
+  'Armor',
+  'Items',
+  'Ashes of War',
+  'Ashes of War (Item)',
+  'Arrow/Bolt Types',
+  'Weapon Effects',
+  'NPCs',
+  'Dialogues',
+  'Locations',
+  'Messages',
+  'Interactions',
+  'Item Prompts',
+  'Event Texts',
+  'UI Messages',
+  'UI Prompts',
+  'Loading Screen Tutorials',
+  'Tutorials',
+  'Multiplayer Prompts'
+];
 
 const TALK_ID_NAMES = {
   '0208': 'Dungeater',
@@ -66,22 +146,33 @@ const TALK_SECTION_NAMES = {
 
 function parseEntries(text) {
   const normalized = normalizeText(text);
-  const sections = splitIntoSections(normalized);
-  const parsed = [];
+  const rawSections = splitIntoSections(normalized);
+  const sectionEntries = new Map();
 
-  for (const section of sections) {
+  for (const section of rawSections) {
     if (EXCLUDED_SECTIONS.has(section.name)) continue;
 
     if (section.name === 'TalkMsg.fmg') {
-      parsed.push(...parseTalkMsgSection(section));
+      sectionEntries.set(section.name, parseTalkMsgSection(section));
     } else if (NAME_FIRST_SECTIONS.has(section.name)) {
-      parsed.push(...parseNameFirstSection(section));
+      sectionEntries.set(section.name, parseNameFirstSection(section));
     } else {
-      parsed.push(...parseIdFirstSection(section));
+      sectionEntries.set(section.name, parseIdFirstSection(section));
     }
   }
 
-  return parsed;
+  const parsed = [
+    ...mergeTalismans(sectionEntries),
+    ...mergeAshOfWarItems(sectionEntries),
+    ...mergeItems(sectionEntries),
+    ...mergeArmor(sectionEntries),
+    ...collectStandaloneSections(sectionEntries)
+  ];
+
+  return parsed.map(entry => ({
+    ...entry,
+    category: entry.category || SECTION_CATEGORY[entry.section] || entry.section
+  }));
 }
 
 function normalizeText(text) {
@@ -128,7 +219,8 @@ function parseIdFirstSection(section) {
       id,
       name: '',
       text: cleanBodyText(body),
-      type: 'id-first'
+      type: 'id-first',
+      category: SECTION_CATEGORY[section.name] || section.name
     };
   }).filter(entry => entry.id && entry.text);
 }
@@ -149,7 +241,8 @@ function parseNameFirstSection(section) {
       id,
       name,
       text: cleanBodyText(body),
-      type: 'name-first'
+      type: 'name-first',
+      category: SECTION_CATEGORY[section.name] || section.name
     };
   }).filter(entry => entry.id && (entry.name || entry.text));
 }
@@ -177,7 +270,7 @@ function parseTalkMsgSection(section) {
 
     if (/^\d{4}$/.test(line)) {
       segment = line;
-      npcName = TALK_ID_NAMES[segment] || '';
+      npcName = TALK_ID_NAMES[segment] || `Unknown ${segment}`;
       talkSection = '';
       continue;
     }
@@ -208,10 +301,11 @@ function parseTalkMsgSection(section) {
 
     parsed.push({
       section: section.name,
+      category: 'Dialogues',
       segment,
       talkSection,
       id,
-      name: npcName,
+      name: npcName || `Unknown ${segment || 'NPC'}`,
       text: cleanBodyText(body),
       type: 'talk'
     });
@@ -220,11 +314,168 @@ function parseTalkMsgSection(section) {
   return parsed;
 }
 
-function cleanBodyText(value) {
-  return String(value || '')
-    .replace(/\n{3,}/g, '\n\n')
-    .replace(/[ \t]+/g, ' ')
-    .trim();
+function mergeTalismans(sectionEntries) {
+  return mergeNameInfoSections({
+    category: 'Talismans',
+    nameSection: 'AccessoryName.fmg',
+    infoSection: 'AccessoryInfo.fmg',
+    sectionEntries
+  });
+}
+
+function mergeAshOfWarItems(sectionEntries) {
+  return mergeNameInfoSections({
+    category: 'Ashes of War (Item)',
+    nameSection: 'GemName.fmg',
+    infoSection: 'GemInfo.fmg',
+    sectionEntries
+  });
+}
+
+function mergeArmor(sectionEntries) {
+  return mergeNameInfoSections({
+    category: 'Armor',
+    nameSection: 'ProtectorName.fmg',
+    infoSection: 'ProtectorInfo.fmg',
+    sectionEntries,
+    separator: true
+  });
+}
+
+function mergeNameInfoSections({ category, nameSection, infoSection, sectionEntries, separator = false }) {
+  const names = sectionEntries.get(nameSection) || [];
+  const infos = sectionEntries.get(infoSection) || [];
+
+  const nameMap = mapById(names);
+  const infoMap = mapById(infos);
+  const ids = uniqueIds([...names, ...infos]);
+
+  return ids.map(id => {
+    const nameEntry = nameMap.get(id);
+    const infoEntry = infoMap.get(id);
+
+    const parts = [];
+
+    if (infoEntry?.text) parts.push(infoEntry.text);
+    if (nameEntry?.text) parts.push(nameEntry.text);
+
+    return {
+      section: `${nameSection} + ${infoSection}`,
+      category,
+      id,
+      name: nameEntry?.name || '',
+      text: separator ? parts.join('\n---\n') : parts.join('\n\n'),
+      type: 'merged'
+    };
+  }).filter(entry => entry.id && (entry.name || entry.text));
+}
+
+function mergeItems(sectionEntries) {
+  const names = sectionEntries.get('GoodsName.fmg') || [];
+  const infos = sectionEntries.get('GoodsInfo.fmg') || [];
+  const infos2 = sectionEntries.get('GoodsInfo2.fmg') || [];
+
+  const nameMap = mapById(names);
+  const infoMap = mapById(infos);
+  const info2Map = mapById(infos2);
+  const ids = uniqueIds([...names, ...infos, ...infos2]);
+
+  return ids.map(id => {
+    const nameEntry = nameMap.get(id);
+    const infoEntry = infoMap.get(id);
+    const info2Entry = info2Map.get(id);
+
+    const topParts = [];
+
+    if (infoEntry?.text) topParts.push(infoEntry.text);
+    if (nameEntry?.text) topParts.push(nameEntry.text);
+
+    const parts = [];
+
+    if (topParts.length) parts.push(topParts.join('\n\n'));
+    if (info2Entry?.text) parts.push(info2Entry.text);
+
+    return {
+      section: 'GoodsName.fmg + GoodsInfo.fmg + GoodsInfo2.fmg',
+      category: 'Items',
+      id,
+      name: nameEntry?.name || '',
+      text: parts.join('\n---\n'),
+      type: 'merged'
+    };
+  }).filter(entry => entry.id && (entry.name || entry.text));
+}
+
+function collectStandaloneSections(sectionEntries) {
+  const alreadyMerged = new Set([
+    'AccessoryName.fmg',
+    'AccessoryInfo.fmg',
+    'GemName.fmg',
+    'GemInfo.fmg',
+    'GoodsName.fmg',
+    'GoodsInfo.fmg',
+    'GoodsInfo2.fmg',
+    'ProtectorName.fmg',
+    'ProtectorInfo.fmg'
+  ]);
+
+  const collected = [];
+
+  for (const [sectionName, items] of sectionEntries.entries()) {
+    if (alreadyMerged.has(sectionName)) continue;
+
+    collected.push(...items.map(item => ({
+      ...item,
+      category: SECTION_CATEGORY[sectionName] || sectionName
+    })));
+  }
+
+  return collected;
+}
+
+function mapById(items) {
+  return new Map(items.map(item => [item.id, item]));
+}
+
+function uniqueIds(items) {
+  return [...new Set(items.map(item => item.id))];
+}
+
+function buildIndexes() {
+  categories = new Map();
+  npcGroups = new Map();
+
+  for (const entry of entries) {
+    if (!categories.has(entry.category)) {
+      categories.set(entry.category, []);
+    }
+
+    categories.get(entry.category).push(entry);
+
+    if (entry.category === 'Dialogues') {
+      const npcKey = entry.name || `Unknown ${entry.segment || 'NPC'}`;
+
+      if (!npcGroups.has(npcKey)) {
+        npcGroups.set(npcKey, []);
+      }
+
+      npcGroups.get(npcKey).push(entry);
+    }
+  }
+}
+
+function renderCategoryMenu() {
+  const names = CATEGORY_ORDER.filter(name => categories.has(name));
+
+  categoryList.innerHTML = names.map(name => `
+    <button class="menu-item" data-category="${escapeHtml(name)}">
+      ${escapeHtml(name)}
+    </button>
+  `).join('');
+
+  categoryList.querySelectorAll('[data-category]').forEach(button => {
+    button.addEventListener('click', () => showCategory(button.dataset.category));
+  });
 }
 
 function render() {
@@ -232,6 +483,7 @@ function render() {
 
   const visible = entries.filter(e =>
     !q ||
+    e.category.toLowerCase().includes(q) ||
     e.section.toLowerCase().includes(q) ||
     e.id.includes(q) ||
     e.name.toLowerCase().includes(q) ||
@@ -251,8 +503,9 @@ function render() {
 }
 
 function renderEntry(e) {
-  const metaParts = [e.section];
+  const metaParts = [e.category];
 
+  if (e.category !== e.section && e.section) metaParts.push(e.section);
   if (e.segment) metaParts.push(`NPC ${e.segment}`);
   if (e.talkSection) metaParts.push(e.talkSection);
 
@@ -265,9 +518,102 @@ function renderEntry(e) {
         <div class="entry-id">[${escapeHtml(e.id)}]</div>
       </div>
 
-      ${e.text ? `<div class="entry-text">${escapeHtml(e.text).replace(/\n/g, '<br>')}</div>` : ''}
+      ${e.text ? `<div class="entry-text">${formatEntryText(e.text)}</div>` : ''}
     </article>
   `;
+}
+
+function formatEntryText(text) {
+  return escapeHtml(text)
+    .replace(/\n---\n/g, '<hr>')
+    .replace(/\n/g, '<br>');
+}
+
+function showHome() {
+  searchView.hidden = false;
+  categoryView.hidden = true;
+  npcView.hidden = true;
+  dialogueView.hidden = true;
+  closeMenu();
+  render();
+}
+
+function showCategory(categoryName) {
+  const items = categories.get(categoryName) || [];
+
+  categoryTitle.textContent = categoryName;
+  categoryResults.innerHTML = items.length
+    ? items.map(renderEntry).join('')
+    : '<div class="empty">No entries found.</div>';
+
+  searchView.hidden = true;
+  categoryView.hidden = false;
+  npcView.hidden = true;
+  dialogueView.hidden = true;
+
+  closeMenu();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showNpcIndex() {
+  const names = [...npcGroups.keys()].sort((a, b) => a.localeCompare(b));
+
+  npcList.innerHTML = names.map(name => {
+    const group = npcGroups.get(name) || [];
+    const segmentCount = new Set(group.map(entry => entry.segment).filter(Boolean)).size;
+
+    return `
+      <button class="npc-item" data-npc="${escapeHtml(name)}">
+        <span>${escapeHtml(name)}</span>
+        <small>${group.length} entries · ${segmentCount} segments</small>
+      </button>
+    `;
+  }).join('');
+
+  npcList.querySelectorAll('[data-npc]').forEach(button => {
+    button.addEventListener('click', () => showDialogue(button.dataset.npc));
+  });
+
+  searchView.hidden = true;
+  categoryView.hidden = true;
+  npcView.hidden = false;
+  dialogueView.hidden = true;
+
+  closeMenu();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showDialogue(npcName) {
+  const group = npcGroups.get(npcName) || [];
+
+  dialogueTitle.textContent = npcName;
+  dialogueResults.innerHTML = group.length
+    ? group.map(renderEntry).join('')
+    : '<div class="empty">No dialogue found.</div>';
+
+  searchView.hidden = true;
+  categoryView.hidden = true;
+  npcView.hidden = true;
+  dialogueView.hidden = false;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openMenu() {
+  menu.classList.add('open');
+  menuOverlay.classList.add('open');
+}
+
+function closeMenu() {
+  menu.classList.remove('open');
+  menuOverlay.classList.remove('open');
+}
+
+function cleanBodyText(value) {
+  return String(value || '')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]+/g, ' ')
+    .trim();
 }
 
 function escapeHtml(value) {
@@ -295,6 +641,8 @@ async function loadDump() {
     const text = doc.body?.innerText || html;
 
     entries = parseEntries(text);
+    buildIndexes();
+    renderCategoryMenu();
     render();
   } catch (error) {
     count.textContent = '0 entries';
@@ -308,6 +656,17 @@ async function loadDump() {
 }
 
 search.addEventListener('input', render);
+
+menuBtn.addEventListener('click', openMenu);
+closeMenuBtn.addEventListener('click', closeMenu);
+menuOverlay.addEventListener('click', closeMenu);
+
+homeBtn.addEventListener('click', showHome);
+npcIndexBtn.addEventListener('click', showNpcIndex);
+
+backFromCategoryBtn.addEventListener('click', showHome);
+backFromNpcBtn.addEventListener('click', showHome);
+backFromDialogueBtn.addEventListener('click', showNpcIndex);
 
 loadDump();
 
