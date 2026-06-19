@@ -253,6 +253,18 @@ function parseTalkMsgSection(section) {
     .map(line => line.trim())
     .filter(Boolean);
 
+  const npcNameById = {};
+
+  // First pass:
+  // Collect all native Name [1234] definitions.
+  for (const line of lines) {
+    const namedNpcMatch = line.match(/^(.+?)\s*\[(\d{4})\]\s*$/);
+
+    if (namedNpcMatch) {
+      npcNameById[namedNpcMatch[2]] = cleanBodyText(namedNpcMatch[1]);
+    }
+  }
+
   const parsed = [];
 
   let segment = '';
@@ -266,8 +278,8 @@ function parseTalkMsgSection(section) {
     const namedNpcMatch = line.match(/^(.+?)\s*\[(\d{4})\]\s*$/);
 
     if (namedNpcMatch) {
-      npcName = cleanBodyText(namedNpcMatch[1]);
       segment = namedNpcMatch[2];
+      npcName = cleanBodyText(namedNpcMatch[1]);
       talkSection = '';
       continue;
     }
@@ -281,8 +293,7 @@ function parseTalkMsgSection(section) {
       continue;
     }
 
-    // Section header within current NPC block:
-    // Section 01
+    // Section header
     if (/^Section\s+\d+/i.test(line)) {
       talkSection = line;
 
@@ -297,8 +308,7 @@ function parseTalkMsgSection(section) {
       continue;
     }
 
-    // Dialogue line:
-    // [322001000] Greetings...
+    // Dialogue line
     const match = line.match(/^\[(\d+)\]\s*(.*)$/s);
 
     if (!match) continue;
@@ -306,25 +316,39 @@ function parseTalkMsgSection(section) {
     const id = match[1];
     const body = match[2].trim();
 
-    // Skip known dummy entries
     if (id === '100' && body === '(dummyText)') continue;
     if (id === '200' && body === '(dummyText)') continue;
+
+    // Dialogue IDs are usually 9 digits.
+    // First 4 digits identify the NPC.
+    const derivedNpcId =
+      id.length >= 4
+        ? id.substring(0, 4)
+        : segment;
+
+    let finalNpcName = npcName;
+
+    // Only override if we don't already have one from
+    // manual mappings or an active named block.
+    if (
+      (!finalNpcName || finalNpcName.startsWith('Unknown')) &&
+      npcNameById[derivedNpcId]
+    ) {
+      finalNpcName = npcNameById[derivedNpcId];
+    }
 
     parsed.push({
       section: section.name,
       category: 'Dialogues',
 
-      // Current NPC block
-      segment,
-      npcId: segment,
-      npcName: npcName || `Unknown ${segment || 'NPC'}`,
+      segment: derivedNpcId,
+      npcId: derivedNpcId,
+      npcName: finalNpcName || `Unknown ${derivedNpcId}`,
 
-      // Current subsection
       talkSection,
 
-      // Dialogue line
       id,
-      name: npcName || `Unknown ${segment || 'NPC'}`,
+      name: finalNpcName || `Unknown ${derivedNpcId}`,
       text: cleanBodyText(body),
 
       type: 'talk'
