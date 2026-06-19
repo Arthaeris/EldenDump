@@ -400,6 +400,13 @@ input[type="search"] {
   min-width: 0;
 }
 
+.menu-separator {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0 6px;
+  opacity: 0.7;
+}
+
 .npc-item {
   display: grid;
   gap: 3px;
