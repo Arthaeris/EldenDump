@@ -272,9 +272,6 @@ function parseTalkMsgSection(section) {
   let npcName = '';
 
   for (const line of lines) {
-
-    // Named NPC block:
-    // Fia, Deathbed Companion [3220]
     const namedNpcMatch = line.match(/^(.+?)\s*\[(\d{4})\]\s*$/);
 
     if (namedNpcMatch) {
@@ -284,8 +281,6 @@ function parseTalkMsgSection(section) {
       continue;
     }
 
-    // Unnamed NPC block:
-    // 0208
     if (/^\d{4}$/.test(line)) {
       segment = line;
       npcName = TALK_ID_NAMES[segment] || `Unknown ${segment}`;
@@ -293,7 +288,6 @@ function parseTalkMsgSection(section) {
       continue;
     }
 
-    // Section header
     if (/^Section\s+\d+/i.test(line)) {
       talkSection = line;
 
@@ -308,54 +302,72 @@ function parseTalkMsgSection(section) {
       continue;
     }
 
-    // Dialogue line
-    const match = line.match(/^\[(\d+)\]\s*(.*)$/s);
+    const dialogueParts = splitDialogueLine(line);
 
-    if (!match) continue;
+    for (const part of dialogueParts) {
+      const id = part.id;
+      const body = part.text;
 
-    const id = match[1];
-    const body = match[2].trim();
+      if (id === '100' && body === '(dummyText)') continue;
+      if (id === '200' && body === '(dummyText)') continue;
 
-    if (id === '100' && body === '(dummyText)') continue;
-    if (id === '200' && body === '(dummyText)') continue;
+      const derivedNpcId = id.length >= 4 ? id.substring(0, 4) : segment;
 
-    // Dialogue IDs are usually 9 digits.
-    // First 4 digits identify the NPC.
-    const derivedNpcId =
-      id.length >= 4
-        ? id.substring(0, 4)
-        : segment;
+      let finalNpcName = npcName;
 
-    let finalNpcName = npcName;
+      if (
+        (!finalNpcName || finalNpcName.startsWith('Unknown')) &&
+        npcNameById[derivedNpcId]
+      ) {
+        finalNpcName = npcNameById[derivedNpcId];
+      }
 
-    // Only override if we don't already have one from
-    // manual mappings or an active named block.
-    if (
-      (!finalNpcName || finalNpcName.startsWith('Unknown')) &&
-      npcNameById[derivedNpcId]
-    ) {
-      finalNpcName = npcNameById[derivedNpcId];
+      parsed.push({
+        section: section.name,
+        category: 'Dialogues',
+
+        segment: derivedNpcId,
+        npcId: derivedNpcId,
+        npcName: finalNpcName || `Unknown ${derivedNpcId}`,
+
+        talkSection,
+
+        id,
+        name: finalNpcName || `Unknown ${derivedNpcId}`,
+        text: cleanBodyText(body),
+
+        type: 'talk'
+      });
     }
-
-    parsed.push({
-      section: section.name,
-      category: 'Dialogues',
-
-      segment: derivedNpcId,
-      npcId: derivedNpcId,
-      npcName: finalNpcName || `Unknown ${derivedNpcId}`,
-
-      talkSection,
-
-      id,
-      name: finalNpcName || `Unknown ${derivedNpcId}`,
-      text: cleanBodyText(body),
-
-      type: 'talk'
-    });
   }
 
   return parsed;
+}
+
+function splitDialogueLine(line) {
+  const cleaned = line
+    .replace(/\(\s*(?=\[\d+\])/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const matches = [...cleaned.matchAll(/\[(\d+)\]\s*/g)];
+
+  if (!matches.length) return [];
+
+  return matches.map((match, index) => {
+    const nextMatch = matches[index + 1];
+
+    const id = match[1];
+    const start = match.index + match[0].length;
+    const end = nextMatch ? nextMatch.index : cleaned.length;
+
+    const text = cleaned
+      .slice(start, end)
+      .replace(/\(\s*$/g, '')
+      .trim();
+
+    return { id, text };
+  }).filter(part => part.id && part.text);
 }
 function mergeTalismans(sectionEntries) {
   return mergeNameInfoSections({
