@@ -602,6 +602,52 @@ function formatEntryText(text) {
     .replace(/\n/g, '<br>');
 }
 
+
+
+function formatCleanEntryText(text) {
+  return escapeHtml(getCleanText(text))
+    .replace(/\n---\n/g, '<hr>')
+    .replace(/\n/g, '<br>');
+}
+
+function getCopyTextWithIds(e) {
+  const lines = [];
+
+  if (e.name) lines.push(`${e.name} [${e.id}]`);
+  else lines.push(`[${e.id}]`);
+
+  if (e.text) lines.push(e.text);
+
+  return lines.join('\n').trim();
+}
+
+function getCopyTextClean(e) {
+  const lines = [];
+
+  if (e.name) lines.push(e.name);
+
+  if (e.text) lines.push(getCleanText(e.text));
+
+  return lines.join('\n').trim();
+}
+
+function getCleanText(text) {
+  return String(text || '')
+    .replace(/\[(\d+)\]\s*/g, '')
+    .replace(/\n---\n/g, '\n---\n')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .join('\n');
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replace(/"/g, '&quot;');
+}
+
+
+
+
 function showHome() {
   searchView.hidden = false;
   categoryView.hidden = true;
