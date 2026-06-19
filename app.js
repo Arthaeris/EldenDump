@@ -98,6 +98,12 @@ const MERGE_RULES = [
     separator: true
   },
   {
+    category: 'Weapons',
+    nameCore: 'WeaponName',
+    infoCores: ['WeaponEffect', 'WeaponCaption'],
+    separator: true
+  },
+  {
     category: 'Items',
     nameCore: 'GoodsName',
     infoCores: ['GoodsInfo', 'GoodsInfo2'],
