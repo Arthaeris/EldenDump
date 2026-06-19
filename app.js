@@ -386,6 +386,36 @@ function parseTalkMsgSection(section) {
     .filter(entry => entry.text);
 }
 
+
+
+function splitDialogueLine(line) {
+  const cleaned = line
+    .replace(/\(\s*(?=\[\d+\])/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const matches = [...cleaned.matchAll(/\[(\d+)\]\s*/g)];
+
+  if (!matches.length) return [];
+
+  return matches.map((match, index) => {
+    const nextMatch = matches[index + 1];
+
+    const id = match[1];
+    const start = match.index + match[0].length;
+    const end = nextMatch ? nextMatch.index : cleaned.length;
+
+    const text = cleaned
+      .slice(start, end)
+      .replace(/\(\s*$/g, '')
+      .trim();
+
+    return { id, text };
+  }).filter(part => part.id && part.text);
+}
+
+
+
 function mergeTalismans(sectionEntries) {
   return mergeNameInfoSections({
     category: 'Talismans',
