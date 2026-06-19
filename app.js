@@ -758,6 +758,8 @@ const hasJapanese = hasDirectLanguage(e, 'jp');
       data-copy-ids-jp="${escapeAttribute(getCopyTextWithIds(e, 'jp'))}"
       data-copy-clean-en="${escapeAttribute(getCopyTextClean(e, 'en'))}"
       data-copy-clean-jp="${escapeAttribute(getCopyTextClean(e, 'jp'))}"
+      data-copy-code-en="${escapeAttribute(getCopyTextCode(e, 'en'))}"
+      data-copy-code-jp="${escapeAttribute(getCopyTextCode(e, 'jp'))}"
     >
       <div class="entry-actions">
         ${dlcBadge}
