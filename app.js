@@ -641,10 +641,11 @@ function renderCategoryMenu() {
   const names = [...orderedNames, ...extraNames];
 
   categoryList.innerHTML = names.map(name => `
-    <button class="menu-item" data-category="${escapeHtml(name)}">
-      ${escapeHtml(name)}
-    </button>
-  `).join('');
+  ${CATEGORY_SEPARATOR_BEFORE.has(name) ? '<div class="menu-separator"></div>' : ''}
+  <button class="menu-item" data-category="${escapeHtml(name)}">
+    ${escapeHtml(name)}
+  </button>
+`).join('');
 
   categoryList.querySelectorAll('[data-category]').forEach(button => {
     button.addEventListener('click', () => showCategory(button.dataset.category));
