@@ -85,6 +85,11 @@ const MERGE_RULES = [
     infoCores: ['GemInfo']
   },
   {
+    category: 'Loading Screen Tutorials',
+    nameCore: 'LoadingTitle',
+    infoCores: ['LoadingText']
+  },
+  {
     category: 'Armor',
     nameCore: 'ProtectorName',
     infoCores: ['ProtectorInfo', 'ProtectorCaption'],
