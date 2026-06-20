@@ -239,12 +239,20 @@ function mergeNameInfoSections({
     const nameJp = getValue(jpSections, nameSection, id);
 
     const textEnParts = infoSections
-      .map(section => getValue(enSections, section, id))
-      .filter(Boolean);
+  .map(section => getValue(enSections, section, id))
+  .filter(Boolean);
 
-    const textJpParts = infoSections
-      .map(section => getValue(jpSections, section, id))
-      .filter(Boolean);
+const textJpParts = infoSections
+  .map(section => getValue(jpSections, section, id))
+  .filter(Boolean);
+
+const textEn = separator && textEnParts.length
+  ? `---\n${textEnParts.join('\n---\n')}`
+  : textEnParts.join('\n\n');
+
+const textJp = separator && textJpParts.length
+  ? `---\n${textJpParts.join('\n---\n')}`
+  : textJpParts.join('\n\n');
 
     return {
       section: sections.join(' + '),
