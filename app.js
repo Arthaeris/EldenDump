@@ -139,7 +139,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
 
 {
     labelEn: 'Narrator',
-    labelJp: 'メリナ',
+    labelJp: 'Narrator',
     npcId: '1002',
     talkSections: ['TalkMsg.fmg'],
     isDlc: false
@@ -147,7 +147,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
 
 {
     labelEn: 'Narrator',
-    labelJp: 'メリナ',
+    labelJp: 'Narrator',
     npcId: '1003',
     talkSections: ['TalkMsg.fmg'],
     isDlc: false
@@ -155,7 +155,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
 
 {
     labelEn: 'Narrator',
-    labelJp: 'メリナ',
+    labelJp: 'Narrator',
     npcId: '1004',
     talkSections: ['TalkMsg.fmg'],
     isDlc: false
@@ -231,7 +231,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
     npcId: '1051',
     talkSections: ['TalkMsg_01.fmg'],
     isDlc: true
-  },
+  }
 ];
 
 const MANUAL_NPC_SECTION_MAPPINGS = [
