@@ -138,6 +138,28 @@ button.secondary {
   max-width: 100%;
 }
 
+.search-filters {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.search-filter {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.search-filter.active {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
 input[type="search"] {
   flex: 1;
   min-width: 0;
