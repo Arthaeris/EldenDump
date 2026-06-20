@@ -1199,6 +1199,23 @@ function handleScroll() {
 }
 
 search.addEventListener('input', render);
+
+searchFilters.addEventListener('click', event => {
+  const button = event.target.closest('[data-search-filter]');
+  if (!button) return;
+
+  activeSearchFilter = button.dataset.searchFilter;
+
+  searchFilters.querySelectorAll('[data-search-filter]').forEach(filterButton => {
+    filterButton.classList.toggle(
+      'active',
+      filterButton.dataset.searchFilter === activeSearchFilter
+    );
+  });
+
+  render();
+});
+
 window.addEventListener('scroll', handleScroll, { passive: true });
 
 document.addEventListener('click', async event => {
