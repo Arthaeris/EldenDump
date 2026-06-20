@@ -684,6 +684,29 @@ function renderCategoryMenu() {
   });
 }
 
+function updateSearchFilterButtons() {
+  searchFilters.querySelectorAll('[data-clear-filters]').forEach(button => {
+    button.classList.toggle(
+      'active',
+      activeTypeFilter === 'All' && activeFlagFilter === 'All'
+    );
+  });
+
+  searchFilters.querySelectorAll('[data-type-filter]').forEach(button => {
+    button.classList.toggle(
+      'active',
+      button.dataset.typeFilter === activeTypeFilter
+    );
+  });
+
+  searchFilters.querySelectorAll('[data-flag-filter]').forEach(button => {
+    button.classList.toggle(
+      'active',
+      button.dataset.flagFilter === activeFlagFilter
+    );
+  });
+}
+
 function matchesSearchFilter(entry) {
   const matchesType =
     activeTypeFilter === 'All' ||
