@@ -71,6 +71,16 @@
 
     <section id="searchView">
 
+      <section class="toolbar">
+        <input
+          id="search"
+          type="search"
+          placeholder="Search names, IDs, dialogue, descriptions..."
+        />
+
+        <span id="count">0 entries</span>
+      </section>
+
       <section id="searchFilters" class="search-filters">
 
   <div class="filter-group filter-group-all">
@@ -97,8 +107,17 @@
     <span class="filter-label">Flags</span>
 
     <div class="filter-row">
-      <button class="filter-chip" type="button" data-flag-filter="Japanese-Exclusive">JP-only</button>
-      <button class="filter-chip" type="button" data-flag-filter="DLC">DLC</button>
+      <button class="filter-chip" type="button" data-flag-filter="Japanese-Exclusive">
+  JP-only
+</button>
+
+<button class="filter-chip" type="button" data-flag-filter="Base">
+  Base
+</button>
+
+<button class="filter-chip" type="button" data-flag-filter="DLC">
+  DLC
+</button>
     </div>
   </div>
 
@@ -139,16 +158,6 @@
   </div>
 
 </section>
-
-<section class="toolbar">
-        <input
-          id="search"
-          type="search"
-          placeholder="Search names, IDs, dialogue, descriptions..."
-        />
-
-        <span id="count">0 entries</span>
-      </section>
 
       <button
         id="copySearchResultsBtn"
