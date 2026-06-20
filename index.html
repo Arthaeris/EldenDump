@@ -85,47 +85,32 @@
 
       <section id="searchFilters" class="search-filters">
 
-        <button class="filter-chip active" type="button" data-search-filter="All">
-          All
-        </button>
+  <div class="filter-group">
+    <button class="filter-chip active" type="button" data-clear-filters>
+      All
+    </button>
+  </div>
 
-        <button class="filter-chip" type="button" data-search-filter="NPCs">
-          NPCs
-        </button>
+  <div class="filter-group">
+    <span class="filter-label">Type</span>
 
-        <button class="filter-chip" type="button" data-search-filter="Dialogues">
-          Dialogues
-        </button>
+    <button class="filter-chip" type="button" data-type-filter="NPCs">NPCs</button>
+    <button class="filter-chip" type="button" data-type-filter="Dialogues">Dialogues</button>
+    <button class="filter-chip" type="button" data-type-filter="Locations">Locations</button>
+    <button class="filter-chip" type="button" data-type-filter="Items">Items</button>
+    <button class="filter-chip" type="button" data-type-filter="Weapons">Weapons</button>
+    <button class="filter-chip" type="button" data-type-filter="Armor">Armor</button>
+    <button class="filter-chip" type="button" data-type-filter="Talismans">Talismans</button>
+  </div>
 
-        <button class="filter-chip" type="button" data-search-filter="Locations">
-          Locations
-        </button>
+  <div class="filter-group">
+    <span class="filter-label">Flags</span>
 
-        <button class="filter-chip" type="button" data-search-filter="Items">
-          Items
-        </button>
+    <button class="filter-chip" type="button" data-flag-filter="Japanese-Exclusive">JP-only</button>
+    <button class="filter-chip" type="button" data-flag-filter="DLC">DLC</button>
+  </div>
 
-        <button class="filter-chip" type="button" data-search-filter="Weapons">
-          Weapons
-        </button>
-
-        <button class="filter-chip" type="button" data-search-filter="Armor">
-          Armor
-        </button>
-
-        <button class="filter-chip" type="button" data-search-filter="Talismans">
-          Talismans
-        </button>
-
-        <button class="filter-chip" type="button" data-search-filter="Japanese-Exclusive">
-          JP-only
-        </button>
-
-        <button class="filter-chip" type="button" data-search-filter="DLC">
-          DLC
-        </button>
-
-      </section>
+</section>
       
       <button id="copySearchResultsBtn" class="secondary copy-search-btn" type="button">
   Copy all Search Results
