@@ -656,6 +656,20 @@ function renderCategoryMenu() {
   });
 }
 
+function matchesSearchFilter(entry) {
+  if (activeSearchFilter === 'All') return true;
+
+  if (activeSearchFilter === 'DLC') {
+    return Boolean(entry.isDlc);
+  }
+
+  if (activeSearchFilter === 'Japanese-Exclusive') {
+    return entry.category === 'Japanese-Exclusive';
+  }
+
+  return entry.category === activeSearchFilter;
+}
+
 function render() {
   const q = search.value.trim().toLowerCase();
 
