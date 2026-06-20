@@ -822,7 +822,7 @@ const hasJapanese = hasDirectLanguage(e, 'jp');
     <article
       class="entry"
       id="entry-${escapeHtml(e.section)}-${escapeHtml(e.id)}"
-      data-mode="ids"
+      data-mode="${escapeHtml(defaultCardMode)}"
       data-lang="${escapeHtml(lang)}"
 
       data-name-en="${escapeAttribute(getName(e, 'en'))}"
