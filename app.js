@@ -1000,6 +1000,7 @@ const langBtn = card.querySelector('[data-language-toggle]');
   if (nameEl) nameEl.innerHTML = escapeHtml(decodeHtml(name));
   if (idsEl) idsEl.innerHTML = formatEntryText(decodeHtml(textIds));
   if (cleanEl) cleanEl.innerHTML = formatEntryText(decodeHtml(textClean));
+  if (codeEl) codeEl.innerHTML = formatEntryText(`\`\`\`\n${decodeHtml(textClean)}\n\`\`\``);
   if (langBtn) langBtn.textContent = lang === 'en' ? 'JP' : 'EN';
 }
 
