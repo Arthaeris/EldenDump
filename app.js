@@ -497,6 +497,20 @@ function lookupManualNpcName(talkSection, npcId, lang) {
     : mapping.labelEn || mapping.labelJp || '';
 }
 
+function lookupManualNpcSectionName(talkSection, npcId, section, lang) {
+  const mapping = MANUAL_NPC_SECTION_MAPPINGS.find(item =>
+    item.talkSection === talkSection &&
+    item.npcId === npcId &&
+    item.sections.includes(section)
+  );
+
+  if (!mapping) return '';
+
+  return lang === 'jp'
+    ? mapping.labelJp || mapping.labelEn || ''
+    : mapping.labelEn || mapping.labelJp || '';
+}
+
 function getTalkInfo(id) {
   const value = String(id);
 
