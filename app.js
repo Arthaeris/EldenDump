@@ -151,6 +151,7 @@ const MANUAL_NPC_SECTION_MAPPINGS = [
     talkSection: 'TalkMsg.fmg',
     npcId: '0000',
     sections: ['Section 18', 'Section 19'],
+    npcKeySuffix: 'first-manual-npc',
     labelEn: 'First Manual NPC',
     labelJp: '手動NPC 1'
   },
@@ -159,6 +160,7 @@ const MANUAL_NPC_SECTION_MAPPINGS = [
     talkSection: 'TalkMsg.fmg',
     npcId: '0000',
     sections: ['Section 20'],
+    npcKeySuffix: 'second-manual-npc',
     labelEn: 'Second Manual NPC',
     labelJp: '手動NPC 2'
   },
@@ -167,6 +169,7 @@ const MANUAL_NPC_SECTION_MAPPINGS = [
     talkSection: 'TalkMsg_dlc01.fmg',
     npcId: '0000',
     sections: ['Section 02'],
+    npcKeySuffix: 'dlc-manual-npc',
     labelEn: 'DLC Manual NPC',
     labelJp: 'DLC 手動NPC'
   }
