@@ -655,7 +655,7 @@ function buildIndexes() {
     categories.get(entry.category).push(entry);
 
     if (entry.category === 'Dialogues') {
-      const npcKey = entry.npcKey || `${entry.section}|${entry.segment}|${entry.nameEn}`;
+      const npcKey = entry.npcKey || `${entry.section}|${entry.segment}`;
 
       if (!npcGroups.has(npcKey)) {
         npcGroups.set(npcKey, []);
