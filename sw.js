@@ -6,7 +6,11 @@ const FILES = [
   "./styles.css",
   "./app.js",
   "./manifest.json",
-  "./icon.svg"
+  "./icon-192.png",
+  "./icon-512.png",
+  "./apple-touch-icon.png",
+  "./pc-engus-er-1.16.txt",
+  "./pc-jpnjp-er-1.16.txt"
 ];
 
 self.addEventListener("install", event => {
