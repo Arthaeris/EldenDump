@@ -130,18 +130,58 @@ const MERGE_RULES = [
 
 const MANUAL_NPC_TALK_MAPPINGS = [
   {
-    labelEn: 'Manual NPC Name',
-    labelJp: '手動NPC名',
-    npcId: '0000',
+    labelEn: 'Melina',
+    labelJp: 'メリナ',
+    npcId: '1001',
     talkSections: ['TalkMsg.fmg'],
     isDlc: false
   },
 
-  {
-    labelEn: 'Manual DLC NPC Name',
-    labelJp: '手動DLC NPC名',
-    npcId: '0000',
-    talkSections: ['TalkMsg_dlc01.fmg'],
+{
+    labelEn: 'Narrator',
+    labelJp: 'メリナ',
+    npcId: '1002',
+    talkSections: ['TalkMsg.fmg'],
+    isDlc: false
+  },
+
+{
+    labelEn: 'Narrator',
+    labelJp: 'メリナ',
+    npcId: '1003',
+    talkSections: ['TalkMsg.fmg'],
+    isDlc: false
+  },
+
+{
+    labelEn: 'Narrator',
+    labelJp: 'メリナ',
+    npcId: '1004',
+    talkSections: ['TalkMsg.fmg'],
+    isDlc: false
+  },
+
+{
+    labelEn: 'Narrator,
+    labelJp: 'Narrator',
+    npcId: '1005',
+    talkSections: ['TalkMsg.fmg'],
+    isDlc: false
+  },
+
+{
+    labelEn: 'Narrator',
+    labelJp: 'Narrator',
+    npcId: '1006',
+    talkSections: ['TalkMsg.fmg'],
+    isDlc: false
+  },
+
+{
+    labelEn: 'Messmer the Impaler,
+    labelJp: '串刺し公、メスメル',
+    npcId: '1010',
+    talkSections: ['TalkMsg_01.fmg'],
     isDlc: true
   }
 ];
