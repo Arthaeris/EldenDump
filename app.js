@@ -1282,6 +1282,7 @@ const suffix = lang === 'jp' ? 'Jp' : 'En';
 let text;
 
 if (card.classList.contains('full-dialogue-entry')) {
+
   if (mode === 'clean') {
     text = card.dataset.copyClean;
   } else if (mode === 'code') {
@@ -1289,6 +1290,18 @@ if (card.classList.contains('full-dialogue-entry')) {
   } else {
     text = card.dataset.copyIds;
   }
+
+} else {
+
+  if (mode === 'clean') {
+    text = card.dataset[`copyClean${suffix}`];
+  } else if (mode === 'code') {
+    text = card.dataset[`copyCode${suffix}`];
+  } else {
+    text = card.dataset[`copyIds${suffix}`];
+  }
+
+}
 } else if (mode === 'clean') {
   text = card.dataset[`copyClean${suffix}`];
 } else if (mode === 'code') {
