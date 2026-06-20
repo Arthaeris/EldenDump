@@ -132,7 +132,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
   {
     labelEn: 'Manual NPC Name',
     labelJp: '手動NPC名',
-    npcId: '4050',
+    npcId: '0000',
     talkSections: ['TalkMsg.fmg'],
     isDlc: false
   },
@@ -140,7 +140,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
   {
     labelEn: 'Manual DLC NPC Name',
     labelJp: '手動DLC NPC名',
-    npcId: '1345',
+    npcId: '0000',
     talkSections: ['TalkMsg_dlc01.fmg'],
     isDlc: true
   }
@@ -149,7 +149,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
 const MANUAL_NPC_SECTION_MAPPINGS = [
   {
     talkSection: 'TalkMsg.fmg',
-    npcId: '4050',
+    npcId: '0000',
     sections: ['Section 18', 'Section 19'],
     labelEn: 'First Manual NPC',
     labelJp: '手動NPC 1'
@@ -157,7 +157,7 @@ const MANUAL_NPC_SECTION_MAPPINGS = [
 
   {
     talkSection: 'TalkMsg.fmg',
-    npcId: '4050',
+    npcId: '0000',
     sections: ['Section 20'],
     labelEn: 'Second Manual NPC',
     labelJp: '手動NPC 2'
@@ -165,7 +165,7 @@ const MANUAL_NPC_SECTION_MAPPINGS = [
 
   {
     talkSection: 'TalkMsg_dlc01.fmg',
-    npcId: '1345',
+    npcId: '0000',
     sections: ['Section 02'],
     labelEn: 'DLC Manual NPC',
     labelJp: 'DLC 手動NPC'
