@@ -19,9 +19,9 @@
 
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-
   <link rel="stylesheet" href="./styles.css" />
 </head>
+
 <body>
 
   <button
@@ -52,13 +52,11 @@
       <h3>Categories</h3>
       <div id="categoryList"></div>
     </div>
-
   </aside>
 
   <div id="menuOverlay" class="menu-overlay"></div>
 
   <header>
-
     <div class="header-row">
       <h1>EldenDump</h1>
     </div>
@@ -67,7 +65,6 @@
       Search English and Japanese Elden Ring FMG entries, dialogue,
       item names, descriptions, locations, and system text.
     </p>
-
   </header>
 
   <main>
@@ -80,41 +77,80 @@
           type="search"
           placeholder="Search names, IDs, dialogue, descriptions..."
         />
+
         <span id="count">0 entries</span>
       </section>
 
       <section id="searchFilters" class="search-filters">
 
-  <div class="filter-group">
-    <button class="filter-chip active" type="button" data-clear-filters>
-      All
-    </button>
-  </div>
+        <div class="filter-group">
+          <button
+            class="filter-chip active"
+            type="button"
+            data-clear-filters>
+            All
+          </button>
+        </div>
 
-  <div class="filter-group">
-    <span class="filter-label">Type</span>
+        <div class="filter-group">
+          <span class="filter-label">Type</span>
 
-    <button class="filter-chip" type="button" data-type-filter="NPCs">NPCs</button>
-    <button class="filter-chip" type="button" data-type-filter="Dialogues">Dialogues</button>
-    <button class="filter-chip" type="button" data-type-filter="Locations">Locations</button>
-    <button class="filter-chip" type="button" data-type-filter="Items">Items</button>
-    <button class="filter-chip" type="button" data-type-filter="Weapons">Weapons</button>
-    <button class="filter-chip" type="button" data-type-filter="Armor">Armor</button>
-    <button class="filter-chip" type="button" data-type-filter="Talismans">Talismans</button>
-  </div>
+          <div class="filter-row">
+            <button class="filter-chip" type="button" data-type-filter="NPCs">
+              NPCs
+            </button>
 
-  <div class="filter-group">
-    <span class="filter-label">Flags</span>
+            <button class="filter-chip" type="button" data-type-filter="Dialogues">
+              Dialogues
+            </button>
 
-    <button class="filter-chip" type="button" data-flag-filter="Japanese-Exclusive">JP-only</button>
-    <button class="filter-chip" type="button" data-flag-filter="DLC">DLC</button>
-  </div>
+            <button class="filter-chip" type="button" data-type-filter="Locations">
+              Locations
+            </button>
 
-</section>
-      
-      <button id="copySearchResultsBtn" class="secondary copy-search-btn" type="button">
-  Copy all Search Results
-</button>
+            <button class="filter-chip" type="button" data-type-filter="Items">
+              Items
+            </button>
+
+            <button class="filter-chip" type="button" data-type-filter="Weapons">
+              Weapons
+            </button>
+
+            <button class="filter-chip" type="button" data-type-filter="Armor">
+              Armor
+            </button>
+
+            <button class="filter-chip" type="button" data-type-filter="Talismans">
+              Talismans
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-label">Flags</span>
+
+          <div class="filter-row">
+            <button
+              class="filter-chip"
+              type="button"
+              data-flag-filter="Japanese-Exclusive">
+              JP-only
+            </button>
+
+            <button class="filter-chip" type="button" data-flag-filter="DLC">
+              DLC
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <button
+        id="copySearchResultsBtn"
+        class="secondary copy-search-btn"
+        type="button">
+        Copy all Search Results
+      </button>
 
       <section
         id="results"
@@ -190,14 +226,6 @@
   </footer>
 
   <script src="./app.js"></script>
-
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js");
-      });
-    }
-  </script>
 
 </body>
 </html>
