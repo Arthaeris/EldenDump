@@ -189,6 +189,12 @@ button.secondary {
   opacity: 0.6;
 }
 
+.card-controls {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 18px;
+}
+
 input[type="search"] {
   flex: 1;
   min-width: 0;
