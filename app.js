@@ -385,7 +385,16 @@ function buildNpcNameLookup(sectionMap) {
     lookup.set(unpadded, name);
 
     if (/^\d{6}$/.test(raw)) {
+      // Base-game NPC format:
+      // 123456 -> 2345
       lookup.set(raw.slice(1, 5), name);
+
+      // DLC NPC format:
+      // 123456 -> 1345
+      lookup.set(
+        raw.charAt(0) + raw.slice(2, 5),
+        name
+      );
     }
   }
 
