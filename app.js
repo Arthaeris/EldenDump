@@ -685,17 +685,19 @@ function renderCategoryMenu() {
 }
 
 function matchesSearchFilter(entry) {
-  if (activeSearchFilter === 'All') return true;
+  const matchesType =
+    activeTypeFilter === 'All' ||
+    entry.category === activeTypeFilter;
 
-  if (activeSearchFilter === 'DLC') {
-    return Boolean(entry.isDlc);
-  }
+  const matchesFlag =
+    activeFlagFilter === 'All' ||
+    (activeFlagFilter === 'DLC' && entry.isDlc) ||
+    (
+      activeFlagFilter === 'Japanese-Exclusive' &&
+      entry.category === 'Japanese-Exclusive'
+    );
 
-  if (activeSearchFilter === 'Japanese-Exclusive') {
-    return entry.category === 'Japanese-Exclusive';
-  }
-
-  return entry.category === activeSearchFilter;
+  return matchesType && matchesFlag;
 }
 
 function render() {
