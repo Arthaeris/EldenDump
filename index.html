@@ -62,22 +62,66 @@
 
     <section id="searchView">
 
-      <section class="toolbar">
-        <input
-          id="search"
-          type="search"
-          placeholder="Search names, IDs, dialogue, descriptions..."
-        />
-        <span id="count">0 entries</span>
-      </section>
+  <section class="toolbar">
+    <input
+      id="search"
+      type="search"
+      placeholder="Search names, IDs, dialogue, descriptions..."
+    />
+    <span id="count">0 entries</span>
+  </section>
 
-      <section
-        id="results"
-        class="results"
-        aria-live="polite">
-      </section>
+  <section id="searchFilters" class="search-filters">
 
-    </section>
+    <button class="filter-chip active" type="button" data-search-filter="All">
+      All
+    </button>
+
+    <button class="filter-chip" type="button" data-search-filter="NPCs">
+      NPCs
+    </button>
+
+    <button class="filter-chip" type="button" data-search-filter="Dialogues">
+      Dialogues
+    </button>
+
+    <button class="filter-chip" type="button" data-search-filter="Locations">
+      Locations
+    </button>
+
+    <button class="filter-chip" type="button" data-search-filter="Items">
+      Items
+    </button>
+
+    <button class="filter-chip" type="button" data-search-filter="Weapons">
+      Weapons
+    </button>
+
+    <button class="filter-chip" type="button" data-search-filter="Armor">
+      Armor
+    </button>
+
+    <button class="filter-chip" type="button" data-search-filter="Talismans">
+      Talismans
+    </button>
+
+    <button class="filter-chip" type="button" data-search-filter="Japanese-Exclusive">
+      JP-only
+    </button>
+
+    <button class="filter-chip" type="button" data-search-filter="DLC">
+      DLC
+    </button>
+
+  </section>
+
+  <section
+    id="results"
+    class="results"
+    aria-live="polite">
+  </section>
+
+</section>
 
     <section id="categoryView" hidden>
 
