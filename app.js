@@ -41,6 +41,7 @@ let currentDialogueKey = '';
 
 let currentRenderTarget = results;
 let currentVisibleEntries = [];
+let currentSearchResults = [];
 let renderedEntryCount = 0;
 let isAppending = false;
 
@@ -707,6 +708,8 @@ function render() {
       String(e.talkSection || '').toLowerCase().includes(q)
     )
   );
+  
+  currentSearchResults = visible;
 
   count.textContent =
     `${visible.length} ${visible.length === 1 ? 'entry' : 'entries'}`;
@@ -1234,6 +1237,32 @@ searchFilters.addEventListener('click', event => {
   });
 
   render();
+});
+
+copySearchResultsBtn.addEventListener('click', async () => {
+  const text = currentSearchResults
+    .map(entry => getCopyTextClean(entry, activeLanguage))
+    .filter(Boolean)
+    .join('\n\n');
+
+  if (!text) return;
+
+  try {
+    await navigator.clipboard.writeText(text);
+
+    copySearchResultsBtn.textContent = 'Copied';
+
+    setTimeout(() => {
+      copySearchResultsBtn.textContent = 'Copy all Search Results';
+    }, 900);
+
+  } catch {
+    copySearchResultsBtn.textContent = 'Failed';
+
+    setTimeout(() => {
+      copySearchResultsBtn.textContent = 'Copy all Search Results';
+    }, 900);
+  }
 });
 
 window.addEventListener('scroll', handleScroll, { passive: true });
