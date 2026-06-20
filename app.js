@@ -994,7 +994,8 @@ function updateCardLanguage(card, lang) {
   const nameEl = card.querySelector('.entry-name-content');
   const idsEl = card.querySelector('.entry-text-ids');
   const cleanEl = card.querySelector('.entry-text-clean');
-  const langBtn = card.querySelector('[data-language-toggle]');
+const codeEl = card.querySelector('.entry-text-code');
+const langBtn = card.querySelector('[data-language-toggle]');
 
   if (nameEl) nameEl.innerHTML = escapeHtml(decodeHtml(name));
   if (idsEl) idsEl.innerHTML = formatEntryText(decodeHtml(textIds));
