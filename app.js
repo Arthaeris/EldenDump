@@ -184,6 +184,54 @@ const MANUAL_NPC_TALK_MAPPINGS = [
     talkSections: ['TalkMsg_dlc01.fmg'],
     isDlc: true
   }
+  
+  {
+    labelEn: 'Finger Reader Crone',
+    labelJp: '指読みの老婆',
+    npcId: '1010',
+    talkSections: ['TalkMsg.fmg'],
+    isDlc: false
+  },
+
+{
+    labelEn: 'Hornsent Grandam',
+    labelJp: '角人の老婆',
+    npcId: '1021',
+    talkSections: ['TalkMsg_01.fmg'],
+    isDlc: true
+  },
+
+{
+    labelEn: 'Igon',
+    labelJp: 'エーゴン',
+    npcId: '1031',
+    talkSections: ['TalkMsg_01.fmg'],
+    isDlc: true
+  },
+
+{
+    labelEn: 'Igon',
+    labelJp: 'エーゴン',
+    npcId: '1032',
+    talkSections: ['TalkMsg_01.fmg'],
+    isDlc: true
+  },
+
+{
+    labelEn: 'Midra, Lord of Frenzied Flame',
+    labelJp: '狂い火の王、ミドラー',
+    npcId: '1040',
+    talkSections: ['TalkMsg_01.fmg'],
+    isDlc: true
+  },
+
+{
+    labelEn: 'Moore',
+    labelJp: 'ムーア',
+    npcId: '1051',
+    talkSections: ['TalkMsg_01.fmg'],
+    isDlc: true
+  },
 ];
 
 const MANUAL_NPC_SECTION_MAPPINGS = [
