@@ -128,6 +128,24 @@ const MERGE_RULES = [
   }
 ];
 
+const MANUAL_NPC_TALK_MAPPINGS = [
+  {
+    labelEn: 'Manual NPC Name',
+    labelJp: '手動NPC名',
+    npcId: '4050',
+    talkSections: ['TalkMsg.fmg'],
+    isDlc: false
+  },
+
+  {
+    labelEn: 'Manual DLC NPC Name',
+    labelJp: '手動DLC NPC名',
+    npcId: '1345',
+    talkSections: ['TalkMsg_dlc01.fmg'],
+    isDlc: true
+  }
+];
+
 function parseXmlDump(rawText) {
   const normalized = String(rawText || '')
     .replace(/\r/g, '')
