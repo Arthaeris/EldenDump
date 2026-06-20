@@ -138,6 +138,11 @@ button.secondary {
   max-width: 100%;
 }
 
+.copy-search-btn {
+  width: 100%;
+  margin: 0 0 18px;
+}
+
 .search-filters {
   display: flex;
   gap: 8px;
