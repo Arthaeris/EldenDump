@@ -1270,63 +1270,52 @@ document.addEventListener('click', async event => {
   const copyButton = event.target.closest('.copy-btn');
 
   if (copyButton) {
-    event.stopPropagation();
+  event.stopPropagation();
 
-    const card = copyButton.closest('.entry');
-    if (!card) return;
+  const card = copyButton.closest('.entry');
+  if (!card) return;
 
-    const mode = card.dataset.mode || 'ids';
-const lang = card.dataset.lang || 'en';
-const suffix = lang === 'jp' ? 'Jp' : 'En';
+  const mode = card.dataset.mode || 'ids';
+  const lang = card.dataset.lang || 'en';
+  const suffix = lang === 'jp' ? 'Jp' : 'En';
 
-let text;
+  let text;
 
-if (card.classList.contains('full-dialogue-entry')) {
-
-  if (mode === 'clean') {
-    text = card.dataset.copyClean;
-  } else if (mode === 'code') {
-    text = card.dataset.copyCode;
-  } else {
-    text = card.dataset.copyIds;
-  }
-
-} else {
-
-  if (mode === 'clean') {
-    text = card.dataset[`copyClean${suffix}`];
-  } else if (mode === 'code') {
-    text = card.dataset[`copyCode${suffix}`];
-  } else {
-    text = card.dataset[`copyIds${suffix}`];
-  }
-
-}
-} else if (mode === 'clean') {
-  text = card.dataset[`copyClean${suffix}`];
-} else if (mode === 'code') {
-  text = card.dataset[`copyCode${suffix}`];
-} else {
-  text = card.dataset[`copyIds${suffix}`];
-}
-
-    try {
-      await navigator.clipboard.writeText(decodeHtml(text || ''));
-      copyButton.textContent = 'Copied';
-
-      setTimeout(() => {
-        copyButton.textContent = 'Copy';
-      }, 900);
-    } catch {
-      copyButton.textContent = 'Failed';
-
-      setTimeout(() => {
-        copyButton.textContent = 'Copy';
-      }, 900);
+  if (card.classList.contains('full-dialogue-entry')) {
+    if (mode === 'clean') {
+      text = card.dataset.copyClean;
+    } else if (mode === 'code') {
+      text = card.dataset.copyCode;
+    } else {
+      text = card.dataset.copyIds;
     }
-
-    return;
+  } else {
+    if (mode === 'clean') {
+      text = card.dataset[`copyClean${suffix}`];
+    } else if (mode === 'code') {
+      text = card.dataset[`copyCode${suffix}`];
+    } else {
+      text = card.dataset[`copyIds${suffix}`];
+    }
   }
+
+  try {
+    await navigator.clipboard.writeText(decodeHtml(text || ''));
+    copyButton.textContent = 'Copied';
+
+    setTimeout(() => {
+      copyButton.textContent = 'Copy';
+    }, 900);
+  } catch {
+    copyButton.textContent = 'Failed';
+
+    setTimeout(() => {
+      copyButton.textContent = 'Copy';
+    }, 900);
+  }
+
+  return;
+}
 
   const card = event.target.closest('.entry');
 
