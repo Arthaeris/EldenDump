@@ -528,6 +528,14 @@ function lookupManualNpcName(talkSection, npcId, lang) {
     : mapping.labelEn || mapping.labelJp || '';
 }
 
+function lookupManualNpcSectionMapping(talkSection, npcId, section) {
+  return MANUAL_NPC_SECTION_MAPPINGS.find(item =>
+    item.talkSection === talkSection &&
+    item.npcId === npcId &&
+    item.sections.includes(section)
+  ) || null;
+}
+
 function lookupManualNpcSectionName(talkSection, npcId, section, lang) {
   const mapping = MANUAL_NPC_SECTION_MAPPINGS.find(item =>
     item.talkSection === talkSection &&
