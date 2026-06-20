@@ -1105,9 +1105,10 @@ const dlcBadge = isDlc
       data-copy-code="${escapeAttribute(textCode)}"
     >
       <div class="entry-actions">
-        ${languageControl}
-        <button class="copy-btn" type="button">Copy</button>
-      </div>
+  ${dlcBadge}
+  ${languageControl}
+  <button class="copy-btn" type="button">Copy</button>
+</div>
 
       <div class="entry-section">
         ${escapeHtml(first ? `${first.category} · ${first.section}` : 'Dialogues')}
