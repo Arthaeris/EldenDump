@@ -146,6 +146,32 @@ const MANUAL_NPC_TALK_MAPPINGS = [
   }
 ];
 
+const MANUAL_NPC_SECTION_MAPPINGS = [
+  {
+    talkSection: 'TalkMsg.fmg',
+    npcId: '4050',
+    sections: ['Section 18', 'Section 19'],
+    labelEn: 'First Manual NPC',
+    labelJp: '手動NPC 1'
+  },
+
+  {
+    talkSection: 'TalkMsg.fmg',
+    npcId: '4050',
+    sections: ['Section 20'],
+    labelEn: 'Second Manual NPC',
+    labelJp: '手動NPC 2'
+  },
+
+  {
+    talkSection: 'TalkMsg_dlc01.fmg',
+    npcId: '1345',
+    sections: ['Section 02'],
+    labelEn: 'DLC Manual NPC',
+    labelJp: 'DLC 手動NPC'
+  }
+];
+
 function parseXmlDump(rawText) {
   const normalized = String(rawText || '')
     .replace(/\r/g, '')
