@@ -382,12 +382,28 @@ function parseTalkMsgEntries({
     const manualNameEn = lookupManualNpcName(talkSection, info.npcId, 'en');
 const manualNameJp = lookupManualNpcName(talkSection, info.npcId, 'jp');
 
+const manualSectionNameEn = lookupManualNpcSectionName(
+  talkSection,
+  info.npcId,
+  info.section,
+  'en'
+);
+
+const manualSectionNameJp = lookupManualNpcSectionName(
+  talkSection,
+  info.npcId,
+  info.section,
+  'jp'
+);
+
 const nameEn =
+  manualSectionNameEn ||
   manualNameEn ||
   lookupNpcName(npcNamesEn, info.npcId) ||
   `Unknown ${info.npcId}`;
 
 const nameJp =
+  manualSectionNameJp ||
   manualNameJp ||
   lookupNpcName(npcNamesJp, info.npcId) ||
   nameEn;
