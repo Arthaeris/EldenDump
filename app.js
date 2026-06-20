@@ -35,7 +35,8 @@ let entries = [];
 let categories = new Map();
 let npcGroups = new Map();
 let activeLanguage = 'en';
-let activeSearchFilter = 'All';
+let activeTypeFilter = 'All';
+let activeFlagFilter = 'All';
 let dialogueDisplayMode = 'cards';
 let currentDialogueKey = '';
 
