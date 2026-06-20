@@ -352,7 +352,7 @@ function parseTalkMsgEntries({
         id: `${talkSection}-${info.npcId}-${info.section.replace(/\s+/g, '-')}`,
         segment: info.npcId,
         npcId: info.npcId,
-        npcKey: `${talkSection}|${info.npcId}|${nameEn}`,
+        npcKey: `${talkSection}|${info.npcId}`,
         nameEn,
         nameJp,
         talkSection: info.section,
