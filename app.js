@@ -1232,6 +1232,19 @@ searchFilters.addEventListener('click', event => {
 window.addEventListener('scroll', handleScroll, { passive: true });
 
 document.addEventListener('click', async event => {
+
+  const fullDialogueLanguageButton =
+    event.target.closest('[data-full-dialogue-language-toggle]');
+
+  if (fullDialogueLanguageButton) {
+    event.stopPropagation();
+
+    activeLanguage = activeLanguage === 'en' ? 'jp' : 'en';
+
+    showDialogue(currentDialogueKey);
+    return;
+  }
+  
   const languageButton = event.target.closest('[data-language-toggle]');
 
   if (languageButton) {
