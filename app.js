@@ -353,13 +353,18 @@ function parseTalkMsgEntries({
 
     const info = getTalkInfo(id);
 
-    const nameEn =
-      lookupNpcName(npcNamesEn, info.npcId) ||
-      `Unknown ${info.npcId}`;
+    const manualNameEn = lookupManualNpcName(talkSection, info.npcId, 'en');
+const manualNameJp = lookupManualNpcName(talkSection, info.npcId, 'jp');
 
-    const nameJp =
-      lookupNpcName(npcNamesJp, info.npcId) ||
-      nameEn;
+const nameEn =
+  manualNameEn ||
+  lookupNpcName(npcNamesEn, info.npcId) ||
+  `Unknown ${info.npcId}`;
+
+const nameJp =
+  manualNameJp ||
+  lookupNpcName(npcNamesJp, info.npcId) ||
+  nameEn;
 
     const key = `${talkSection}|${info.npcId}|${info.section}`;
 
