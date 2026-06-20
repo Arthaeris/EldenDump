@@ -1285,6 +1285,43 @@ searchFilters.addEventListener('click', event => {
   render();
 });
 
+cardControls.addEventListener('click', event => {
+  const languageButton = event.target.closest('[data-language-mode]');
+  const modeButton = event.target.closest('[data-card-mode]');
+
+  if (!languageButton && !modeButton) return;
+
+  if (languageButton) {
+    activeLanguage = languageButton.dataset.languageMode;
+
+    cardControls.querySelectorAll('[data-language-mode]').forEach(button => {
+      button.classList.toggle(
+        'active',
+        button.dataset.languageMode === activeLanguage
+      );
+    });
+
+    document.querySelectorAll('.entry').forEach(card => {
+      updateCardLanguage(card, activeLanguage);
+    });
+  }
+
+  if (modeButton) {
+    defaultCardMode = modeButton.dataset.cardMode;
+
+    cardControls.querySelectorAll('[data-card-mode]').forEach(button => {
+      button.classList.toggle(
+        'active',
+        button.dataset.cardMode === defaultCardMode
+      );
+    });
+
+    document.querySelectorAll('.entry').forEach(card => {
+      card.dataset.mode = defaultCardMode;
+    });
+  }
+});
+
 copySearchResultsBtn.addEventListener('click', async () => {
   const text = currentSearchResults
     .map(entry =>
