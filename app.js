@@ -295,14 +295,18 @@ function parseTalkMsgEntries({
   isDlc = false
 }) {
   const enTalk = normalizeIdMap(enSections.get(talkSection) || new Map());
-const jpTalk = normalizeIdMap(jpSections.get(talkSection) || new Map());
+  const jpTalk = normalizeIdMap(jpSections.get(talkSection) || new Map());
+
+  const npcNameIsDlc = Boolean(npcNameSection && npcNameSection.includes('_dlc'));
 
   const npcNamesEn = buildNpcNameLookup(
-    npcNameSection ? enSections.get(npcNameSection) || new Map() : new Map()
+    npcNameSection ? enSections.get(npcNameSection) || new Map() : new Map(),
+    npcNameIsDlc
   );
 
   const npcNamesJp = buildNpcNameLookup(
-    npcNameSection ? jpSections.get(npcNameSection) || new Map() : new Map()
+    npcNameSection ? jpSections.get(npcNameSection) || new Map() : new Map(),
+    npcNameIsDlc
   );
 
   const ids = collectRawIds(enTalk, jpTalk)
