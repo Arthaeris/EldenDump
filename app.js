@@ -370,7 +370,7 @@ const jpTalk = normalizeIdMap(jpSections.get(talkSection) || new Map());
   }));
 }
 
-function buildNpcNameLookup(sectionMap) {
+function buildNpcNameLookup(sectionMap, isDlc = false) {
   const lookup = new Map();
 
   for (const [id, name] of sectionMap.entries()) {
@@ -385,16 +385,21 @@ function buildNpcNameLookup(sectionMap) {
     lookup.set(unpadded, name);
 
     if (/^\d{6}$/.test(raw)) {
-      // Base-game NPC format:
-      // 123456 -> 2345
-      lookup.set(raw.slice(1, 5), name);
-
-      // DLC NPC format:
-      // 123456 -> 1345
-      lookup.set(
-        raw.charAt(0) + raw.slice(2, 5),
-        name
-      );
+      if (isDlc) {
+        // DLC format:
+        // 123456 -> 1345
+        lookup.set(
+          raw.charAt(0) + raw.slice(2, 5),
+          name
+        );
+      } else {
+        // Base-game format:
+        // 123456 -> 2345
+        lookup.set(
+          raw.slice(1, 5),
+          name
+        );
+      }
     }
   }
 
