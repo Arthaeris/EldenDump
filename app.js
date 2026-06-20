@@ -1081,6 +1081,12 @@ function renderFullDialogue(group) {
         ? `<span class="tag-badge lang-static">JP-only</span>`
         : '';
 
+  const isDlc = group.some(entry => entry.isDlc);
+
+const dlcBadge = isDlc
+  ? `<span class="tag-badge dlc-badge">DLC</span>`
+  : '';
+
   const textWithIds = group
     .map(entry => formatRawTextWithIds(entry, lang))
     .filter(Boolean)
