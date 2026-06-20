@@ -260,8 +260,8 @@ const textJp = separator && textJpParts.length
       id,
       nameEn,
       nameJp,
-      textEn: textEnParts.join(separator ? '\n---\n' : '\n\n'),
-      textJp: textJpParts.join(separator ? '\n---\n' : '\n\n'),
+      textEn,
+      textJp,
       isDlc,
       type: 'merged'
     };
