@@ -1241,7 +1241,9 @@ searchFilters.addEventListener('click', event => {
 
 copySearchResultsBtn.addEventListener('click', async () => {
   const text = currentSearchResults
-    .map(entry => getCopyTextClean(entry, activeLanguage))
+    .map(entry =>
+      `\`\`\`\n${getCopyTextClean(entry, activeLanguage)}\n\`\`\``
+    )
     .filter(Boolean)
     .join('\n\n');
 
