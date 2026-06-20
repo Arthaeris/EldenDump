@@ -2,13 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+
   <meta name="theme-color" content="#111111" />
+
+  <!-- iOS Home Screen support -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="EldenDump" />
 
   <title>EldenDump</title>
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
 
@@ -62,66 +74,66 @@
 
     <section id="searchView">
 
-  <section class="toolbar">
-    <input
-      id="search"
-      type="search"
-      placeholder="Search names, IDs, dialogue, descriptions..."
-    />
-    <span id="count">0 entries</span>
-  </section>
+      <section class="toolbar">
+        <input
+          id="search"
+          type="search"
+          placeholder="Search names, IDs, dialogue, descriptions..."
+        />
+        <span id="count">0 entries</span>
+      </section>
 
-  <section id="searchFilters" class="search-filters">
+      <section id="searchFilters" class="search-filters">
 
-    <button class="filter-chip active" type="button" data-search-filter="All">
-      All
-    </button>
+        <button class="filter-chip active" type="button" data-search-filter="All">
+          All
+        </button>
 
-    <button class="filter-chip" type="button" data-search-filter="NPCs">
-      NPCs
-    </button>
+        <button class="filter-chip" type="button" data-search-filter="NPCs">
+          NPCs
+        </button>
 
-    <button class="filter-chip" type="button" data-search-filter="Dialogues">
-      Dialogues
-    </button>
+        <button class="filter-chip" type="button" data-search-filter="Dialogues">
+          Dialogues
+        </button>
 
-    <button class="filter-chip" type="button" data-search-filter="Locations">
-      Locations
-    </button>
+        <button class="filter-chip" type="button" data-search-filter="Locations">
+          Locations
+        </button>
 
-    <button class="filter-chip" type="button" data-search-filter="Items">
-      Items
-    </button>
+        <button class="filter-chip" type="button" data-search-filter="Items">
+          Items
+        </button>
 
-    <button class="filter-chip" type="button" data-search-filter="Weapons">
-      Weapons
-    </button>
+        <button class="filter-chip" type="button" data-search-filter="Weapons">
+          Weapons
+        </button>
 
-    <button class="filter-chip" type="button" data-search-filter="Armor">
-      Armor
-    </button>
+        <button class="filter-chip" type="button" data-search-filter="Armor">
+          Armor
+        </button>
 
-    <button class="filter-chip" type="button" data-search-filter="Talismans">
-      Talismans
-    </button>
+        <button class="filter-chip" type="button" data-search-filter="Talismans">
+          Talismans
+        </button>
 
-    <button class="filter-chip" type="button" data-search-filter="Japanese-Exclusive">
-      JP-only
-    </button>
+        <button class="filter-chip" type="button" data-search-filter="Japanese-Exclusive">
+          JP-only
+        </button>
 
-    <button class="filter-chip" type="button" data-search-filter="DLC">
-      DLC
-    </button>
+        <button class="filter-chip" type="button" data-search-filter="DLC">
+          DLC
+        </button>
 
-  </section>
+      </section>
 
-  <section
-    id="results"
-    class="results"
-    aria-live="polite">
-  </section>
+      <section
+        id="results"
+        class="results"
+        aria-live="polite">
+      </section>
 
-</section>
+    </section>
 
     <section id="categoryView" hidden>
 
@@ -188,6 +200,15 @@
     <span>Works offline after first load.</span>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="./app.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js");
+      });
+    }
+  </script>
+
 </body>
 </html>
