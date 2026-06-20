@@ -181,7 +181,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
     labelEn: 'Messmer the Impaler',
     labelJp: '串刺し公、メスメル',
     npcId: '1010',
-    talkSections: ['TalkMsg_01.fmg'],
+    talkSections: ['TalkMsg_dlc01.fmg'],
     isDlc: true
   }
 ];
