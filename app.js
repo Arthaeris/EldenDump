@@ -162,7 +162,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
   },
 
 {
-    labelEn: 'Narrator,
+    labelEn: 'Narrator',
     labelJp: 'Narrator',
     npcId: '1005',
     talkSections: ['TalkMsg.fmg'],
@@ -178,7 +178,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
   },
 
 {
-    labelEn: 'Messmer the Impaler,
+    labelEn: 'Messmer the Impaler',
     labelJp: '串刺し公、メスメル',
     npcId: '1010',
     talkSections: ['TalkMsg_01.fmg'],
