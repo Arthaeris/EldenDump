@@ -2,6 +2,7 @@ const search = document.querySelector('#search');
 const results = document.querySelector('#results');
 const count = document.querySelector('#count');
 const searchFilters = document.querySelector('#searchFilters');
+const cardControls = document.querySelector('#cardControls');
 
 const menu = document.querySelector('#menu');
 const menuOverlay = document.querySelector('#menuOverlay');
