@@ -35,6 +35,7 @@ let entries = [];
 let categories = new Map();
 let npcGroups = new Map();
 let activeLanguage = 'en';
+let defaultCardMode = 'ids';
 let activeTypeFilter = 'All';
 let activeFlagFilter = 'All';
 let dialogueDisplayMode = 'cards';
