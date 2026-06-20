@@ -353,7 +353,9 @@ function parseTalkMsgEntries({
   const enTalk = normalizeIdMap(enSections.get(talkSection) || new Map());
   const jpTalk = normalizeIdMap(jpSections.get(talkSection) || new Map());
 
-  const npcNameIsDlc = Boolean(npcNameSection && npcNameSection.includes('_dlc'));
+  const npcNameIsDlc = Boolean(
+    npcNameSection && npcNameSection.includes('_dlc')
+  );
 
   const npcNamesEn = buildNpcNameLookup(
     npcNameSection ? enSections.get(npcNameSection) || new Map() : new Map(),
@@ -379,36 +381,46 @@ function parseTalkMsgEntries({
 
     const info = getTalkInfo(id);
 
+    const manualMapping = lookupManualNpcSectionMapping(
+      talkSection,
+      info.npcId,
+      info.section
+    );
+
     const manualNameEn = lookupManualNpcName(talkSection, info.npcId, 'en');
-const manualNameJp = lookupManualNpcName(talkSection, info.npcId, 'jp');
+    const manualNameJp = lookupManualNpcName(talkSection, info.npcId, 'jp');
 
-const manualSectionNameEn = lookupManualNpcSectionName(
-  talkSection,
-  info.npcId,
-  info.section,
-  'en'
-);
+    const manualSectionNameEn = lookupManualNpcSectionName(
+      talkSection,
+      info.npcId,
+      info.section,
+      'en'
+    );
 
-const manualSectionNameJp = lookupManualNpcSectionName(
-  talkSection,
-  info.npcId,
-  info.section,
-  'jp'
-);
+    const manualSectionNameJp = lookupManualNpcSectionName(
+      talkSection,
+      info.npcId,
+      info.section,
+      'jp'
+    );
 
-const nameEn =
-  manualSectionNameEn ||
-  manualNameEn ||
-  lookupNpcName(npcNamesEn, info.npcId) ||
-  `Unknown ${info.npcId}`;
+    const nameEn =
+      manualSectionNameEn ||
+      manualNameEn ||
+      lookupNpcName(npcNamesEn, info.npcId) ||
+      `Unknown ${info.npcId}`;
 
-const nameJp =
-  manualSectionNameJp ||
-  manualNameJp ||
-  lookupNpcName(npcNamesJp, info.npcId) ||
-  nameEn;
+    const nameJp =
+      manualSectionNameJp ||
+      manualNameJp ||
+      lookupNpcName(npcNamesJp, info.npcId) ||
+      nameEn;
 
     const key = `${talkSection}|${info.npcId}|${info.section}`;
+
+    const npcKey = manualMapping
+      ? `${talkSection}|${info.npcId}|${manualMapping.npcKeySuffix}`
+      : `${talkSection}|${info.npcId}`;
 
     if (!grouped.has(key)) {
       grouped.set(key, {
@@ -417,7 +429,7 @@ const nameJp =
         id: `${talkSection}-${info.npcId}-${info.section.replace(/\s+/g, '-')}`,
         segment: info.npcId,
         npcId: info.npcId,
-        npcKey: `${talkSection}|${info.npcId}|${nameEn}|${info.section}`,
+        npcKey,
         nameEn,
         nameJp,
         talkSection: info.section,
