@@ -1,6 +1,7 @@
 const search = document.querySelector('#search');
 const results = document.querySelector('#results');
 const count = document.querySelector('#count');
+const searchFilters = document.querySelector('#searchFilters');
 
 const menu = document.querySelector('#menu');
 const menuOverlay = document.querySelector('#menuOverlay');
@@ -34,6 +35,7 @@ let entries = [];
 let categories = new Map();
 let npcGroups = new Map();
 let activeLanguage = 'en';
+let activeSearchFilter = 'All';
 let dialogueDisplayMode = 'cards';
 let currentDialogueKey = '';
 
