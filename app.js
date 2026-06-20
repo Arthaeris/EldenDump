@@ -613,7 +613,13 @@ function collectRawIds(...maps) {
 
 
 function normalizeId(id) {
-  return String(Number(id));
+  const value = String(id).trim();
+
+  if (!/^\d+$/.test(value)) {
+    return value;
+  }
+
+  return value.replace(/^0+(?=\d)/, '');
 }
 
 function normalizeIdMap(map) {
