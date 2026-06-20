@@ -417,7 +417,7 @@ const nameJp =
         id: `${talkSection}-${info.npcId}-${info.section.replace(/\s+/g, '-')}`,
         segment: info.npcId,
         npcId: info.npcId,
-        npcKey: `${talkSection}|${info.npcId}`,
+        npcKey: `${talkSection}|${info.npcId}|${nameEn}|${info.section}`,
         nameEn,
         nameJp,
         talkSection: info.section,
