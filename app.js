@@ -674,20 +674,24 @@ function render() {
   const q = search.value.trim().toLowerCase();
 
   const visible = entries.filter(e =>
-    !q ||
-    e.category.toLowerCase().includes(q) ||
-    String(e.originalCategory || '').toLowerCase().includes(q) ||
-    e.section.toLowerCase().includes(q) ||
-    e.id.includes(q) ||
-    getName(e, 'en').toLowerCase().includes(q) ||
-    getName(e, 'jp').toLowerCase().includes(q) ||
-    getText(e, 'en').toLowerCase().includes(q) ||
-    getText(e, 'jp').toLowerCase().includes(q) ||
-    String(e.segment || '').includes(q) ||
-    String(e.talkSection || '').toLowerCase().includes(q)
+    matchesSearchFilter(e) &&
+    (
+      !q ||
+      e.category.toLowerCase().includes(q) ||
+      String(e.originalCategory || '').toLowerCase().includes(q) ||
+      e.section.toLowerCase().includes(q) ||
+      e.id.includes(q) ||
+      getName(e, 'en').toLowerCase().includes(q) ||
+      getName(e, 'jp').toLowerCase().includes(q) ||
+      getText(e, 'en').toLowerCase().includes(q) ||
+      getText(e, 'jp').toLowerCase().includes(q) ||
+      String(e.segment || '').includes(q) ||
+      String(e.talkSection || '').toLowerCase().includes(q)
+    )
   );
 
-  count.textContent = `${visible.length} ${visible.length === 1 ? 'entry' : 'entries'}`;
+  count.textContent =
+    `${visible.length} ${visible.length === 1 ? 'entry' : 'entries'}`;
 
   renderEntryList({
     target: results,
