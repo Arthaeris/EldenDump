@@ -1071,54 +1071,49 @@ function renderFullDialogue(group) {
   const lang = activeLanguage;
   const first = group[0];
 
-  const name = first ? getName(first, lang) : '';
-  const lines = [];
+  const hasEnglish = group.some(entry => hasDirectLanguage(entry, 'en'));
+  const hasJapanese = group.some(entry => hasDirectLanguage(entry, 'jp'));
 
-  if (name) {
-    lines.push(name);
-    lines.push('');
-  }
+  const languageControl =
+    hasEnglish && hasJapanese
+      ? `<button class="lang-btn" type="button" data-full-dialogue-language-toggle>${lang === 'en' ? 'JP' : 'EN'}</button>`
+      : !hasEnglish && hasJapanese
+        ? `<span class="tag-badge lang-static">JP-only</span>`
+        : '';
 
-  for (const entry of group) {
-    if (entry.talkSection) {
-      lines.push(entry.talkSection);
-    }
+  const textWithIds = group
+    .map(entry => formatRawTextWithIds(entry, lang))
+    .filter(Boolean)
+    .join('\n');
 
-    const text = getText(entry, lang);
-
-    if (text) {
-      lines.push(text);
-    }
-
-    lines.push('');
-  }
-
-  const rawText = lines.join('\n').trim();
-  const cleanText = getCleanText(rawText);
-  const codeText = `\`\`\`\n${cleanText}\n\`\`\``;
+  const textClean = getCleanText(textWithIds);
+  const textCode = `\`\`\`\n${textClean}\n\`\`\``;
 
   return `
     <article
       class="entry full-dialogue-entry"
       data-mode="ids"
       data-lang="${escapeHtml(lang)}"
-      data-copy-ids="${escapeAttribute(rawText)}"
-      data-copy-clean="${escapeAttribute(cleanText)}"
-      data-copy-code="${escapeAttribute(codeText)}"
+      data-copy-ids="${escapeAttribute(textWithIds)}"
+      data-copy-clean="${escapeAttribute(textClean)}"
+      data-copy-code="${escapeAttribute(textCode)}"
     >
       <div class="entry-actions">
+        ${languageControl}
         <button class="copy-btn" type="button">Copy</button>
       </div>
 
-      <div class="entry-section">Full Dialogue</div>
-
-      <div class="entry-header">
-        <div class="entry-name">${escapeHtml(name)}</div>
+      <div class="entry-section">
+        ${escapeHtml(first ? `${first.category} · ${first.section}` : 'Dialogues')}
       </div>
 
-      <div class="entry-text entry-text-ids">${formatEntryText(rawText)}</div>
-      <div class="entry-text entry-text-clean">${formatEntryText(cleanText)}</div>
-      <div class="entry-text entry-text-code">${formatEntryText(codeText)}</div>
+      <div class="entry-header">
+        <div class="entry-name">${escapeHtml(first ? getName(first, lang) : 'Dialogues')}</div>
+      </div>
+
+      <div class="entry-text entry-text-ids">${formatEntryText(textWithIds)}</div>
+      <div class="entry-text entry-text-clean">${formatEntryText(textClean)}</div>
+      <div class="entry-text entry-text-code">${formatEntryText(textCode)}</div>
     </article>
   `;
 }
