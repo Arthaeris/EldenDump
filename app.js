@@ -183,7 +183,7 @@ const MANUAL_NPC_TALK_MAPPINGS = [
     npcId: '1010',
     talkSections: ['TalkMsg_dlc01.fmg'],
     isDlc: true
-  }
+  },
   
   {
     labelEn: 'Finger Reader Crone',
