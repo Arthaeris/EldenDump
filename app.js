@@ -1235,18 +1235,28 @@ function handleScroll() {
 search.addEventListener('input', render);
 
 searchFilters.addEventListener('click', event => {
-  const button = event.target.closest('[data-search-filter]');
-  if (!button) return;
+  const clearButton = event.target.closest('[data-clear-filters]');
+  const typeButton = event.target.closest('[data-type-filter]');
+  const flagButton = event.target.closest('[data-flag-filter]');
 
-  activeSearchFilter = button.dataset.searchFilter;
+  if (clearButton) {
+    activeTypeFilter = 'All';
+    activeFlagFilter = 'All';
+  } else if (typeButton) {
+    activeTypeFilter =
+      activeTypeFilter === typeButton.dataset.typeFilter
+        ? 'All'
+        : typeButton.dataset.typeFilter;
+  } else if (flagButton) {
+    activeFlagFilter =
+      activeFlagFilter === flagButton.dataset.flagFilter
+        ? 'All'
+        : flagButton.dataset.flagFilter;
+  } else {
+    return;
+  }
 
-  searchFilters.querySelectorAll('[data-search-filter]').forEach(filterButton => {
-    filterButton.classList.toggle(
-      'active',
-      filterButton.dataset.searchFilter === activeSearchFilter
-    );
-  });
-
+  updateSearchFilterButtons();
   render();
 });
 
