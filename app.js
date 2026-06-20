@@ -715,12 +715,16 @@ function matchesSearchFilter(entry) {
     entry.category === activeTypeFilter;
 
   const matchesFlag =
-    activeFlagFilter === 'All' ||
-    (activeFlagFilter === 'DLC' && entry.isDlc) ||
-    (
-      activeFlagFilter === 'Japanese-Exclusive' &&
-      entry.category === 'Japanese-Exclusive'
-    );
+  activeFlagFilter === 'All' ||
+
+  (activeFlagFilter === 'Base' && !entry.isDlc) ||
+
+  (activeFlagFilter === 'DLC' && entry.isDlc) ||
+
+  (
+    activeFlagFilter === 'Japanese-Exclusive' &&
+    entry.category === 'Japanese-Exclusive'
+  );
 
   return matchesType && matchesFlag;
 }
