@@ -498,16 +498,19 @@ function lookupNpcName(lookup, npcId) {
 }
 
 function lookupManualNpcName(talkSection, npcId, lang) {
-  const mapping = MANUAL_NPC_TALK_MAPPINGS.find(item =>
-    item.npcId === npcId &&
-    item.talkSections.includes(talkSection)
-  );
+  const isDlc = talkSection.includes('_dlc');
+
+  const key = isDlc
+    ? `d${npcId}`
+    : npcId;
+
+  const mapping = MANUAL_NPC_TALK_MAPPINGS?.[key];
 
   if (!mapping) return '';
 
   return lang === 'jp'
-    ? mapping.labelJp || mapping.labelEn || ''
-    : mapping.labelEn || mapping.labelJp || '';
+    ? mapping[1] || mapping[0] || ''
+    : mapping[0] || mapping[1] || '';
 }
 
 function lookupManualNpcSectionMapping(talkSection, npcId, section) {
