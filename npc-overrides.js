@@ -14,6 +14,8 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   '1500': ['Narrator', 'Narrator'],
   '1600': ['Ranni the Witch', '魔女ラニ'],
   '1650': ['Ranni the Witch', '魔女ラニ'],
+  '2131': ['Smithing Master Hewg', '鍛冶師ヒューグ'],
+  '2149': ['Rykard, Lord of Blasphemy', '冒涜の君主、ライカード'],
   '2168': ['Blaidd the Half-Wolf', '半狼のブライヴ'],
   '2198': ['Old Albus', 'アルバス老'],
   '2201': ['Alexander, Warrior Jar', '戦士の壺、アレキサンダー'],
