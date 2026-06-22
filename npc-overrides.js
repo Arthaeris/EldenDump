@@ -26,7 +26,7 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   '2248': ['War Counselor Iji', '軍師イジー'],
   '2268': ['Jar-Bairn', '小壺'],
   '2270': ['Aureliette', 'クラリス'],
-  '2288': ['Latenna the Albinauric', 'しろがねのラティナ']
+  '2288': ['Latenna the Albinauric', 'しろがねのラティナ'],
   
 
   'd1010': ['Messmer the Impaler', '串刺し公、メスメル'],
