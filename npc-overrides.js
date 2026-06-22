@@ -14,7 +14,8 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   '1500': ['Narrator', 'Narrator'],
   '1600': ['Ranni the Witch', '魔女ラニ'],
   '1650': ['Ranni the Witch', '魔女ラニ'],
-  '2210': ['The Noble Goldmask', '金仮面卿'
+  '2208': ['Alexander, Warrior Jar', '戦士の壺、アレキサンダー'],
+  '2210': ['The Noble Goldmask', '金仮面卿'],
   '2238': ['Boc the Seamster', 'お針子のボック'],
   '2241': ['War Counselor Iji', '軍師イジー'],
   '2248': ['War Counselor Iji', '軍師イジー'],
