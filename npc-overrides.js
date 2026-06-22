@@ -5,13 +5,31 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   '1004': ['Narrator', 'Narrator'],
   '1005': ['Narrator', 'Narrator'],
   '1006': ['Narrator', 'Narrator'],
-
   '1010': ['Finger Reader Crone', '指読みの老婆'],
+  '1062': ['Ranni the Witch', '魔女ラニ'],
+  '1063': ['Ranni the Witch', '魔女ラニ'],
+  '1200': ['Narrator', 'Narrator'],
+  
 
   'd1010': ['Messmer the Impaler', '串刺し公、メスメル'],
   'd1021': ['Hornsent Grandam', '角人の老婆'],
   'd1031': ['Igon', 'エーゴン'],
   'd1032': ['Igon', 'エーゴン'],
   'd1040': ['Midra, Lord of Frenzied Flame', '狂い火の王、ミドラー'],
-  'd1051': ['Moore', 'ムーア']
+  'd1051': ['Moore', 'ムーア'],
+  'd1091': ['Swordhand of Night Jolán', '夜の剣士、ヨラーン'],
+  'd1141': ['Hornsent', '角人'],
+  'd1151': ['Moore', 'ムーア'],
+  'd1161': ['Sir Ansbach', '老兵アンスバッハ'],
+  'd1162': ['Sir Ansbach', '老兵アンスバッハ'],
+  'd1163': ['Sir Ansbach', '老兵アンスバッハ'],
+  'd1164': ['Sir Ansbach', '老兵アンスバッハ'],
+  'd1171': ['Redmane Freyja', '赤獅子、フレイヤ'],
+  'd1172': ['Redmane Freyja', '赤獅子、フレイヤ'],
+  'd1173': ['Redmane Freyja', '赤獅子、フレイヤ'],
+  'd1181': ['Thiollier, 'ティエリエ'],
+  'd1191': ['Thiollier, 'ティエリエ'],
+  'd1192': ['Thiollier, 'ティエリエ'],
+  'd1201': ['Count Ymir, High Priest, '大司祭、ユミル卿'],
+  'd1202': ['Count Ymir, High Priest, '大司祭、ユミル卿']
 };
