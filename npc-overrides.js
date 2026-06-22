@@ -9,6 +9,8 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   '1062': ['Ranni the Witch', '魔女ラニ'],
   '1063': ['Ranni the Witch', '魔女ラニ'],
   '1200': ['Narrator', 'Narrator'],
+  '1300': ['Narrator', 'Narrator'],
+  '1400': ['Narrator', 'Narrator'],
   '1500': ['Narrator', 'Narrator'],
   '1600': ['Ranni the Witch', '魔女ラニ'],
   '1650': ['Ranni the Witch', '魔女ラニ'],
