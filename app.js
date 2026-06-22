@@ -403,9 +403,7 @@ function parseTalkMsgEntries({
 
     const key = `${talkSection}|${info.npcId}|${info.section}`;
 
-    const npcKey = manualMapping
-      ? `${talkSection}|${info.npcId}|${manualMapping.npcKeySuffix}`
-      : `${talkSection}|${info.npcId}`;
+    const npcKey = `${talkSection}|${nameEn}`;
 
     if (!grouped.has(key)) {
       grouped.set(key, {
