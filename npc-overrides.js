@@ -14,6 +14,8 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   '1500': ['Narrator', 'Narrator'],
   '1600': ['Ranni the Witch', '魔女ラニ'],
   '1650': ['Ranni the Witch', '魔女ラニ'],
+  '2241': ['War Counselor Iji', '軍師イジー'],
+  '2248': ['War Counselor Iji', '軍師イジー'],
   '2268': ['Jar-Bairn', '小壺'],
   '2270': ['Aureliette', 'クラリス'],
   '2288': ['Latenna the Albinauric', 'しろがねのラティナ']
