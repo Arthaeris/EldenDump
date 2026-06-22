@@ -9,6 +9,9 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   '1062': ['Ranni the Witch', '魔女ラニ'],
   '1063': ['Ranni the Witch', '魔女ラニ'],
   '1200': ['Narrator', 'Narrator'],
+  '1500': ['Narrator', 'Narrator'],
+  '1600': ['Ranni the Witch', '魔女ラニ'],
+  '1650': ['Ranni the Witch', '魔女ラニ'],
   
 
   'd1010': ['Messmer the Impaler', '串刺し公、メスメル'],
@@ -31,5 +34,6 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   'd1191': ['Thiollier', 'ティエリエ'],
   'd1192': ['Thiollier', 'ティエリエ'],
   'd1201': ['Count Ymir, High Priest', '大司祭、ユミル卿'],
-  'd1202': ['Count Ymir, High Priest', '大司祭、ユミル卿']
+  'd1202': ['Count Ymir, High Priest', '大司祭、ユミル卿'],
+  'd1500': ['NPC Spirits', 'NPC Spirits'],
 };
