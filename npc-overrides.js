@@ -50,5 +50,6 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   'd1192': ['Thiollier', 'ティエリエ'],
   'd1201': ['Count Ymir, High Priest', '大司祭、ユミル卿'],
   'd1202': ['Count Ymir, High Priest', '大司祭、ユミル卿'],
+  'd2110': ['Base Serpent Messmer', '邪な蛇、メスメル'],
   'd1500': ['NPC Spirits', 'NPC Spirits']
 };
