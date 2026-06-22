@@ -14,6 +14,8 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   '1500': ['Narrator', 'Narrator'],
   '1600': ['Ranni the Witch', '魔女ラニ'],
   '1650': ['Ranni the Witch', '魔女ラニ'],
+  '2198': ['Old Albus', 'アルバス老],
+  '2201': ['Alexander, Warrior Jar', '戦士の壺、アレキサンダー'],
   '2208': ['Alexander, Warrior Jar', '戦士の壺、アレキサンダー'],
   '2210': ['The Noble Goldmask', '金仮面卿'],
   '2238': ['Boc the Seamster', 'お針子のボック'],
