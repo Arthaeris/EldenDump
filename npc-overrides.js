@@ -27,9 +27,9 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   'd1171': ['Redmane Freyja', '赤獅子、フレイヤ'],
   'd1172': ['Redmane Freyja', '赤獅子、フレイヤ'],
   'd1173': ['Redmane Freyja', '赤獅子、フレイヤ'],
-  'd1181': ['Thiollier, 'ティエリエ'],
-  'd1191': ['Thiollier, 'ティエリエ'],
-  'd1192': ['Thiollier, 'ティエリエ'],
-  'd1201': ['Count Ymir, High Priest, '大司祭、ユミル卿'],
-  'd1202': ['Count Ymir, High Priest, '大司祭、ユミル卿']
+  'd1181': ['Thiollier', 'ティエリエ'],
+  'd1191': ['Thiollier', 'ティエリエ'],
+  'd1192': ['Thiollier', 'ティエリエ'],
+  'd1201': ['Count Ymir, High Priest', '大司祭、ユミル卿'],
+  'd1202': ['Count Ymir, High Priest', '大司祭、ユミル卿']
 };
