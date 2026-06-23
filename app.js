@@ -1275,23 +1275,28 @@ const dlcBadge = isDlc
 }
 
 function renderFullDialogueByNpcId(group) {
-  const byNpcId = new Map();
+  const groupsById = new Map();
 
   for (const entry of group) {
-    if (!byNpcId.has(entry.segment)) {
-      byNpcId.set(entry.segment, []);
+    const npcId = entry.segment || entry.npcId || 'unknown';
+
+    if (!groupsById.has(npcId)) {
+      groupsById.set(npcId, []);
     }
 
-    byNpcId.get(entry.segment).push(entry);
+    groupsById.get(npcId).push(entry);
   }
 
-  return [...byNpcId.entries()]
-    .sort((a, b) => Number(a[0]) - Number(b[0]))
+  return [...groupsById.entries()]
+    .sort((a, b) => sortIds(a[0], b[0]))
     .map(([npcId, entries]) => `
-      <div class="dialogue-id-block">
-        <h3>NPC ID ${escapeHtml(npcId)}</h3>
+      <section class="dialogue-id-block">
+        <div class="entry-section dialogue-id-heading">
+          NPC ID ${escapeHtml(npcId)} · ${entries.length} ${entries.length === 1 ? 'section' : 'sections'}
+        </div>
+
         ${renderFullDialogue(entries)}
-      </div>
+      </section>
     `)
     .join('');
 }
