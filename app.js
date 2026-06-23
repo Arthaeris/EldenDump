@@ -1608,24 +1608,35 @@ backFromNpcBtn.addEventListener('click', showHome);
 backFromDialogueBtn.addEventListener('click', showNpcIndex);
 
 
-function showRecentUpdateNotice() {
-  if (typeof BUILD_INFO === 'undefined') return;
-  if (!BUILD_INFO.updatedAt) return;
+function showAnnouncement() {
+  const a = BUILD_INFO?.announcement;
 
-  const notice = document.querySelector('#recentUpdateNotice');
-  if (!notice) return;
+  if (!a?.enabled) return;
+
+  const box = document.querySelector('#announcementBox');
+  const title = document.querySelector('#announcementTitle');
+  const message = document.querySelector('#announcementMessage');
+
+  if (!box || !title || !message) return;
 
   const updatedAt = new Date(BUILD_INFO.updatedAt).getTime();
-  const now = Date.now();
+  const ageHours =
+    (Date.now() - updatedAt) / (1000 * 60 * 60);
 
-  const oneDay = 24 * 60 * 60 * 1000;
-
-  if (Number.isFinite(updatedAt) && now - updatedAt < oneDay) {
-    notice.hidden = false;
+  if (ageHours > (a.showForHours || 24)) {
+    return;
   }
+
+  title.textContent =
+    `${a.title} • v${BUILD_INFO.version}`;
+
+  message.textContent =
+    a.message;
+
+  box.hidden = false;
 }
 
-showRecentUpdateNotice();
+showAnnouncement();
 
 
 loadDump();
