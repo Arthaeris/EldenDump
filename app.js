@@ -1607,6 +1607,27 @@ backFromCategoryBtn.addEventListener('click', showHome);
 backFromNpcBtn.addEventListener('click', showHome);
 backFromDialogueBtn.addEventListener('click', showNpcIndex);
 
+
+function showRecentUpdateNotice() {
+  if (typeof BUILD_INFO === 'undefined') return;
+  if (!BUILD_INFO.updatedAt) return;
+
+  const notice = document.querySelector('#recentUpdateNotice');
+  if (!notice) return;
+
+  const updatedAt = new Date(BUILD_INFO.updatedAt).getTime();
+  const now = Date.now();
+
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  if (Number.isFinite(updatedAt) && now - updatedAt < oneDay) {
+    notice.hidden = false;
+  }
+}
+
+showRecentUpdateNotice();
+
+
 loadDump();
 
 if ('serviceWorker' in navigator) {
