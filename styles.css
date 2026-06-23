@@ -594,3 +594,15 @@ footer {
     justify-self: stretch;
   }
 }
+
+
+.dialogue-id-block {
+  display: grid;
+  gap: 10px;
+}
+
+.dialogue-id-heading {
+  margin: 18px 0 0;
+  padding: 0 4px;
+  font-size: 0.95rem;
+}
