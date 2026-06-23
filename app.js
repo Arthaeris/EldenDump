@@ -1194,10 +1194,10 @@ function showDialogue(npcKey) {
   }
 
   if (dialogueDisplayMode === 'full') {
-    dialogueResults.innerHTML = group.length
-      ? renderFullDialogue(group)
-      : '<div class="empty">No dialogue found.</div>';
-  } else {
+  dialogueResults.innerHTML = group.length
+    ? renderFullDialogueByNpcId(group)
+    : '<div class="empty">No dialogue found.</div>';
+} else {
     renderEntryList({
       target: dialogueResults,
       items: group,
@@ -1272,6 +1272,28 @@ const dlcBadge = isDlc
       <div class="entry-text entry-text-code">${formatEntryText(textCode)}</div>
     </article>
   `;
+}
+
+function renderFullDialogueByNpcId(group) {
+  const byNpcId = new Map();
+
+  for (const entry of group) {
+    if (!byNpcId.has(entry.segment)) {
+      byNpcId.set(entry.segment, []);
+    }
+
+    byNpcId.get(entry.segment).push(entry);
+  }
+
+  return [...byNpcId.entries()]
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .map(([npcId, entries]) => `
+      <div class="dialogue-id-block">
+        <h3>NPC ID ${escapeHtml(npcId)}</h3>
+        ${renderFullDialogue(entries)}
+      </div>
+    `)
+    .join('');
 }
 
 function openMenu() {
