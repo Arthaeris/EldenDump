@@ -1275,6 +1275,13 @@ function getNpcMetadata(entry) {
 function renderMetadataList(title, items, type = '') {
   if (!items?.length) return '';
 
+  const dataAttribute =
+    type === 'npc'
+      ? 'data-related-npc'
+      : type === 'item'
+        ? 'data-related-item'
+        : '';
+
   return `
     <div class="npc-meta-section">
       <h3>${escapeHtml(title)}</h3>
@@ -1284,7 +1291,7 @@ function renderMetadataList(title, items, type = '') {
           <button
             class="npc-meta-tag ${type ? `npc-meta-tag-${escapeHtml(type)}` : ''}"
             type="button"
-            data-related-${escapeAttribute(type)}="${escapeAttribute(item)}"
+            ${dataAttribute}="${escapeAttribute(item)}"
           >
             ${escapeHtml(item)}
           </button>
