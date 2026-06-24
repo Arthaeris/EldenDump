@@ -1710,14 +1710,52 @@ function formatRawTextClean(entry, lang) {
   return getCleanText(getText(entry, lang));
 }
 
-function formatEntryText(text, highlight = false) {
-  const html = highlight
+function formatEntryText(text, highlight = false, linkReferences = false) {
+  let html = highlight
     ? highlightSearchTerms(text)
     : escapeHtml(text);
+
+  if (linkReferences) {
+    html = linkReferencesInText(html);
+  }
 
   return html
     .replace(/\n---\n/g, '<hr>')
     .replace(/\n/g, '<br>');
+}
+
+function linkReferencesInText(html) {
+  if (!referenceIndex.length) return html;
+
+  let output = html;
+
+  const references = referenceIndex
+    .flatMap(reference =>
+      reference.aliases.map(alias => ({
+        reference,
+        alias
+      }))
+    )
+    .filter(item => item.alias.length >= 4)
+    .sort((a, b) => b.alias.length - a.alias.length);
+
+  for (const item of references) {
+    const escapedAlias = item.alias
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const regex = new RegExp(`\\b(${escapedAlias})\\b`, 'gi');
+
+    output = output.replace(regex, match => `
+      <button
+        class="reference-link reference-link-${escapeAttribute(item.reference.type)}"
+        type="button"
+        data-reference-type="${escapeAttribute(item.reference.type)}"
+        data-reference-label="${escapeAttribute(item.reference.label)}"
+      >${match}</button>
+    `);
+  }
+
+  return output;
 }
 
 function getCopyTextWithIds(entry, lang) {
