@@ -41,6 +41,7 @@ let activeTypeFilter = 'All';
 let activeFlagFilter = 'All';
 let dialogueDisplayMode = 'cards';
 let currentDialogueKey = '';
+let autoRelatedNpcs = new Map();
 
 let currentRenderTarget = results;
 let currentVisibleEntries = [];
@@ -767,6 +768,88 @@ function buildIndexes() {
       }
 
       npcGroups.get(npcKey).push(entry);
+    }
+  }
+}
+
+function normalizeMentionName(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/^lady\s+/, '')
+    .replace(/^sir\s+/, '')
+    .replace(/^saint\s+/, '')
+    .replace(/^the\s+/, '')
+    .replace(/[^a-z0-9\s'-]/g, '')
+    .trim();
+}
+
+function getNpcMentionAliases(name) {
+  const clean = String(name || '').trim();
+  const normalized = normalizeMentionName(clean);
+
+  const parts = normalized
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const aliases = new Set();
+
+  aliases.add(normalized);
+
+  if (parts.length > 1) {
+    aliases.add(parts[0]);
+  }
+
+  return [...aliases].filter(alias => alias.length >= 4);
+}
+
+function buildAutoRelatedNpcs() {
+  autoRelatedNpcs = new Map();
+
+  const npcNames = [...npcGroups.values()]
+    .map(group => getName(group[0], 'en'))
+    .filter(Boolean);
+
+  const npcAliases = npcNames.map(name => ({
+    name,
+    aliases: getNpcMentionAliases(name)
+  }));
+
+  for (const [npcKey, group] of npcGroups.entries()) {
+    const sourceName = getName(group[0], 'en');
+    if (!sourceName) continue;
+
+    const sourceRelated = new Set();
+
+    const text = group
+      .map(entry => getText(entry, 'en'))
+      .join('\n')
+      .toLowerCase();
+
+    for (const target of npcAliases) {
+      if (target.name === sourceName) continue;
+
+      const matched = target.aliases.some(alias => {
+        const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp(`\\b${escaped}\\b`, 'i').test(text);
+      });
+
+      if (!matched) continue;
+
+      sourceRelated.add(target.name);
+
+      if (!autoRelatedNpcs.has(target.name)) {
+        autoRelatedNpcs.set(target.name, new Set());
+      }
+
+      autoRelatedNpcs.get(target.name).add(sourceName);
+    }
+
+    if (!autoRelatedNpcs.has(sourceName)) {
+      autoRelatedNpcs.set(sourceName, new Set());
+    }
+
+    for (const related of sourceRelated) {
+      autoRelatedNpcs.get(sourceName).add(related);
     }
   }
 }
