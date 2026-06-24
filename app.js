@@ -787,19 +787,50 @@ function getNpcMentionAliases(name) {
   const clean = String(name || '').trim();
   const normalized = normalizeMentionName(clean);
 
-  const parts = normalized
-    .split(/\s+/)
-    .filter(Boolean);
-
   const aliases = new Set();
 
   aliases.add(normalized);
 
-  if (parts.length > 1) {
-    aliases.add(parts[0]);
+  const beforeComma = normalized.split(',')[0].trim();
+
+  if (beforeComma && beforeComma !== normalized) {
+    aliases.add(beforeComma);
   }
 
-  return [...aliases].filter(alias => alias.length >= 4);
+  const titleStripped = beforeComma
+    .replace(/^(lady|lord|sir|saint|count|queen|king|princess|prince|master|war counselor)\s+/, '')
+    .trim();
+
+  if (titleStripped && titleStripped.length >= 4) {
+    aliases.add(titleStripped);
+  }
+
+  return [...aliases].filter(alias => {
+    if (alias.length < 4) return false;
+
+    const badSingleWords = new Set([
+      'imprisoned',
+      'merchant',
+      'nomadic',
+      'isolated',
+      'wandering',
+      'finger',
+      'reader',
+      'crone',
+      'count',
+      'lord',
+      'lady',
+      'sir',
+      'saint',
+      'queen',
+      'king',
+      'prince',
+      'princess',
+      'master'
+    ]);
+
+    return !badSingleWords.has(alias);
+  });
 }
 
 function buildAutoRelatedNpcs() {
