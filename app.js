@@ -1163,10 +1163,16 @@ function entryMatchesSearchQuery(entry, tokens) {
 }
 
 function entryMentionsReference(entry, value, exact = false) {
-  const references = findReferencesForQuery(value, exact);
+  const query = String(value || '').trim();
+
+  if (query.length < 3) {
+    return false;
+  }
+
+  const references = findReferencesForQuery(query, exact);
 
   if (!references.length) {
-    return searchIncludes(getSearchBlob(entry, 'en'), value, exact);
+    return searchIncludes(getSearchBlob(entry, 'en'), query, exact);
   }
 
   return references.some(reference =>
