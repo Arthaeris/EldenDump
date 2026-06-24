@@ -1191,7 +1191,9 @@ function referenceMatchesQuery(reference, value, exact = false) {
 
 function findReferencesForQuery(value, exact = false) {
   
-  if (!String(value || '').trim()) {
+  const query = String(value || '').trim();
+
+if (query.length < 3) {
   return [];
 }
 
