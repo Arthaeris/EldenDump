@@ -1727,34 +1727,84 @@ function formatEntryText(text, highlight = false, linkReferences = false) {
 function linkReferencesInText(html) {
   if (!referenceIndex.length) return html;
 
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = html;
+  const plainText = textarea.value;
+
   const references = referenceIndex
     .filter(reference => reference.type === 'npc')
     .flatMap(reference =>
       reference.aliases.map(alias => ({
         reference,
-        alias
+        alias: String(alias || '').trim()
       }))
     )
-    .filter(item => item.alias.length >= 4)
+    .filter(item =>
+      item.alias.length >= 4 &&
+      !/^\d+$/.test(item.alias)
+    )
     .sort((a, b) => b.alias.length - a.alias.length);
 
-  let output = html;
+  if (!references.length) {
+    return html;
+  }
+
+  const matches = [];
 
   for (const item of references) {
     const escapedAlias = item.alias
       .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    const regex = new RegExp(`(^|[^\\w">])(${escapedAlias})(?![^<]*>)`, 'gi');
+    const regex = new RegExp(`\\b${escapedAlias}\\b`, 'gi');
 
-    output = output.replace(regex, (full, before, match) => {
-      return `${before}<button
-        class="reference-link reference-link-${escapeAttribute(item.reference.type)}"
-        type="button"
-        data-reference-type="${escapeAttribute(item.reference.type)}"
-        data-reference-label="${escapeAttribute(item.reference.label)}"
-      >${match}</button>`;
-    });
+    let match;
+
+    while ((match = regex.exec(plainText))) {
+      matches.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        text: match[0],
+        reference: item.reference
+      });
+    }
   }
+
+  if (!matches.length) {
+    return html;
+  }
+
+  matches.sort((a, b) => {
+    if (a.start !== b.start) return a.start - b.start;
+    return (b.end - b.start) - (a.end - a.start);
+  });
+
+  const accepted = [];
+  let lastEnd = -1;
+
+  for (const match of matches) {
+    if (match.start < lastEnd) continue;
+
+    accepted.push(match);
+    lastEnd = match.end;
+  }
+
+  let output = '';
+  let cursor = 0;
+
+  for (const match of accepted) {
+    output += escapeHtml(plainText.slice(cursor, match.start));
+
+    output += `<button
+      class="reference-link reference-link-${escapeAttribute(match.reference.type)}"
+      type="button"
+      data-reference-type="${escapeAttribute(match.reference.type)}"
+      data-reference-label="${escapeAttribute(match.reference.label)}"
+    >${escapeHtml(match.text)}</button>`;
+
+    cursor = match.end;
+  }
+
+  output += escapeHtml(plainText.slice(cursor));
 
   return output;
 }
