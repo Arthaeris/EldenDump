@@ -1294,6 +1294,21 @@ function fuzzyNameMatches(value, candidates) {
   });
 }
 
+function getNpcSearchCandidates(entry) {
+  const candidates = [
+    getName(entry, 'en'),
+    getName(entry, 'jp')
+  ];
+
+  if (typeof NPC_MENTION_ALIASES !== 'undefined') {
+    const nameEn = getName(entry, 'en');
+    const aliases = NPC_MENTION_ALIASES[nameEn] || [];
+    candidates.push(...aliases);
+  }
+
+  return candidates.filter(Boolean);
+}
+
 function render() {
   const tokens = tokenizeSearchQuery(search.value.trim());
 currentSearchTokens = tokens;
