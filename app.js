@@ -2059,7 +2059,10 @@ function showAnnouncement() {
       (Date.now() - updatedAt) / (1000 * 60 * 60);
 
     return ageHours <= (item.showForHours || 24);
-  });
+    })
+  .sort((a, b) =>
+    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  );
 
   const latest = visibleAnnouncements[0];
   if (!latest) return;
