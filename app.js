@@ -1738,12 +1738,12 @@ function formatEntryText(text, highlight = false, linkReferences = false) {
     .replace(/\n/g, '<br>');
 }
 
-function linkReferencesInText(html) {
-  if (!referenceIndex.length) return html;
+function linkReferencesInRawText(text) {
+  if (!referenceIndex.length) {
+    return escapeHtml(text);
+  }
 
-  const textarea = document.createElement('textarea');
-  textarea.innerHTML = html;
-  const plainText = textarea.value;
+  const rawText = String(text || '');
 
   const references = referenceIndex
     .filter(reference => reference.type === 'npc')
@@ -1759,10 +1759,6 @@ function linkReferencesInText(html) {
     )
     .sort((a, b) => b.alias.length - a.alias.length);
 
-  if (!references.length) {
-    return html;
-  }
-
   const matches = [];
 
   for (const item of references) {
@@ -1773,7 +1769,7 @@ function linkReferencesInText(html) {
 
     let match;
 
-    while ((match = regex.exec(plainText))) {
+    while ((match = regex.exec(rawText))) {
       matches.push({
         start: match.index,
         end: match.index + match[0].length,
@@ -1784,7 +1780,7 @@ function linkReferencesInText(html) {
   }
 
   if (!matches.length) {
-    return html;
+    return escapeHtml(rawText);
   }
 
   matches.sort((a, b) => {
@@ -1806,7 +1802,7 @@ function linkReferencesInText(html) {
   let cursor = 0;
 
   for (const match of accepted) {
-    output += escapeHtml(plainText.slice(cursor, match.start));
+    output += escapeHtml(rawText.slice(cursor, match.start));
 
     output += `<button
       class="reference-link reference-link-${escapeAttribute(match.reference.type)}"
@@ -1818,7 +1814,7 @@ function linkReferencesInText(html) {
     cursor = match.end;
   }
 
-  output += escapeHtml(plainText.slice(cursor));
+  output += escapeHtml(rawText.slice(cursor));
 
   return output;
 }
