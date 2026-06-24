@@ -1609,7 +1609,9 @@ backFromDialogueBtn.addEventListener('click', showNpcIndex);
 
 
 function showAnnouncement() {
-  const a = BUILD_INFO?.announcement;
+  if (typeof BUILD_INFO === 'undefined') return;
+
+  const a = BUILD_INFO.announcement;
 
   if (!a?.enabled) return;
 
@@ -1630,14 +1632,12 @@ function showAnnouncement() {
   title.textContent =
     `${a.title} • v${BUILD_INFO.version}`;
 
-  message.textContent =
-    a.message;
+  message.textContent = a.message;
 
   box.hidden = false;
 }
 
 showAnnouncement();
-
 
 loadDump();
 
