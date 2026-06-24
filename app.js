@@ -2472,9 +2472,12 @@ if (referenceButton) {
   const label = referenceButton.dataset.referenceLabel;
 
   const reference = referenceIndex.find(item =>
-    item.type === type &&
-    item.label === label
-  );
+  item.type === type &&
+  item.aliases.some(alias =>
+    normalizeMentionName(alias) ===
+    normalizeMentionName(label)
+  )
+);
 
   if (!reference) return;
 
