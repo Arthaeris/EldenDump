@@ -1156,8 +1156,22 @@ function entryMentionsReference(entry, value, exact = false) {
   const text = getSearchBlob(entry, 'en');
 
   if (searchIncludes(text, value, exact)) {
+  return true;
+}
+
+if (shouldUseFuzzyToken({
+  operator: 'mentions',
+  value,
+  exact
+})) {
+  const allNpcNames = [...npcGroups.values()]
+    .map(group => getName(group[0], 'en'))
+    .filter(Boolean);
+
+  if (fuzzyNameMatches(value, allNpcNames)) {
     return true;
   }
+}
 
   if (typeof NPC_MENTION_ALIASES !== 'undefined') {
     const normalizedValue = normalizeMentionName(value);
