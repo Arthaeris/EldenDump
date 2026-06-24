@@ -2338,7 +2338,7 @@ async function loadDump() {
     buildIndexes();
 buildReferenceIndex();
 buildAutoRelatedNpcs();
-buildAutoRelatedItems();
+// buildAutoRelatedItems();
 renderCategoryMenu();
 render();
   } catch (error) {
