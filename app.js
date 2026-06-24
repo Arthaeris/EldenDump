@@ -1724,6 +1724,39 @@ window.addEventListener('scroll', handleScroll, { passive: true });
 
 document.addEventListener('click', async event => {
 
+const relatedNpcButton = event.target.closest('[data-related-npc]');
+
+if (relatedNpcButton) {
+  event.stopPropagation();
+
+  const name = relatedNpcButton.dataset.relatedNpc;
+  const match = [...npcGroups.entries()].find(([, group]) =>
+    group.some(entry => getName(entry, 'en') === name)
+  );
+
+  if (match) {
+    showDialogue(match[0]);
+  } else {
+    search.value = name;
+    showHome();
+    render();
+  }
+
+  return;
+}
+
+const relatedItemButton = event.target.closest('[data-related-item]');
+
+if (relatedItemButton) {
+  event.stopPropagation();
+
+  search.value = relatedItemButton.dataset.relatedItem;
+  showHome();
+  render();
+
+  return;
+}
+
   const fullDialogueLanguageButton =
     event.target.closest('[data-full-dialogue-language-toggle]');
 
