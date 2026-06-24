@@ -1727,9 +1727,8 @@ function formatEntryText(text, highlight = false, linkReferences = false) {
 function linkReferencesInText(html) {
   if (!referenceIndex.length) return html;
 
-  let output = html;
-
   const references = referenceIndex
+    .filter(reference => reference.type === 'npc')
     .flatMap(reference =>
       reference.aliases.map(alias => ({
         reference,
@@ -1739,20 +1738,22 @@ function linkReferencesInText(html) {
     .filter(item => item.alias.length >= 4)
     .sort((a, b) => b.alias.length - a.alias.length);
 
+  let output = html;
+
   for (const item of references) {
     const escapedAlias = item.alias
       .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    const regex = new RegExp(`\\b(${escapedAlias})\\b`, 'gi');
+    const regex = new RegExp(`(^|[^\\w">])(${escapedAlias})(?![^<]*>)`, 'gi');
 
-    output = output.replace(regex, match => `
-      <button
+    output = output.replace(regex, (full, before, match) => {
+      return `${before}<button
         class="reference-link reference-link-${escapeAttribute(item.reference.type)}"
         type="button"
         data-reference-type="${escapeAttribute(item.reference.type)}"
         data-reference-label="${escapeAttribute(item.reference.label)}"
-      >${match}</button>
-    `);
+      >${match}</button>`;
+    });
   }
 
   return output;
