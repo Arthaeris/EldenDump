@@ -791,7 +791,15 @@ function getNpcMentionAliases(name) {
 
   aliases.add(normalized);
 
-  const beforeComma = normalized.split(',')[0].trim();
+const firstWord = normalized
+  .split(/[,\s]+/)[0]
+  .trim();
+
+if (firstWord.length >= 4) {
+  aliases.add(firstWord);
+}
+
+const beforeComma = normalized.split(',')[0].trim();
 
   if (beforeComma && beforeComma !== normalized) {
     aliases.add(beforeComma);
