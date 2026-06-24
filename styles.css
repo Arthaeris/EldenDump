@@ -780,3 +780,24 @@ footer {
     transparent
   );
 }
+
+
+
+
+.reference-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 800;
+  padding: 0 2px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.reference-link:hover {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent);
+}
