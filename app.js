@@ -955,7 +955,15 @@ const hasJapanese = hasDirectLanguage(e, 'jp');
 
 ${
   hasJapanese
-    ? `<button class="translate-btn" type="button">Translate</button>`
+    ? `
+      <button
+        class="translate-btn"
+        type="button"
+        ${lang !== 'jp' ? 'hidden' : ''}
+      >
+        Translate
+      </button>
+    `
     : ''
 }
       </div>
