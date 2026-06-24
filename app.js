@@ -805,38 +805,37 @@ function getNpcMentionAliases(name) {
     aliases.add(titleStripped);
   }
 
+  if (typeof NPC_MENTION_ALIASES !== 'undefined') {
+    const manualAliases = NPC_MENTION_ALIASES[clean] || [];
+
+    for (const alias of manualAliases) {
+      aliases.add(normalizeMentionName(alias));
+    }
+  }
+
+  const badSingleWords = new Set([
+    'imprisoned',
+    'merchant',
+    'nomadic',
+    'isolated',
+    'wandering',
+    'finger',
+    'reader',
+    'crone',
+    'count',
+    'lord',
+    'lady',
+    'sir',
+    'saint',
+    'queen',
+    'king',
+    'prince',
+    'princess',
+    'master'
+  ]);
+
   return [...aliases].filter(alias => {
     if (alias.length < 4) return false;
-
-    const badSingleWords = new Set([
-      'imprisoned',
-      'merchant',
-      'nomadic',
-      'isolated',
-      'wandering',
-      'finger',
-      'reader',
-      'crone',
-      'count',
-      'lord',
-      'lady',
-      'sir',
-      'saint',
-      'queen',
-      'king',
-      'prince',
-      'princess',
-      'master'
-    ]);
-    
-    if (typeof NPC_MENTION_ALIASES !== 'undefined') {
-  const manualAliases = NPC_MENTION_ALIASES[clean] || [];
-
-  for (const alias of manualAliases) {
-    aliases.add(normalizeMentionName(alias));
-  }
-}
-
     return !badSingleWords.has(alias);
   });
 }
