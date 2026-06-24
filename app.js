@@ -1196,6 +1196,15 @@ function renderNpcProfile(entry) {
 
   if (!meta) return '';
 
+  const hasProfileData =
+    meta.image ||
+    meta.relatedNpcs?.length ||
+    meta.relatedItems?.length ||
+    meta.trivia?.length ||
+    meta.notes?.length;
+
+  if (!hasProfileData) return '';
+
   const name = getName(entry, activeLanguage);
 
   return `
@@ -1208,6 +1217,7 @@ function renderNpcProfile(entry) {
               src="${escapeAttribute(meta.image)}"
               alt="${escapeAttribute(name)}"
               loading="lazy"
+              onerror="this.remove()"
             >
           `
           : ''
