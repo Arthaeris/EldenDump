@@ -1414,8 +1414,12 @@ function formatRawTextClean(entry, lang) {
   return getCleanText(getText(entry, lang));
 }
 
-function formatEntryText(text) {
-  return escapeHtml(text)
+function formatEntryText(text, highlight = false) {
+  const html = highlight
+    ? highlightSearchTerms(text)
+    : escapeHtml(text);
+
+  return html
     .replace(/\n---\n/g, '<hr>')
     .replace(/\n/g, '<br>');
 }
