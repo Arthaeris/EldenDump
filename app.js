@@ -987,6 +987,82 @@ function matchesSearchFilter(entry) {
   return matchesType && matchesFlag;
 }
 
+function tokenizeSearchQuery(query) {
+  const tokens = [];
+  const regex = /(\w+):"([^"]+)"|(\w+):(\S+)|"([^"]+)"|(\S+)/g;
+
+  let match;
+
+  while ((match = regex.exec(query))) {
+    if (match[1]) {
+      tokens.push({
+        operator: match[1].toLowerCase(),
+        value: match[2],
+        exact: true
+      });
+    } else if (match[3]) {
+      tokens.push({
+        operator: match[3].toLowerCase(),
+        value: match[4],
+        exact: false
+      });
+    } else if (match[5]) {
+      tokens.push({
+        operator: 'text',
+        value: match[5],
+        exact: true
+      });
+    } else if (match[6]) {
+      tokens.push({
+        operator: 'text',
+        value: match[6],
+        exact: false
+      });
+    }
+  }
+
+  return tokens.filter(token => token.value?.trim());
+}
+
+function searchIncludes(value, needle, exact = false) {
+  const haystack = String(value || '').toLowerCase();
+  const q = String(needle || '').toLowerCase();
+
+  if (!q) return true;
+
+  if (exact) {
+    return haystack.includes(q);
+  }
+
+  return q
+    .split(/\s+/)
+    .filter(Boolean)
+    .every(part => haystack.includes(part));
+}
+
+function getSearchBlob(entry, lang = 'both') {
+  const parts = [
+    entry.category,
+    entry.originalCategory,
+    entry.section,
+    entry.id,
+    entry.segment,
+    entry.talkSection
+  ];
+
+  if (lang === 'en' || lang === 'both') {
+    parts.push(getName(entry, 'en'));
+    parts.push(getText(entry, 'en'));
+  }
+
+  if (lang === 'jp' || lang === 'both') {
+    parts.push(getName(entry, 'jp'));
+    parts.push(getText(entry, 'jp'));
+  }
+
+  return parts.filter(Boolean).join('\n');
+}
+
 function render() {
   const q = search.value.trim().toLowerCase();
 
