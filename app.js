@@ -1125,6 +1125,35 @@ function updateCardLanguage(card, lang) {
   }
 }
 
+function pushViewHistory(view) {
+  viewHistory.push(view);
+}
+
+function goBack() {
+  const previous = viewHistory.pop();
+
+  if (!previous) {
+    showHome(false);
+    return;
+  }
+
+  if (previous.type === 'home') {
+    showHome(false);
+  }
+
+  if (previous.type === 'npcIndex') {
+    showNpcIndex(false);
+  }
+
+  if (previous.type === 'dialogue') {
+    showDialogue(previous.npcKey, false);
+  }
+
+  if (previous.type === 'category') {
+    showCategory(previous.categoryName, false);
+  }
+}
+
 function showHome() {
   searchView.hidden = false;
   categoryView.hidden = true;
