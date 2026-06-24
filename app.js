@@ -1015,15 +1015,24 @@ function tokenizeSearchQuery(query) {
         exact: true
       });
     } else if (match[6]) {
+      const raw = match[6];
+
+      if (raw.endsWith(':')) {
+        continue;
+      }
+
       tokens.push({
         operator: 'text',
-        value: match[6],
+        value: raw,
         exact: false
       });
     }
   }
 
-  return tokens.filter(token => token.value?.trim());
+  return tokens.filter(token =>
+    token.value &&
+    token.value.trim().length > 0
+  );
 }
 
 function searchIncludes(value, needle, exact = false) {
