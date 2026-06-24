@@ -1070,8 +1070,16 @@ function entryMatchesSearchToken(entry, token) {
   const exact = token.exact;
 
   if (operator === 'text') {
-    return searchIncludes(getSearchBlob(entry), value, exact);
+  if (searchIncludes(getSearchBlob(entry), value, exact)) {
+    return true;
   }
+
+  if (shouldUseFuzzyToken(token)) {
+    return fuzzyNameMatches(value, getNpcSearchCandidates(entry));
+  }
+
+  return false;
+}
 
   if (operator === 'id') {
     return searchIncludes(entry.id, value, exact);
