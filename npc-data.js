@@ -43,3 +43,34 @@ const NPC_METADATA = {
     ]
   }
 };
+
+
+const NPC_MENTION_ALIASES = {
+  "Ranni the Witch": [
+    "Ranni",
+    "Lady Ranni",
+    "Princess Ranni",
+    "Snow Witch"
+  ],
+
+  "Count Ymir, High Priest": [
+    "Ymir",
+    "Count Ymir"
+  ],
+
+  "Blaidd the Half-Wolf": [
+    "Blaidd",
+    "Half-Wolf"
+  ],
+
+  "War Counselor Iji": [
+    "Iji",
+    "Smithing Master Iji",
+    "War Counselor Iji"
+  ],
+
+  "Sir Ansbach": [
+    "Ansbach",
+    "Pureblood Knight Ansbach"
+  ]
+};
