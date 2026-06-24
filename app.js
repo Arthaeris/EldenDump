@@ -1154,49 +1154,15 @@ function entryMatchesSearchQuery(entry, tokens) {
 }
 
 function entryMentionsReference(entry, value, exact = false) {
-  const text = getSearchBlob(entry, 'en');
+  const references = findReferencesForQuery(value, exact);
 
-  if (searchIncludes(text, value, exact)) {
-  return true;
-}
-
-if (shouldUseFuzzyToken({
-  operator: 'mentions',
-  value,
-  exact
-})) {
-  const allNpcNames = [...npcGroups.values()]
-    .map(group => getName(group[0], 'en'))
-    .filter(Boolean);
-
-  if (fuzzyNameMatches(value, allNpcNames)) {
-    return true;
-  }
-}
-
-  if (typeof NPC_MENTION_ALIASES !== 'undefined') {
-    const normalizedValue = normalizeMentionName(value);
-
-    for (const [npcName, aliases] of Object.entries(NPC_MENTION_ALIASES)) {
-      const allNames = [
-        npcName,
-        ...aliases
-      ];
-
-      const matchesAlias = allNames.some(alias =>
-        normalizeMentionName(alias) === normalizedValue ||
-        searchIncludes(alias, value, exact)
-      );
-
-      if (!matchesAlias) continue;
-
-      return allNames.some(alias =>
-        searchIncludes(text, alias, true)
-      );
-    }
+  if (!references.length) {
+    return searchIncludes(getSearchBlob(entry, 'en'), value, exact);
   }
 
-  return false;
+  return references.some(reference =>
+    entryTextMentionsReference(entry, reference)
+  );
 }
 
 function referenceMatchesQuery(reference, value, exact = false) {
