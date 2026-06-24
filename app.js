@@ -49,6 +49,7 @@ let currentSearchResults = [];
 let renderedEntryCount = 0;
 let isAppending = false;
 let viewHistory = [];
+let currentSearchTokens = [];
 
 const EXCLUDED_SECTION_CORES = new Set([
   'GemEffect',
@@ -1171,6 +1172,7 @@ function entryMentionsReference(entry, value, exact = false) {
 
 function render() {
   const tokens = tokenizeSearchQuery(search.value.trim());
+currentSearchTokens = tokens;
 
   const visible = entries.filter(entry =>
     matchesSearchFilter(entry) &&
