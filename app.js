@@ -1170,25 +1170,13 @@ function entryMentionsReference(entry, value, exact = false) {
 }
 
 function render() {
-  const q = search.value.trim().toLowerCase();
+  const tokens = tokenizeSearchQuery(search.value.trim());
 
-  const visible = entries.filter(e =>
-    matchesSearchFilter(e) &&
-    (
-      !q ||
-      e.category.toLowerCase().includes(q) ||
-      String(e.originalCategory || '').toLowerCase().includes(q) ||
-      e.section.toLowerCase().includes(q) ||
-      e.id.includes(q) ||
-      getName(e, 'en').toLowerCase().includes(q) ||
-      getName(e, 'jp').toLowerCase().includes(q) ||
-      getText(e, 'en').toLowerCase().includes(q) ||
-      getText(e, 'jp').toLowerCase().includes(q) ||
-      String(e.segment || '').includes(q) ||
-      String(e.talkSection || '').toLowerCase().includes(q)
-    )
+  const visible = entries.filter(entry =>
+    matchesSearchFilter(entry) &&
+    entryMatchesSearchQuery(entry, tokens)
   );
-  
+
   currentSearchResults = visible;
 
   count.textContent =
