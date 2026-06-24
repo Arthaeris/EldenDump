@@ -2048,7 +2048,8 @@ function showAnnouncement() {
   if (typeof BUILD_INFO === 'undefined') return;
 
   const announcements = BUILD_INFO.announcements || [];
-  const visibleAnnouncements = announcements.filter(item => {
+  const visibleAnnouncements = announcements
+  .filter(item => {
     if (!item.enabled) return false;
 
     const updatedAt = new Date(item.updatedAt).getTime();
