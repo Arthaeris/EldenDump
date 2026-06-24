@@ -1725,14 +1725,12 @@ function formatRawTextClean(entry, lang) {
 }
 
 function formatEntryText(text, highlight = false, linkReferences = false) {
-  let html = escapeHtml(text);
+  let html = linkReferences
+    ? linkReferencesInRawText(text)
+    : escapeHtml(text);
 
   if (highlight) {
     html = highlightSearchTermsHtml(html);
-  }
-
-  if (linkReferences) {
-    html = linkReferencesInText(html);
   }
 
   return html
