@@ -1,5 +1,5 @@
 const BUILD_INFO = {
-  version: '1.2.7',
+  version: '0.5',
 
   updatedAt: '2026-06-23T16:00:00Z',
 
@@ -9,7 +9,7 @@ const BUILD_INFO = {
     title: 'Recent Update',
 
     message:
-      'Dialogue grouping was rewritten. Some NPC pages may behave unexpectedly while testing continues.',
+      'Dialogue grouping was expanded upon. NPC dialogue grouping was tweaked. Thus, some NPC pages may behave unexpectedly while testing continues.',
 
     showForHours: 48
   }
