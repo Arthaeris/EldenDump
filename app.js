@@ -840,6 +840,24 @@ function getNpcMentionAliases(name) {
   });
 }
 
+function extractCapitalizedPhrases(text) {
+  const phrases = new Set();
+
+  const matches = String(text || '').matchAll(
+    /\b(?:[A-Z][a-z]+|[A-Z][a-z]+['’][a-z]+)(?:\s+(?:the|of|and|[A-Z][a-z]+|[A-Z][a-z]+['’][a-z]+))*\b/g
+  );
+
+  for (const match of matches) {
+    const phrase = match[0].trim();
+
+    if (phrase.length >= 4) {
+      phrases.add(normalizeMentionName(phrase));
+    }
+  }
+
+  return phrases;
+}
+
 function buildAutoRelatedNpcs() {
   autoRelatedNpcs = new Map();
 
