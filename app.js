@@ -1640,6 +1640,38 @@ document.addEventListener('click', async event => {
     showDialogue(decodeHtml(dialogueNameButton.dataset.dialogueKey));
     return;
   }
+  
+  const translateButton =
+  event.target.closest('.translate-btn');
+
+if (translateButton) {
+  event.stopPropagation();
+
+  const card = translateButton.closest('.entry');
+  if (!card) return;
+
+  let text = '';
+
+  if (card.classList.contains('full-dialogue-entry')) {
+    text = decodeHtml(card.dataset.copyClean || '');
+  } else {
+    text =
+      decodeHtml(
+        card.dataset.copyCleanJp ||
+        card.dataset.copyCleanEn ||
+        ''
+      );
+  }
+
+  if (!text.trim()) return;
+
+  window.open(
+    `https://www.deepl.com/translator#ja/en/${encodeURIComponent(text)}`,
+    '_blank'
+  );
+
+  return;
+}
 
   const copyButton = event.target.closest('.copy-btn');
 
