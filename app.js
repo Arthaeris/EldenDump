@@ -1063,6 +1063,80 @@ function getSearchBlob(entry, lang = 'both') {
   return parts.filter(Boolean).join('\n');
 }
 
+function entryMatchesSearchToken(entry, token) {
+  const operator = token.operator;
+  const value = token.value;
+  const exact = token.exact;
+
+  if (operator === 'text') {
+    return searchIncludes(getSearchBlob(entry), value, exact);
+  }
+
+  if (operator === 'id') {
+    return searchIncludes(entry.id, value, exact);
+  }
+
+  if (operator === 'category') {
+    return searchIncludes(entry.category, value, exact) ||
+      searchIncludes(entry.originalCategory, value, exact);
+  }
+
+  if (operator === 'section') {
+    return searchIncludes(entry.section, value, exact) ||
+      searchIncludes(entry.talkSection, value, exact);
+  }
+
+  if (operator === 'en') {
+    return searchIncludes(
+      `${getName(entry, 'en')}\n${getText(entry, 'en')}`,
+      value,
+      exact
+    );
+  }
+
+  if (operator === 'jp') {
+    return searchIncludes(
+      `${getName(entry, 'jp')}\n${getText(entry, 'jp')}`,
+      value,
+      exact
+    );
+  }
+
+  if (operator === 'npc') {
+    return entry.category === 'Dialogues' &&
+      searchIncludes(getName(entry, 'en'), value, exact);
+  }
+
+  if (operator === 'dialogue') {
+    return entry.category === 'Dialogues' &&
+      searchIncludes(getSearchBlob(entry), value, exact);
+  }
+
+  if (operator === 'item') {
+    return (
+      entry.category === 'Items' ||
+      entry.category === 'Weapons' ||
+      entry.category === 'Armor' ||
+      entry.category === 'Talismans' ||
+      entry.category === 'Ashes of War (Item)'
+    ) && searchIncludes(getSearchBlob(entry), value, exact);
+  }
+
+  if (operator === 'mentions') {
+    return entryMentionsReference(entry, value, exact);
+  }
+
+  return searchIncludes(getSearchBlob(entry), value, exact);
+}
+
+function entryMatchesSearchQuery(entry, tokens) {
+  if (!tokens.length) return true;
+
+  return tokens.every(token =>
+    entryMatchesSearchToken(entry, token)
+  );
+}
+
 function render() {
   const q = search.value.trim().toLowerCase();
 
