@@ -1137,6 +1137,38 @@ function entryMatchesSearchQuery(entry, tokens) {
   );
 }
 
+function entryMentionsReference(entry, value, exact = false) {
+  const text = getSearchBlob(entry, 'en');
+
+  if (searchIncludes(text, value, exact)) {
+    return true;
+  }
+
+  if (typeof NPC_MENTION_ALIASES !== 'undefined') {
+    const normalizedValue = normalizeMentionName(value);
+
+    for (const [npcName, aliases] of Object.entries(NPC_MENTION_ALIASES)) {
+      const allNames = [
+        npcName,
+        ...aliases
+      ];
+
+      const matchesAlias = allNames.some(alias =>
+        normalizeMentionName(alias) === normalizedValue ||
+        searchIncludes(alias, value, exact)
+      );
+
+      if (!matchesAlias) continue;
+
+      return allNames.some(alias =>
+        searchIncludes(text, alias, true)
+      );
+    }
+  }
+
+  return false;
+}
+
 function render() {
   const q = search.value.trim().toLowerCase();
 
