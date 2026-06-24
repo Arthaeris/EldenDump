@@ -1689,8 +1689,9 @@ async function loadDump() {
     entries = buildEntriesFromDumps(enSections, jpSections);
 
     buildIndexes();
-    renderCategoryMenu();
-    render();
+buildAutoRelatedNpcs();
+renderCategoryMenu();
+render();
   } catch (error) {
     console.error(error);
 
