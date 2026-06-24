@@ -1183,7 +1183,23 @@ function showCategory(categoryName) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function showNpcIndex() {
+function showNpcIndex(addToHistory = true) {
+  if (addToHistory) {
+    if (!searchView.hidden) {
+      pushViewHistory({ type: 'home' });
+    } else if (!categoryView.hidden) {
+      pushViewHistory({
+        type: 'category',
+        categoryName: categoryTitle.textContent
+      });
+    } else if (!dialogueView.hidden && currentDialogueKey) {
+      pushViewHistory({
+        type: 'dialogue',
+        npcKey: currentDialogueKey
+      });
+    }
+  }
+
   const groups = [...npcGroups.entries()].sort((a, b) => {
     const aName = getName(a[1][0], activeLanguage);
     const bName = getName(b[1][0], activeLanguage);
