@@ -876,17 +876,23 @@ function buildAutoRelatedNpcs() {
 
     const sourceRelated = new Set();
 
-    const text = group
+    const rawText = group
       .map(entry => getText(entry, 'en'))
-      .join('\n')
-      .toLowerCase();
+      .join('\n');
+
+    const text = rawText.toLowerCase();
+    const capitalizedPhrases = extractCapitalizedPhrases(rawText);
 
     for (const target of npcAliases) {
       if (target.name === sourceName) continue;
 
       const matched = target.aliases.some(alias => {
         const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        return new RegExp(`\\b${escaped}\\b`, 'i').test(text);
+
+        return (
+          new RegExp(`\\b${escaped}\\b`, 'i').test(text) ||
+          capitalizedPhrases.has(alias)
+        );
       });
 
       if (!matched) continue;
