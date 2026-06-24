@@ -756,3 +756,27 @@ footer {
 .translate-btn:hover {
   background: rgba(255,255,255,.05);
 }
+
+
+
+
+.search-hit {
+  font-weight: 900;
+
+  background: color-mix(
+    in srgb,
+    var(--accent) 26%,
+    transparent
+  );
+
+  color: inherit;
+
+  border-radius: 5px;
+  padding: 0 3px;
+
+  box-shadow: 0 0 10px color-mix(
+    in srgb,
+    var(--accent) 35%,
+    transparent
+  );
+}
