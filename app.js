@@ -1283,7 +1283,19 @@ function renderNpcProfile(entry) {
   `;
 }
 
-function showDialogue(npcKey) {
+function showDialogue(npcKey, addToHistory = true) {
+
+  if (
+    addToHistory &&
+    currentDialogueKey &&
+    currentDialogueKey !== npcKey
+  ) {
+    pushViewHistory({
+      type: 'dialogue',
+      npcKey: currentDialogueKey
+    });
+  }
+
   currentDialogueKey = npcKey;
 
   const group = npcGroups.get(npcKey) || [];
