@@ -1,4 +1,4 @@
-const CACHE_NAME = "accessory-info-v3";
+const CACHE_NAME = "elden-dump-v-05";
 
 const STATIC_FILES = [
   "./",
