@@ -9,7 +9,7 @@ const BUILD_INFO = {
       enabled: true,
       title: 'Translate Button + Related NPC/Item support',
       message:
-        'When displaying entries in Japanese, a 'Translate' button now appears that can be pressed for an insert of the selected text into the translator service DeepL. Additionally, within the NPC Index, there will now slowly be added Overview sections for each NPC, with related Items or NPCs, which are clickable.',
+        'When displaying entries in Japanese, a "Translate" button now appears that can be pressed for an insert of the selected text into the translator service DeepL. Additionally, within the NPC Index, there will now slowly be added Overview sections for each NPC, with related Items or NPCs, which are clickable.',
       showForHours: 72
     },
     
