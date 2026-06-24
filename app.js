@@ -1611,9 +1611,21 @@ backFromDialogueBtn.addEventListener('click', showNpcIndex);
 function showAnnouncement() {
   if (typeof BUILD_INFO === 'undefined') return;
 
-  const a = BUILD_INFO.announcement;
+  const announcements = BUILD_INFO.announcements || [];
+  const visibleAnnouncements = announcements.filter(item => {
+    if (!item.enabled) return false;
 
-  if (!a?.enabled) return;
+    const updatedAt = new Date(item.updatedAt).getTime();
+    if (!Number.isFinite(updatedAt)) return true;
+
+    const ageHours =
+      (Date.now() - updatedAt) / (1000 * 60 * 60);
+
+    return ageHours <= (item.showForHours || 24);
+  });
+
+  const latest = visibleAnnouncements[0];
+  if (!latest) return;
 
   const box = document.querySelector('#announcementBox');
   const title = document.querySelector('#announcementTitle');
@@ -1621,18 +1633,29 @@ function showAnnouncement() {
 
   if (!box || !title || !message) return;
 
-  const updatedAt = new Date(BUILD_INFO.updatedAt).getTime();
-  const ageHours =
-    (Date.now() - updatedAt) / (1000 * 60 * 60);
+  title.textContent = `${latest.title} • v${latest.version || BUILD_INFO.version}`;
+  message.textContent = latest.message;
 
-  if (ageHours > (a.showForHours || 24)) {
-    return;
+  if (visibleAnnouncements.length > 1) {
+    box.insertAdjacentHTML(
+      'beforeend',
+      `
+        <div id="announcementHistory" class="announcement-history" hidden>
+          ${visibleAnnouncements.slice(1).map(item => `
+            <div class="announcement-history-item">
+              <strong>${escapeHtml(item.title)} • v${escapeHtml(item.version || '')}</strong>
+              <span>${escapeHtml(item.message)}</span>
+            </div>
+          `).join('')}
+        </div>
+      `
+    );
+
+    box.addEventListener('click', () => {
+      const history = document.querySelector('#announcementHistory');
+      if (history) history.hidden = !history.hidden;
+    });
   }
-
-  title.textContent =
-    `${a.title} • v${BUILD_INFO.version}`;
-
-  message.textContent = a.message;
 
   box.hidden = false;
 }
