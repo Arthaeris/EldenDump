@@ -1216,6 +1216,84 @@ function highlightSearchTerms(value) {
   return escapeHtml(text).replace(regex, '<mark class="search-hit">$1</mark>');
 }
 
+function levenshteinDistance(a, b) {
+  a = String(a || '').toLowerCase();
+  b = String(b || '').toLowerCase();
+
+  const matrix = Array.from(
+    { length: a.length + 1 },
+    () => Array(b.length + 1).fill(0)
+  );
+
+  for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+
+  return matrix[a.length][b.length];
+}
+
+function getAllowedFuzzyDistance(value) {
+  const length = String(value || '').length;
+
+  if (length < 4) return 0;
+  if (length <= 5) return 1;
+  if (length <= 9) return 2;
+
+  return 2;
+}
+
+function shouldUseFuzzyToken(token) {
+  const value = String(token.value || '');
+
+  if (token.exact) return false;
+  if (value.length < 4) return false;
+
+  if (
+    token.operator === 'npc' ||
+    token.operator === 'mentions'
+  ) {
+    return true;
+  }
+
+  return /^[A-Z]/.test(value);
+}
+
+function fuzzyNameMatches(value, candidates) {
+  const normalizedValue = normalizeMentionName(value);
+  const allowedDistance = getAllowedFuzzyDistance(normalizedValue);
+
+  if (!allowedDistance) return false;
+
+  return candidates.some(candidate => {
+    const normalizedCandidate = normalizeMentionName(candidate);
+
+    if (!normalizedCandidate) return false;
+
+    if (normalizedCandidate.includes(normalizedValue)) {
+      return true;
+    }
+
+    const candidateParts = normalizedCandidate
+      .split(/\s+/)
+      .filter(part => part.length >= 4);
+
+    return candidateParts.some(part =>
+      levenshteinDistance(normalizedValue, part) <= allowedDistance
+    );
+  });
+}
+
 function render() {
   const tokens = tokenizeSearchQuery(search.value.trim());
 currentSearchTokens = tokens;
