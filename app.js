@@ -1355,7 +1355,7 @@ ${
                   <span class="entry-name-content">${highlightSearchTerms(name)}</span>
                 </button>
               `
-              : `<div class="entry-name entry-name-content">${escapeHtml(name)}</div>`
+              : `<div class="entry-name entry-name-content">${highlightSearchTerms(name)}</div>`
             : ''
         }
 
