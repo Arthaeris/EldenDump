@@ -7,9 +7,9 @@ const BUILD_INFO = {
       version: '0.5.3',
       updatedAt: '2026-06-24T08:00:00Z',
       enabled: true,
-      title: 'Translate Button',
+      title: 'Translate Button + Related NPC/Item support',
       message:
-        'When displaying entries in Japanese, a 'Translate' button now appears that can be pressed for an insert of the selected text into the translator service DeepL.',
+        'When displaying entries in Japanese, a 'Translate' button now appears that can be pressed for an insert of the selected text into the translator service DeepL. Additionally, within the NPC Index, there will now slowly be added Overview sections for each NPC, with related Items or NPCs, which are clickable.',
       showForHours: 72
     },
     
