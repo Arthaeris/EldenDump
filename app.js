@@ -1711,9 +1711,11 @@ function formatRawTextClean(entry, lang) {
 }
 
 function formatEntryText(text, highlight = false, linkReferences = false) {
-  let html = highlight
-    ? highlightSearchTerms(text)
-    : escapeHtml(text);
+  let html = escapeHtml(text);
+
+  if (highlight) {
+    html = highlightSearchTermsHtml(html);
+  }
 
   if (linkReferences) {
     html = linkReferencesInText(html);
