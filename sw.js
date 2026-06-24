@@ -6,6 +6,7 @@ const STATIC_FILES = [
   "./styles.css",
   "./app.js",
   "./npc-overrides.js",
+  "./npc-data.js",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
