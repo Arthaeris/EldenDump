@@ -1106,14 +1106,22 @@ function updateCardLanguage(card, lang) {
   const nameEl = card.querySelector('.entry-name-content');
   const idsEl = card.querySelector('.entry-text-ids');
   const cleanEl = card.querySelector('.entry-text-clean');
-const codeEl = card.querySelector('.entry-text-code');
-const langBtn = card.querySelector('[data-language-toggle]');
+  const codeEl = card.querySelector('.entry-text-code');
+  const langBtn = card.querySelector('[data-language-toggle]');
+  const translateBtn = card.querySelector('.translate-btn');
 
   if (nameEl) nameEl.innerHTML = escapeHtml(decodeHtml(name));
   if (idsEl) idsEl.innerHTML = formatEntryText(decodeHtml(textIds));
   if (cleanEl) cleanEl.innerHTML = formatEntryText(decodeHtml(textClean));
-  if (codeEl) codeEl.innerHTML = formatEntryText(`\`\`\`\n${decodeHtml(textClean)}\n\`\`\``);
+  if (codeEl) {
+    codeEl.innerHTML = formatEntryText(`\`\`\`\n${decodeHtml(textClean)}\n\`\`\``);
+  }
+
   if (langBtn) langBtn.textContent = lang === 'en' ? 'JP' : 'EN';
+
+  if (translateBtn) {
+    translateBtn.hidden = lang !== 'jp';
+  }
 }
 
 function showHome() {
