@@ -1281,9 +1281,13 @@ function renderMetadataList(title, items, type = '') {
 
       <div class="npc-meta-tags">
         ${items.map(item => `
-          <span class="npc-meta-tag ${type ? `npc-meta-tag-${escapeHtml(type)}` : ''}">
+          <button
+            class="npc-meta-tag ${type ? `npc-meta-tag-${escapeHtml(type)}` : ''}"
+            type="button"
+            data-related-${escapeAttribute(type)}="${escapeAttribute(item)}"
+          >
             ${escapeHtml(item)}
-          </span>
+          </button>
         `).join('')}
       </div>
     </div>
