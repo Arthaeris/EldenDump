@@ -623,6 +623,12 @@ footer {
   border-left: 4px solid #ffc400;
 
   box-shadow: 0 4px 18px rgba(0,0,0,.15);
+
+  cursor: pointer;
+}
+
+.announcement:hover {
+  transform: translateY(-1px);
 }
 
 .announcement-title {
@@ -634,4 +640,42 @@ footer {
 .announcement-message {
   font-size: 13px;
   line-height: 1.5;
+}
+
+.announcement-history {
+  margin-top: 14px;
+  padding-top: 14px;
+
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+
+.announcement-entry {
+  margin-bottom: 12px;
+}
+
+.announcement-entry:last-child {
+  margin-bottom: 0;
+}
+
+.announcement-entry-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.announcement-entry-date {
+  opacity: .7;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.announcement-entry-message {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.announcement-expand {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: .8;
 }
