@@ -1112,9 +1112,15 @@ function entryMatchesSearchToken(entry, token) {
   }
 
   if (operator === 'npc') {
-    return entry.category === 'Dialogues' &&
-      searchIncludes(getName(entry, 'en'), value, exact);
+  if (entry.category !== 'Dialogues') return false;
+
+  if (searchIncludes(getName(entry, 'en'), value, exact)) {
+    return true;
   }
+
+  return shouldUseFuzzyToken(token) &&
+    fuzzyNameMatches(value, getNpcSearchCandidates(entry));
+}
 
   if (operator === 'dialogue') {
     return entry.category === 'Dialogues' &&
