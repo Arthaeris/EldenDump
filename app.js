@@ -1302,11 +1302,16 @@ function fuzzyNameMatches(value, candidates) {
   const allowedDistance = getAllowedFuzzyDistance(normalizedValue);
 
   if (!allowedDistance) return false;
+  if (!normalizedValue[0]) return false;
 
   return candidates.some(candidate => {
     const normalizedCandidate = normalizeMentionName(candidate);
 
     if (!normalizedCandidate) return false;
+
+    if (normalizedCandidate[0] !== normalizedValue[0]) {
+      return false;
+    }
 
     if (normalizedCandidate.includes(normalizedValue)) {
       return true;
@@ -1317,6 +1322,7 @@ function fuzzyNameMatches(value, candidates) {
       .filter(part => part.length >= 4);
 
     return candidateParts.some(part =>
+      part[0] === normalizedValue[0] &&
       levenshteinDistance(normalizedValue, part) <= allowedDistance
     );
   });
