@@ -1385,20 +1385,29 @@ function renderMetadataList(title, items, type = '') {
 }
 
 function renderNpcProfile(entry) {
-  const meta = getNpcMetadata(entry);
+  const meta = getNpcMetadata(entry) || {};
+  const nameEn = getName(entry, 'en');
+  const name = getName(entry, activeLanguage);
 
-  if (!meta) return '';
+  const manualRelatedNpcs = meta.relatedNpcs || [];
+  const automaticRelatedNpcs =
+    [...(autoRelatedNpcs.get(nameEn) || [])];
+
+  const relatedNpcs = [
+    ...new Set([
+      ...manualRelatedNpcs,
+      ...automaticRelatedNpcs
+    ])
+  ].sort((a, b) => a.localeCompare(b));
 
   const hasProfileData =
     meta.image ||
-    meta.relatedNpcs?.length ||
+    relatedNpcs.length ||
     meta.relatedItems?.length ||
     meta.trivia?.length ||
     meta.notes?.length;
 
   if (!hasProfileData) return '';
-
-  const name = getName(entry, activeLanguage);
 
   return `
     <section class="npc-profile">
@@ -1416,7 +1425,7 @@ function renderNpcProfile(entry) {
           : ''
       }
 
-      ${renderMetadataList('Related NPCs', meta.relatedNpcs, 'npc')}
+      ${renderMetadataList('Related NPCs', relatedNpcs, 'npc')}
       ${renderMetadataList('Related Items', meta.relatedItems, 'item')}
 
       ${
