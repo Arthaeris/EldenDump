@@ -1864,9 +1864,9 @@ menuOverlay.addEventListener('click', closeMenu);
 homeBtn.addEventListener('click', showHome);
 npcIndexBtn.addEventListener('click', showNpcIndex);
 
-backFromCategoryBtn.addEventListener('click', showHome);
-backFromNpcBtn.addEventListener('click', showHome);
-backFromDialogueBtn.addEventListener('click', showNpcIndex);
+backFromCategoryBtn.addEventListener('click', goBack);
+backFromNpcBtn.addEventListener('click', goBack);
+backFromDialogueBtn.addEventListener('click', goBack);
 
 
 function showAnnouncement() {
