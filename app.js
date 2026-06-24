@@ -1352,7 +1352,7 @@ ${
                   data-dialogue-key="${escapeAttribute(e.npcKey || `${e.section}|${e.segment}|${e.nameEn}`)}"
                   type="button"
                 >
-                  <span class="entry-name-content">${escapeHtml(name)}</span>
+                  <span class="entry-name-content">${highlightSearchTerms(name)}</span>
                 </button>
               `
               : `<div class="entry-name entry-name-content">${escapeHtml(name)}</div>`
