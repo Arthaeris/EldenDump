@@ -1317,6 +1317,20 @@ function highlightSearchTerms(value) {
   return escapeHtml(text).replace(regex, '<mark class="search-hit">$1</mark>');
 }
 
+function highlightSearchTermsHtml(html) {
+  const terms = getHighlightTerms(currentSearchTokens);
+
+  if (!terms.length) return html;
+
+  const escapedTerms = terms.map(term =>
+    term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  );
+
+  const regex = new RegExp(`(${escapedTerms.join('|')})`, 'gi');
+
+  return html.replace(regex, '<mark class="search-hit">$1</mark>');
+}
+
 function levenshteinDistance(a, b) {
   a = String(a || '').toLowerCase();
   b = String(b || '').toLowerCase();
