@@ -1,6 +1,5 @@
 const BUILD_INFO = {
-  version: '0.5',
-
+  
   announcements: [
     {
       version: '0.5.2',
