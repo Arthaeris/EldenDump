@@ -42,6 +42,7 @@ let activeFlagFilter = 'All';
 let dialogueDisplayMode = 'cards';
 let currentDialogueKey = '';
 let autoRelatedNpcs = new Map();
+let autoRelatedItems = new Map();
 let referenceIndex = [];
 
 let currentRenderTarget = results;
@@ -922,6 +923,41 @@ function buildAutoRelatedNpcs() {
 
     for (const related of sourceRelated) {
       autoRelatedNpcs.get(sourceName).add(related);
+    }
+  }
+}
+
+function buildAutoRelatedItems() {
+  autoRelatedItems = new Map();
+
+  const itemReferences = referenceIndex.filter(reference =>
+    reference.type === 'item'
+  );
+
+  for (const [npcKey, group] of npcGroups.entries()) {
+    const first = group[0];
+    const npcName = getName(first, 'en');
+
+    if (!npcName) continue;
+
+    const text = group
+      .map(entry => getText(entry, 'en'))
+      .join('\n');
+
+    const related = new Set();
+
+    for (const reference of itemReferences) {
+      const mentioned = reference.aliases.some(alias =>
+        searchIncludes(text, alias, true)
+      );
+
+      if (mentioned) {
+        related.add(reference.label);
+      }
+    }
+
+    if (related.size) {
+      autoRelatedItems.set(npcName, related);
     }
   }
 }
@@ -2252,6 +2288,7 @@ async function loadDump() {
     buildIndexes();
 buildReferenceIndex();
 buildAutoRelatedNpcs();
+buildAutoRelatedItems();
 renderCategoryMenu();
 render();
   } catch (error) {
