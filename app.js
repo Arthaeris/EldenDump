@@ -957,7 +957,7 @@ ${
   hasJapanese
     ? `
       <button
-        class="translate-btn"
+        class="lang-btn translate-btn"
         type="button"
         ${lang !== 'jp' ? 'hidden' : ''}
       >
@@ -1388,7 +1388,7 @@ ${
   hasJapanese
     ? `
       <button
-        class="translate-btn"
+        class="lang-btn translate-btn"
         type="button"
         ${lang !== 'jp' ? 'hidden' : ''}
       >
