@@ -2463,6 +2463,36 @@ window.addEventListener('scroll', handleScroll, { passive: true });
 
 document.addEventListener('click', async event => {
 
+const referenceButton = event.target.closest('[data-reference-type]');
+
+if (referenceButton) {
+  event.stopPropagation();
+
+  const type = referenceButton.dataset.referenceType;
+  const label = referenceButton.dataset.referenceLabel;
+
+  const reference = referenceIndex.find(item =>
+    item.type === type &&
+    item.label === label
+  );
+
+  if (!reference) return;
+
+  if (reference.type === 'npc' && reference.npcKey) {
+    showDialogue(reference.npcKey);
+    return;
+  }
+
+  if (reference.type === 'item') {
+    search.value = reference.label;
+    showHome();
+    render();
+    return;
+  }
+}
+
+
+
 const relatedNpcButton = event.target.closest('[data-related-npc]');
 
 if (relatedNpcButton) {
