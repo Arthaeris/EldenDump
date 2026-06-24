@@ -1170,6 +1170,52 @@ function entryMentionsReference(entry, value, exact = false) {
   return false;
 }
 
+function getHighlightTerms(tokens) {
+  const terms = [];
+
+  for (const token of tokens) {
+    if (!token.value) continue;
+
+    if (
+      token.operator === 'id' ||
+      token.operator === 'category' ||
+      token.operator === 'section'
+    ) {
+      continue;
+    }
+
+    if (token.exact) {
+      terms.push(token.value);
+    } else {
+      terms.push(
+        ...String(token.value)
+          .split(/\s+/)
+          .filter(part => part.length >= 2)
+      );
+    }
+  }
+
+  return [...new Set(terms)]
+    .sort((a, b) => b.length - a.length);
+}
+
+function highlightSearchTerms(value) {
+  const text = String(value || '');
+  const terms = getHighlightTerms(currentSearchTokens);
+
+  if (!terms.length) {
+    return escapeHtml(text);
+  }
+
+  const escapedTerms = terms.map(term =>
+    term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  );
+
+  const regex = new RegExp(`(${escapedTerms.join('|')})`, 'gi');
+
+  return escapeHtml(text).replace(regex, '<mark class="search-hit">$1</mark>');
+}
+
 function render() {
   const tokens = tokenizeSearchQuery(search.value.trim());
 currentSearchTokens = tokens;
