@@ -57,6 +57,12 @@ const NPC_MENTION_ALIASES = {
     "Ymir",
     "Count Ymir"
   ],
+  
+  "Alexander, Warrior Jar": [
+    "Iron Fist",
+    "Iron Fist Alexander",
+    "Alexander"
+  ],
 
   "Blaidd the Half-Wolf": [
     "Blaidd",
