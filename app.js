@@ -952,6 +952,12 @@ const hasJapanese = hasDirectLanguage(e, 'jp');
         ${dlcBadge}
         ${languageControl}
         <button class="copy-btn" type="button">Copy</button>
+
+${
+  hasJapanese
+    ? `<button class="translate-btn" type="button">Translate</button>`
+    : ''
+}
       </div>
 
       <div class="entry-section">${escapeHtml(metaParts.join(' · '))}</div>
