@@ -828,6 +828,14 @@ function getNpcMentionAliases(name) {
       'princess',
       'master'
     ]);
+    
+    if (typeof NPC_MENTION_ALIASES !== 'undefined') {
+  const manualAliases = NPC_MENTION_ALIASES[clean] || [];
+
+  for (const alias of manualAliases) {
+    aliases.add(normalizeMentionName(alias));
+  }
+}
 
     return !badSingleWords.has(alias);
   });
