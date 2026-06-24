@@ -1190,6 +1190,11 @@ function referenceMatchesQuery(reference, value, exact = false) {
 }
 
 function findReferencesForQuery(value, exact = false) {
+  
+  if (!String(value || '').trim()) {
+  return [];
+}
+
   const directMatches = referenceIndex.filter(reference =>
     referenceMatchesQuery(reference, value, exact)
   );
