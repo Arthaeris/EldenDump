@@ -1154,11 +1154,28 @@ function goBack() {
   }
 }
 
-function showHome() {
+function showHome(addToHistory = true) {
+  if (addToHistory) {
+    if (!categoryView.hidden) {
+      pushViewHistory({
+        type: 'category',
+        categoryName: categoryTitle.textContent
+      });
+    } else if (!npcView.hidden) {
+      pushViewHistory({ type: 'npcIndex' });
+    } else if (!dialogueView.hidden && currentDialogueKey) {
+      pushViewHistory({
+        type: 'dialogue',
+        npcKey: currentDialogueKey
+      });
+    }
+  }
+
   searchView.hidden = false;
   categoryView.hidden = true;
   npcView.hidden = true;
   dialogueView.hidden = true;
+
   closeMenu();
   render();
 }
