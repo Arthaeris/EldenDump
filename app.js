@@ -1988,10 +1988,21 @@ function renderNpcProfile(entry) {
     ])
   ].sort((a, b) => a.localeCompare(b));
 
+  const manualRelatedItems = meta.relatedItems || [];
+  const automaticRelatedItems =
+    [...(autoRelatedItems.get(nameEn) || [])];
+
+  const relatedItems = [
+    ...new Set([
+      ...manualRelatedItems,
+      ...automaticRelatedItems
+    ])
+  ].sort((a, b) => a.localeCompare(b));
+
   const hasProfileData =
     meta.image ||
     relatedNpcs.length ||
-    meta.relatedItems?.length ||
+    relatedItems.length ||
     meta.trivia?.length ||
     meta.notes?.length;
 
@@ -2014,7 +2025,7 @@ function renderNpcProfile(entry) {
       }
 
       ${renderMetadataList('Related NPCs', relatedNpcs, 'npc')}
-      ${renderMetadataList('Related Items', meta.relatedItems, 'item')}
+      ${renderMetadataList('Related Items', relatedItems, 'item')}
 
       ${
         meta.trivia?.length
