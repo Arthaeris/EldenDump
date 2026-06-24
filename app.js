@@ -1163,7 +1163,21 @@ function showHome() {
   render();
 }
 
-function showCategory(categoryName) {
+function showCategory(categoryName, addToHistory = true) {
+
+  if (addToHistory) {
+    if (!searchView.hidden) {
+      pushViewHistory({ type: 'home' });
+    } else if (!npcView.hidden) {
+      pushViewHistory({ type: 'npcIndex' });
+    } else if (!dialogueView.hidden && currentDialogueKey) {
+      pushViewHistory({
+        type: 'dialogue',
+        npcKey: currentDialogueKey
+      });
+    }
+  }
+
   const items = categories.get(categoryName) || [];
 
   categoryTitle.textContent = categoryName;
