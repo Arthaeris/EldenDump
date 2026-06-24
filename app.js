@@ -1164,6 +1164,93 @@ function showNpcIndex() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function getNpcMetadata(entry) {
+  if (typeof NPC_METADATA === 'undefined') return null;
+  if (!entry) return null;
+
+  const nameEn = getName(entry, 'en');
+
+  return NPC_METADATA[nameEn] || null;
+}
+
+function renderMetadataList(title, items, type = '') {
+  if (!items?.length) return '';
+
+  return `
+    <div class="npc-meta-section">
+      <h3>${escapeHtml(title)}</h3>
+
+      <div class="npc-meta-tags">
+        ${items.map(item => `
+          <span class="npc-meta-tag ${type ? `npc-meta-tag-${escapeHtml(type)}` : ''}">
+            ${escapeHtml(item)}
+          </span>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderNpcProfile(entry) {
+  const meta = getNpcMetadata(entry);
+
+  if (!meta) return '';
+
+  const name = getName(entry, activeLanguage);
+
+  return `
+    <section class="npc-profile">
+      ${
+        meta.image
+          ? `
+            <img
+              class="npc-profile-image"
+              src="${escapeAttribute(meta.image)}"
+              alt="${escapeAttribute(name)}"
+              loading="lazy"
+            >
+          `
+          : ''
+      }
+
+      ${renderMetadataList('Related NPCs', meta.relatedNpcs, 'npc')}
+      ${renderMetadataList('Related Items', meta.relatedItems, 'item')}
+
+      ${
+        meta.trivia?.length
+          ? `
+            <div class="npc-meta-section">
+              <h3>Trivia</h3>
+
+              <ul class="npc-meta-list">
+                ${meta.trivia.map(item => `
+                  <li>${escapeHtml(item)}</li>
+                `).join('')}
+              </ul>
+            </div>
+          `
+          : ''
+      }
+
+      ${
+        meta.notes?.length
+          ? `
+            <div class="npc-meta-section">
+              <h3>Notes</h3>
+
+              <ul class="npc-meta-list">
+                ${meta.notes.map(item => `
+                  <li>${escapeHtml(item)}</li>
+                `).join('')}
+              </ul>
+            </div>
+          `
+          : ''
+      }
+    </section>
+  `;
+}
+
 function showDialogue(npcKey) {
   currentDialogueKey = npcKey;
 
