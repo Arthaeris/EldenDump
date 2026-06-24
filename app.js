@@ -1282,15 +1282,22 @@ function showDialogue(npcKey) {
 
   if (dialogueDisplayMode === 'full') {
   dialogueResults.innerHTML = group.length
-    ? renderFullDialogueByNpcId(group)
+    ? `
+        ${renderNpcProfile(first)}
+        ${renderFullDialogueByNpcId(group)}
+      `
     : '<div class="empty">No dialogue found.</div>';
 } else {
-    renderEntryList({
-      target: dialogueResults,
-      items: group,
-      emptyText: 'No dialogue found.'
-    });
+  if (group.length) {
+    dialogueResults.innerHTML = renderNpcProfile(first);
+    currentRenderTarget = dialogueResults;
+    currentVisibleEntries = group;
+    renderedEntryCount = 0;
+    appendNextEntries();
+  } else {
+    dialogueResults.innerHTML = '<div class="empty">No dialogue found.</div>';
   }
+}
 
   searchView.hidden = true;
   categoryView.hidden = true;
