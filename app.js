@@ -2045,17 +2045,24 @@ if (translateButton) {
 
   const card = event.target.closest('.entry');
 
-  if (!card) return;
+if (!card) return;
 
-  const currentMode = card.dataset.mode || 'ids';
+const isTouchDevice =
+  window.matchMedia('(hover: none)').matches;
 
-  if (currentMode === 'ids') {
-    card.dataset.mode = 'clean';
-  } else if (currentMode === 'clean') {
-    card.dataset.mode = 'code';
-  } else {
-    card.dataset.mode = 'ids';
-  }
+if (!isTouchDevice) return;
+
+if (window.getSelection()?.toString()) return;
+
+const currentMode = card.dataset.mode || 'ids';
+
+if (currentMode === 'ids') {
+  card.dataset.mode = 'clean';
+} else if (currentMode === 'clean') {
+  card.dataset.mode = 'code';
+} else {
+  card.dataset.mode = 'ids';
+}
 });
 
 function decodeHtml(value) {
