@@ -42,6 +42,7 @@ let activeFlagFilter = 'All';
 let dialogueDisplayMode = 'cards';
 let currentDialogueKey = '';
 let autoRelatedNpcs = new Map();
+let referenceIndex = [];
 
 let currentRenderTarget = results;
 let currentVisibleEntries = [];
@@ -1343,6 +1344,102 @@ function getNpcSearchCandidates(entry) {
   return candidates.filter(Boolean);
 }
 
+function getReferenceAliases(label, extraAliases = []) {
+  const aliases = new Set();
+
+  if (label) {
+    aliases.add(label);
+    aliases.add(normalizeMentionName(label));
+  }
+
+  for (const alias of extraAliases || []) {
+    if (!alias) continue;
+
+    aliases.add(alias);
+    aliases.add(normalizeMentionName(alias));
+  }
+
+  return [...aliases]
+    .map(alias => String(alias || '').trim())
+    .filter(alias => alias.length >= 3);
+}
+
+function isReferenceCategory(category) {
+  return [
+    'Items',
+    'Weapons',
+    'Armor',
+    'Talismans',
+    'Ashes of War',
+    'Ashes of War (Item)',
+    'Locations'
+  ].includes(category);
+}
+
+function buildReferenceIndex() {
+  referenceIndex = [];
+
+  const seen = new Set();
+
+  for (const [npcKey, group] of npcGroups.entries()) {
+    const first = group[0];
+    const label = getName(first, 'en');
+
+    if (!label) continue;
+
+    const manualAliases =
+      typeof NPC_MENTION_ALIASES !== 'undefined'
+        ? NPC_MENTION_ALIASES[label] || []
+        : [];
+
+    const aliases = getReferenceAliases(
+      label,
+      [
+        ...manualAliases,
+        ...getNpcMentionAliases(label)
+      ]
+    );
+
+    const key = `npc|${label}`;
+
+    if (!seen.has(key)) {
+      seen.add(key);
+
+      referenceIndex.push({
+        type: 'npc',
+        label,
+        aliases,
+        npcKey
+      });
+    }
+  }
+
+  for (const entry of entries) {
+    if (!isReferenceCategory(entry.category)) continue;
+
+    const label = getName(entry, 'en');
+
+    if (!label) continue;
+
+    const key = `${entry.category}|${label}`;
+
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    referenceIndex.push({
+      type: 'item',
+      label,
+      aliases: getReferenceAliases(label),
+      category: entry.category,
+      id: entry.id
+    });
+  }
+
+  referenceIndex.sort((a, b) =>
+    b.label.length - a.label.length
+  );
+}
+
 function render() {
   const tokens = tokenizeSearchQuery(search.value.trim());
 currentSearchTokens = tokens;
@@ -2117,6 +2214,7 @@ async function loadDump() {
     entries = buildEntriesFromDumps(enSections, jpSections);
 
     buildIndexes();
+buildReferenceIndex();
 buildAutoRelatedNpcs();
 renderCategoryMenu();
 render();
