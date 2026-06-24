@@ -753,21 +753,6 @@ footer {
 
 
 
-.translate-btn {
-  border: 1px solid rgba(255,255,255,.12);
-  background: transparent;
-
-  color: var(--accent);
-
-  padding: 8px 14px;
-  border-radius: 999px;
-
-  font-size: 12px;
-  font-weight: 700;
-
-  cursor: pointer;
-}
-
 .translate-btn:hover {
   background: rgba(255,255,255,.05);
 }
