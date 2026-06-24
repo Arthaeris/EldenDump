@@ -47,6 +47,7 @@ let currentVisibleEntries = [];
 let currentSearchResults = [];
 let renderedEntryCount = 0;
 let isAppending = false;
+let viewHistory = [];
 
 const EXCLUDED_SECTION_CORES = new Set([
   'GemEffect',
