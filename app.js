@@ -1111,99 +1111,6 @@ function isReferenceEntry(entry) {
   ].includes(entry.category);
 }
 
-function buildAutoRelatedNpcs() {
-  autoRelatedNpcs = new Map();
-
-  const npcNames = [...npcGroups.values()]
-    .map(group => getName(group[0], 'en'))
-    .filter(Boolean);
-
-  const npcAliases = npcNames.map(name => ({
-    name,
-    aliases: getNpcMentionAliases(name)
-  }));
-
-  for (const [npcKey, group] of npcGroups.entries()) {
-    const sourceName = getName(group[0], 'en');
-    if (!sourceName) continue;
-
-    const sourceRelated = new Set();
-
-    const rawText = group
-      .map(entry => getText(entry, 'en'))
-      .join('\n');
-
-    const text = rawText.toLowerCase();
-    const capitalizedPhrases = extractCapitalizedPhrases(rawText);
-
-    for (const target of npcAliases) {
-      if (target.name === sourceName) continue;
-
-      const matched = target.aliases.some(alias => {
-        const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-        return (
-          new RegExp(`\\b${escaped}\\b`, 'i').test(text) ||
-          capitalizedPhrases.has(alias)
-        );
-      });
-
-      if (!matched) continue;
-
-      sourceRelated.add(target.name);
-
-      if (!autoRelatedNpcs.has(target.name)) {
-        autoRelatedNpcs.set(target.name, new Set());
-      }
-
-      autoRelatedNpcs.get(target.name).add(sourceName);
-    }
-
-    if (!autoRelatedNpcs.has(sourceName)) {
-      autoRelatedNpcs.set(sourceName, new Set());
-    }
-
-    for (const related of sourceRelated) {
-      autoRelatedNpcs.get(sourceName).add(related);
-    }
-  }
-}
-
-function buildAutoRelatedItems() {
-  autoRelatedItems = new Map();
-
-  const itemReferences = referenceIndex.filter(reference =>
-    reference.type === 'item'
-  );
-
-  for (const [npcKey, group] of npcGroups.entries()) {
-    const first = group[0];
-    const npcName = getName(first, 'en');
-
-    if (!npcName) continue;
-
-    const text = group
-      .map(entry => getText(entry, 'en'))
-      .join('\n');
-
-    const related = new Set();
-
-    for (const reference of itemReferences) {
-      const mentioned = reference.aliases.some(alias =>
-        searchIncludes(text, alias, true)
-      );
-
-      if (mentioned) {
-        related.add(reference.label);
-      }
-    }
-
-    if (related.size) {
-      autoRelatedItems.set(npcName, related);
-    }
-  }
-}
-
 function renderCategoryMenu() {
   const orderedNames = CATEGORY_ORDER.filter(name => categories.has(name));
   const extraNames = [...categories.keys()]
@@ -1619,102 +1526,6 @@ function getNpcSearchCandidates(entry) {
   return candidates.filter(Boolean);
 }
 
-function getReferenceAliases(label, extraAliases = []) {
-  const aliases = new Set();
-
-  if (label) {
-    aliases.add(label);
-    aliases.add(normalizeMentionName(label));
-  }
-
-  for (const alias of extraAliases || []) {
-    if (!alias) continue;
-
-    aliases.add(alias);
-    aliases.add(normalizeMentionName(alias));
-  }
-
-  return [...aliases]
-    .map(alias => String(alias || '').trim())
-    .filter(alias => alias.length >= 3);
-}
-
-function isReferenceCategory(category) {
-  return [
-    'Items',
-    'Weapons',
-    'Armor',
-    'Talismans',
-    'Ashes of War',
-    'Ashes of War (Item)',
-    'Locations'
-  ].includes(category);
-}
-
-function buildReferenceIndex() {
-  referenceIndex = [];
-
-  const seen = new Set();
-
-  for (const [npcKey, group] of npcGroups.entries()) {
-    const first = group[0];
-    const label = getName(first, 'en');
-
-    if (!label) continue;
-
-    const manualAliases =
-      typeof NPC_MENTION_ALIASES !== 'undefined'
-        ? NPC_MENTION_ALIASES[label] || []
-        : [];
-
-    const aliases = getReferenceAliases(
-      label,
-      [
-        ...manualAliases,
-        ...getNpcMentionAliases(label)
-      ]
-    );
-
-    const key = `npc|${label}`;
-
-    if (!seen.has(key)) {
-      seen.add(key);
-
-      referenceIndex.push({
-        type: 'npc',
-        label,
-        aliases,
-        npcKey
-      });
-    }
-  }
-
-  for (const entry of entries) {
-    if (!isReferenceCategory(entry.category)) continue;
-
-    const label = getName(entry, 'en');
-
-    if (!label) continue;
-
-    const key = `${entry.category}|${label}`;
-
-    if (seen.has(key)) continue;
-    seen.add(key);
-
-    referenceIndex.push({
-      type: 'item',
-      label,
-      aliases: getReferenceAliases(label),
-      category: entry.category,
-      id: entry.id
-    });
-  }
-
-  referenceIndex.sort((a, b) =>
-    b.label.length - a.label.length
-  );
-}
-
 function render() {
   const tokens = tokenizeSearchQuery(search.value.trim());
 currentSearchTokens = tokens;
@@ -1934,26 +1745,8 @@ function formatEntryText(text, highlight = false) {
     .replace(/\n/g, '<br>');
 }
 
-function getReferenceLinkCandidates() {
-  return referenceIndex
-    .filter(reference => reference.type === 'npc')
-    .flatMap(reference =>
-      reference.aliases.map(alias => ({
-        reference,
-        alias: String(alias || '').trim()
-      }))
-    )
-    .filter(item =>
-      item.alias.length >= 4 &&
-      !/^\d+$/.test(item.alias)
-    )
-    .sort((a, b) => b.alias.length - a.alias.length);
-}
-
 function applyReferenceLinksToElement(root) {
-  if (!root || !referenceIndex.length) return;
-
-  if (!references.length) return;
+  if (!root || !references.length) return;
 
   const walker = document.createTreeWalker(
     root,
@@ -2749,13 +2542,10 @@ if (referenceButton) {
   const type = referenceButton.dataset.referenceType;
   const label = referenceButton.dataset.referenceLabel;
 
-  const reference = referenceIndex.find(item =>
-  item.type === type &&
-  item.aliases.some(alias =>
-    normalizeMentionName(alias) ===
-    normalizeMentionName(label)
-  )
-);
+  const reference = references.find(item =>
+    item.type === type &&
+    item.label === label
+  );
 
   if (!reference) return;
 
