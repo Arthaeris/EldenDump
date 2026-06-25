@@ -1679,8 +1679,8 @@ ${
       ${
         text
           ? `
-            <div class="entry-text entry-text-ids">${formatEntryText(formatRawTextWithIds(e, lang), false, true)}</div>
-<div class="entry-text entry-text-clean">${formatEntryText(formatRawTextClean(e, lang), false, true)}</div>
+            <div class="entry-text entry-text-ids">${formatEntryText(formatRawTextWithIds(e, lang), false, false)}</div>
+<div class="entry-text entry-text-clean">${formatEntryText(formatRawTextClean(e, lang), false, false)}</div>
 <div class="entry-text entry-text-code">
 ${formatEntryText(`\`\`\`\n${formatRawTextClean(e, lang)}\n\`\`\``, false, false)}
 </div>
