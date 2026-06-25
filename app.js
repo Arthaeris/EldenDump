@@ -1728,6 +1728,75 @@ function renderWikiSection(title, content, open = false) {
   `;
 }
 
+function getEntriesRelatedToReference(reference) {
+  return entries.filter(entry => {
+    const name = getName(entry, 'en');
+    const text = getText(entry, 'en');
+
+    if (name === reference.label) return true;
+
+    return reference.aliases.some(alias =>
+      searchIncludes(`${name}\n${text}`, alias, true)
+    );
+  });
+}
+
+function groupEntriesByCategory(items) {
+  const grouped = new Map();
+
+  for (const item of items) {
+    if (!grouped.has(item.category)) {
+      grouped.set(item.category, []);
+    }
+
+    grouped.get(item.category).push(item);
+  }
+
+  return grouped;
+}
+
+function showReferencePage(reference, addToHistory = true) {
+  if (!reference) return;
+
+  referenceTitle.textContent = reference.label;
+
+  const relatedEntries = getEntriesRelatedToReference(reference);
+  const grouped = groupEntriesByCategory(relatedEntries);
+
+  const ownEntries = relatedEntries.filter(entry =>
+    getName(entry, 'en') === reference.label
+  );
+
+  const ownContent = ownEntries.length
+    ? ownEntries.map(renderEntry).join('')
+    : '<div class="empty">No direct entry found.</div>';
+
+  const mentionedContent = [...grouped.entries()]
+    .map(([category, items]) =>
+      renderWikiSection(
+        `${category} (${items.length})`,
+        items.map(renderEntry).join('')
+      )
+    )
+    .join('');
+
+  referenceResults.innerHTML = `
+    ${renderWikiSection('Basic Info', ownContent, true)}
+    ${renderWikiSection('Mentioned By', mentionedContent, true)}
+  `;
+
+  applyReferenceLinksToElement(referenceResults);
+
+  searchView.hidden = true;
+  categoryView.hidden = true;
+  npcView.hidden = true;
+  dialogueView.hidden = true;
+  referenceView.hidden = false;
+
+  closeMenu();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function render() {
   const tokens = tokenizeSearchQuery(search.value.trim());
 currentSearchTokens = tokens;
