@@ -70,91 +70,87 @@
   <main>
 
     <section id="searchView">
-      
+
       <div id="announcementBox" class="announcement" hidden>
-  <div id="announcementTitle" class="announcement-title"></div>
-  <div id="announcementMessage" class="announcement-message"></div>
-</div>
-
-  <section id="cardControls" class="card-controls">
-
-    <div class="filter-group">
-      <span class="filter-label">Format</span>
-
-      <div class="filter-row">
-        <button class="filter-chip active" type="button" data-card-mode="ids">
-          IDs
-        </button>
-
-        <button class="filter-chip" type="button" data-card-mode="clean">
-          Clean
-        </button>
-
-        <button class="filter-chip" type="button" data-card-mode="code">
-          Code
-        </button>
+        <div id="announcementTitle" class="announcement-title"></div>
+        <div id="announcementMessage" class="announcement-message"></div>
       </div>
-    </div>
 
-    <div class="filter-group">
-      <span class="filter-label">Language</span>
+      <section id="cardControls" class="card-controls">
+        <div class="filter-group">
+          <span class="filter-label">Format</span>
 
-      <div class="filter-row">
-        <button class="filter-chip active" type="button" data-language-mode="en">
-          EN
-        </button>
+          <div class="filter-row">
+            <button class="filter-chip active" type="button" data-card-mode="ids">
+              IDs
+            </button>
 
-        <button class="filter-chip" type="button" data-language-mode="jp">
-          JP
-        </button>
-      </div>
-    </div>
+            <button class="filter-chip" type="button" data-card-mode="clean">
+              Clean
+            </button>
 
-  </section>
+            <button class="filter-chip" type="button" data-card-mode="code">
+              Code
+            </button>
+          </div>
+        </div>
 
-  <section id="searchFilters" class="search-filters">
+        <div class="filter-group">
+          <span class="filter-label">Language</span>
 
-    <div class="filter-group filter-group-all">
-      <button class="filter-chip active" type="button" data-clear-filters>
-        All
-      </button>
-    </div>
+          <div class="filter-row">
+            <button class="filter-chip active" type="button" data-language-mode="en">
+              EN
+            </button>
 
-    <div class="filter-group">
-      <span class="filter-label">Flags</span>
+            <button class="filter-chip" type="button" data-language-mode="jp">
+              JP
+            </button>
+          </div>
+        </div>
+      </section>
 
-      <div class="filter-row">
-        <button class="filter-chip" type="button" data-flag-filter="Japanese-Exclusive">
-          JP-only
-        </button>
+      <section id="searchFilters" class="search-filters">
+        <div class="filter-group filter-group-all">
+          <button class="filter-chip active" type="button" data-clear-filters>
+            All
+          </button>
+        </div>
 
-        <button class="filter-chip" type="button" data-flag-filter="Base">
-          Base
-        </button>
+        <div class="filter-group">
+          <span class="filter-label">Flags</span>
 
-        <button class="filter-chip" type="button" data-flag-filter="DLC">
-          DLC
-        </button>
-      </div>
-    </div>
+          <div class="filter-row">
+            <button class="filter-chip" type="button" data-flag-filter="Japanese-Exclusive">
+              JP-only
+            </button>
 
-    <div class="filter-group">
-      <span class="filter-label">Type</span>
+            <button class="filter-chip" type="button" data-flag-filter="Base">
+              Base
+            </button>
 
-      <div class="filter-row">
-        <button class="filter-chip" type="button" data-type-filter="NPCs">NPCs</button>
-        <button class="filter-chip" type="button" data-type-filter="Dialogues">Dialogues</button>
-        <button class="filter-chip" type="button" data-type-filter="Locations">Locations</button>
-        <button class="filter-chip" type="button" data-type-filter="Items">Items</button>
-        <button class="filter-chip" type="button" data-type-filter="Weapons">Weapons</button>
-        <button class="filter-chip" type="button" data-type-filter="Armor">Armor</button>
-        <button class="filter-chip" type="button" data-type-filter="Talismans">Talismans</button>
-      </div>
-    </div>
+            <button class="filter-chip" type="button" data-flag-filter="DLC">
+              DLC
+            </button>
+          </div>
+        </div>
 
-  </section>
+        <div class="filter-group">
+          <span class="filter-label">Type</span>
 
-<section class="toolbar">
+          <div class="filter-row">
+            <button class="filter-chip" type="button" data-type-filter="NPCs">NPCs</button>
+            <button class="filter-chip" type="button" data-type-filter="Dialogues">Dialogues</button>
+            <button class="filter-chip" type="button" data-type-filter="Locations">Locations</button>
+            <button class="filter-chip" type="button" data-type-filter="Items">Items</button>
+            <button class="filter-chip" type="button" data-type-filter="Weapons">Weapons</button>
+            <button class="filter-chip" type="button" data-type-filter="Armor">Armor</button>
+            <button class="filter-chip" type="button" data-type-filter="Talismans">Talismans</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="toolbar">
         <input
           id="search"
           type="search"
@@ -180,7 +176,6 @@
     </section>
 
     <section id="categoryView" hidden>
-
       <div class="view-header">
         <button id="backFromCategoryBtn" class="secondary">
           ← Back
@@ -193,11 +188,9 @@
         id="categoryResults"
         class="results">
       </section>
-
     </section>
 
     <section id="npcView" hidden>
-
       <div class="view-header">
         <button id="backFromNpcBtn" class="secondary">
           ← Back
@@ -210,11 +203,9 @@
         id="npcList"
         class="results">
       </section>
-
     </section>
 
     <section id="dialogueView" hidden>
-
       <div class="view-header dialogue-view-header">
         <button id="backFromDialogueBtn" class="secondary">
           ← Back
@@ -230,24 +221,23 @@
           </button>
         </div>
       </div>
-      
 
       <section
         id="dialogueResults"
         class="results">
       </section>
+    </section>
 
-<section id="referenceView" hidden>
-  <button id="backFromReferenceBtn" class="back-btn" type="button">
-    Back
-  </button>
+    <section id="referenceView" hidden>
+      <div class="view-header">
+        <button id="backFromReferenceBtn" class="secondary" type="button">
+          ← Back
+        </button>
 
-  <h2 id="referenceTitle"></h2>
+        <h2 id="referenceTitle"></h2>
+      </div>
 
-  <div id="referenceResults"></div>
-</section>
-
-
+      <div id="referenceResults"></div>
     </section>
 
   </main>
@@ -256,10 +246,10 @@
     <span>Works offline after first load.</span>
   </footer>
 
-<script src="./build-info.js"></script>
-<script src="./npc-overrides.js"></script>
-<script src="./npc-data.js"></script>
-<script src="./app.js"></script>
+  <script src="./build-info.js"></script>
+  <script src="./npc-overrides.js"></script>
+  <script src="./npc-data.js"></script>
+  <script src="./app.js"></script>
 
 </body>
 </html>
