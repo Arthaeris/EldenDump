@@ -972,9 +972,7 @@ function buildReferenceRelations() {
     const text = getText(entry, 'en');
     if (!text) continue;
 
-    const matches = findReferencesInText(text, {
-  types: ['npc']
-});
+    const matches = findReferencesInText(text);
 
     if (matches.length) {
       entryReferenceMap.set(entry.id, matches.map(match => match.reference));
@@ -1709,7 +1707,7 @@ function applyReferenceLinksToElement(root) {
 function linkReferencesInTextNode(textNode) {
   const text = textNode.nodeValue;
   const matches = findReferencesInText(text, {
-    types: ['npc', 'item']
+    types: ['npc']
   });
 
   if (!matches.length) return;
