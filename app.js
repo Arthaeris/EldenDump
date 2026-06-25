@@ -2859,17 +2859,8 @@ if (referenceButton) {
 
   if (!reference) return;
 
-  if (reference.type === 'npc' && reference.npcKey) {
-    showDialogue(reference.npcKey);
-    return;
-  }
-
-  if (reference.type === 'item') {
-    search.value = reference.label;
-    showHome();
-    render();
-    return;
-  }
+  showReferencePage(reference);
+  return;
 }
 
 
