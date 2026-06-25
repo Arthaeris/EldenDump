@@ -1447,15 +1447,17 @@ function entryMentionsReference(entry, value, exact = false) {
     return false;
   }
 
-  const references = findReferencesForQuery(query, exact);
+  const refs = entryReferenceMap.get(entry.id) || [];
 
-  if (!references.length) {
-    return searchIncludes(getSearchBlob(entry, 'en'), query, exact);
-  }
+  return refs.some(reference => {
+    if (searchIncludes(reference.label, query, exact)) {
+      return true;
+    }
 
-  return references.some(reference =>
-    entryTextMentionsReference(entry, reference)
-  );
+    return reference.aliases.some(alias =>
+      searchIncludes(alias, query, exact)
+    );
+  });
 }
 
 function referenceMatchesQuery(reference, value, exact = false) {
@@ -2667,9 +2669,8 @@ async function loadDump() {
     entries = buildEntriesFromDumps(enSections, jpSections);
 
     buildIndexes();
-buildReferenceIndex();
-buildAutoRelatedNpcs();
-// buildAutoRelatedItems();
+buildReferences();
+buildReferenceRelations();
 renderCategoryMenu();
 render();
   } catch (error) {
