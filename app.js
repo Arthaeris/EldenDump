@@ -863,15 +863,12 @@ function isSentenceStart(text, index) {
 }
 
 function isAllowedItemMatch(rawText, matchStart, matchedText, alias, reference) {
-  if (!validItemReferenceLabels.has(reference.label)) {
-    return false;
-  }
-
-  if (!isCapitalizedMatch(matchedText)) {
-    return false;
-  }
-
+  const visibleText = String(matchedText || '');
   const normalizedAlias = normalizeReferenceText(alias);
+
+  if (!isCapitalizedMatch(visibleText)) {
+    return false;
+  }
 
   if (GENERIC_ITEM_REFERENCE_WORDS.has(normalizedAlias)) {
     return false;
@@ -2621,7 +2618,7 @@ async function loadDump() {
     buildIndexes();
 buildReferences();
 buildReferenceAliasIndex();
-buildValidItemReferenceLabels();
+//buildValidItemReferenceLabels();
 buildReferenceRelations();
 renderCategoryMenu();
 render();
