@@ -789,7 +789,7 @@ function buildIndexes() {
   }
 }
 
-function normalizeMentionName(value) {
+function normalizeReferenceText(value) {
   return String(value || '')
     .toLowerCase()
     .replace(/^lady\s+/, '')
@@ -802,7 +802,7 @@ function normalizeMentionName(value) {
 
 function getNpcMentionAliases(name) {
   const clean = String(name || '').trim();
-  const normalized = normalizeMentionName(clean);
+  const normalized = normalizeReferenceText(clean);
 
   const aliases = new Set();
 
@@ -834,7 +834,7 @@ const beforeComma = normalized.split(',')[0].trim();
     const manualAliases = NPC_MENTION_ALIASES[clean] || [];
 
     for (const alias of manualAliases) {
-      aliases.add(normalizeMentionName(alias));
+      aliases.add(normalizeReferenceText(alias));
     }
   }
 
@@ -876,7 +876,7 @@ function extractCapitalizedPhrases(text) {
     const phrase = match[0].trim();
 
     if (phrase.length >= 4) {
-      phrases.add(normalizeMentionName(phrase));
+      phrases.add(normalizeReferenceText(phrase));
     }
   }
 
@@ -1481,14 +1481,14 @@ function shouldUseFuzzyToken(token) {
 }
 
 function fuzzyNameMatches(value, candidates) {
-  const normalizedValue = normalizeMentionName(value);
+  const normalizedValue = normalizeReferenceText(value);
   const allowedDistance = getAllowedFuzzyDistance(normalizedValue);
 
   if (!allowedDistance) return false;
   if (!normalizedValue[0]) return false;
 
   return candidates.some(candidate => {
-    const normalizedCandidate = normalizeMentionName(candidate);
+    const normalizedCandidate = normalizeReferenceText(candidate);
 
     if (!normalizedCandidate) return false;
 
