@@ -2006,8 +2006,7 @@ function getReferenceLinkCandidates() {
 function applyReferenceLinksToElement(root) {
   if (!root || !referenceIndex.length) return;
 
-  const candidates = getReferenceLinkCandidates();
-  if (!candidates.length) return;
+  if (!references.length) return;
 
   const walker = document.createTreeWalker(
     root,
@@ -2045,53 +2044,22 @@ function applyReferenceLinksToElement(root) {
   }
 
   for (const node of textNodes) {
-    linkReferencesInTextNode(node, candidates);
+    linkReferencesInTextNode(node);
   }
 }
 
-function linkReferencesInTextNode(textNode, candidates) {
+function linkReferencesInTextNode(textNode) {
   const text = textNode.nodeValue;
-  const matches = [];
-
-  for (const item of candidates) {
-    const escapedAlias = item.alias
-      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    const regex = new RegExp(`\\b${escapedAlias}\\b`, 'gi');
-
-    let match;
-
-    while ((match = regex.exec(text))) {
-      matches.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        text: match[0],
-        reference: item.reference
-      });
-    }
-  }
-
-  if (!matches.length) return;
-
-  matches.sort((a, b) => {
-    if (a.start !== b.start) return a.start - b.start;
-    return (b.end - b.start) - (a.end - a.start);
+  const matches = findReferencesInText(text, {
+    types: ['npc', 'item']
   });
 
-  const accepted = [];
-  let lastEnd = -1;
-
-  for (const match of matches) {
-    if (match.start < lastEnd) continue;
-
-    accepted.push(match);
-    lastEnd = match.end;
-  }
+  if (!matches.length) return;
 
   const fragment = document.createDocumentFragment();
   let cursor = 0;
 
-  for (const match of accepted) {
+  for (const match of matches) {
     if (match.start > cursor) {
       fragment.append(
         document.createTextNode(text.slice(cursor, match.start))
