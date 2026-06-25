@@ -1512,15 +1512,21 @@ function fuzzyNameMatches(value, candidates) {
 }
 
 function getNpcSearchCandidates(entry) {
+  const nameEn = getName(entry, 'en');
+  const nameJp = getName(entry, 'jp');
+
   const candidates = [
-    getName(entry, 'en'),
-    getName(entry, 'jp')
+    nameEn,
+    nameJp
   ];
 
-  if (typeof NPC_MENTION_ALIASES !== 'undefined') {
-    const nameEn = getName(entry, 'en');
-    const aliases = NPC_MENTION_ALIASES[nameEn] || [];
-    candidates.push(...aliases);
+  const npcReference = references.find(reference =>
+    reference.type === 'npc' &&
+    reference.label === nameEn
+  );
+
+  if (npcReference) {
+    candidates.push(...npcReference.aliases);
   }
 
   return candidates.filter(Boolean);
