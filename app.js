@@ -862,24 +862,33 @@ function isSentenceStart(text, index) {
 }
 
 function isAllowedItemMatch(rawText, matchStart, matchedText, alias) {
-  const normalizedAlias = normalizeReferenceText(alias);
-  const wordCount = getWordCount(alias);
+  const visibleText = String(matchedText || '');
 
-  if (
-    wordCount === 1 &&
-    GENERIC_ITEM_REFERENCE_WORDS.has(normalizedAlias)
-  ) {
+  if (!isCapitalizedMatch(visibleText)) {
     return false;
   }
 
-  if (wordCount >= 2) {
-    return true;
+  if (isSentenceStart(rawText, matchStart)) {
+    return false;
   }
 
-  return (
-    isCapitalizedMatch(matchedText) &&
-    !isSentenceStart(rawText, matchStart)
-  );
+  const normalizedAlias = normalizeReferenceText(alias);
+
+  if (GENERIC_ITEM_REFERENCE_WORDS.has(normalizedAlias)) {
+    return false;
+  }
+
+  return true;
+}
+
+function isPartOfLongerCapitalizedPhrase(rawText, start, end) {
+  const before = String(rawText || '').slice(0, start);
+  const after = String(rawText || '').slice(end);
+
+  const previousWord = before.match(/([A-Z][a-zA-Z'’+-]*)\s+$/);
+  const nextWord = after.match(/^\s+([A-Z][a-zA-Z'’+-]*)/);
+
+  return Boolean(previousWord || nextWord);
 }
 
 function getReferenceRule(type, label) {
@@ -1063,13 +1072,24 @@ function findReferencesInText(text, options = {}) {
     let match;
 
     while ((match = regex.exec(rawText))) {
-      if (
-        item.reference.type === 'item' &&
-        !isAllowedItemMatch(rawText, match.index, match[0], item.alias)
-      ) {
-        continue;
-      }
+      if (item.reference.type === 'item') {
+  if (
+    !isAllowedItemMatch(rawText, match.index, match[0], item.alias)
+  ) {
+    continue;
+  }
 
+  if (
+    getWordCount(match[0]) === 1 &&
+    isPartOfLongerCapitalizedPhrase(
+      rawText,
+      match.index,
+      match.index + match[0].length
+    )
+  ) {
+    continue;
+  }
+}
       matches.push({
         start: match.index,
         end: match.index + match[0].length,
