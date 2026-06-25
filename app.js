@@ -2812,16 +2812,22 @@ function showAnnouncement() {
   const announcements = BUILD_INFO.announcements || [];
   const visibleAnnouncements = announcements
   .filter(item => {
-    if (!item.enabled) return false;
+  if (!item.enabled) return false;
 
-    const updatedAt = new Date(item.updatedAt).getTime();
-    if (!Number.isFinite(updatedAt)) return true;
+  const now = Date.now();
+  const updatedAt = new Date(item.updatedAt).getTime();
 
-    const ageHours =
-      (Date.now() - updatedAt) / (1000 * 60 * 60);
+  if (!Number.isFinite(updatedAt)) return true;
 
-    return ageHours <= (item.showForHours || 24);
-    })
+  if (updatedAt > now) {
+    return false;
+  }
+
+  const ageHours =
+    (now - updatedAt) / (1000 * 60 * 60);
+
+  return ageHours <= (item.showForHours || 24);
+})
   .sort((a, b) =>
     new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
