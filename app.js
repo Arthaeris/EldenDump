@@ -177,6 +177,45 @@ const REFERENCE_RULES = {
   item: {}
 };
 
+const GENERIC_ITEM_REFERENCE_WORDS = new Set([
+  'talisman',
+  'sword',
+  'shield',
+  'greatshield',
+  'armor',
+  'helm',
+  'gauntlets',
+  'greaves',
+  'robe',
+  'hood',
+  'staff',
+  'seal',
+  'bow',
+  'arrow',
+  'bolt',
+  'perfume',
+  'bottle',
+  'flask',
+  'pot',
+  'grease',
+  'stone',
+  'flower',
+  'leaf',
+  'root',
+  'mushroom',
+  'meat',
+  'liver',
+  'bone',
+  'golden',
+  'sacred',
+  'hidden',
+  'secret',
+  'blessed',
+  'broken',
+  'old',
+  'new'
+]);
+
 function parseXmlDump(rawText) {
   const normalized = String(rawText || '')
     .replace(/\r/g, '')
@@ -823,7 +862,17 @@ function isSentenceStart(text, index) {
 }
 
 function isAllowedItemMatch(rawText, matchStart, matchedText, alias) {
-  if (getWordCount(alias) >= 2) {
+  const normalizedAlias = normalizeReferenceText(alias);
+  const wordCount = getWordCount(alias);
+
+  if (
+    wordCount === 1 &&
+    GENERIC_ITEM_REFERENCE_WORDS.has(normalizedAlias)
+  ) {
+    return false;
+  }
+
+  if (wordCount >= 2) {
     return true;
   }
 
