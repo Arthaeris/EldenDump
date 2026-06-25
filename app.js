@@ -1635,24 +1635,24 @@ function renderEntry(e) {
       data-copy-code-jp="${escapeAttribute(getCopyTextCode(e, 'jp'))}"
     >
       <div class="entry-actions">
-        ${dlcBadge}
-        ${languageControl}
-        <button class="copy-btn" type="button">Copy</button>
+  ${
+    hasJapanese
+      ? `
+        <button
+          class="lang-btn translate-btn"
+          type="button"
+          ${lang !== 'jp' ? 'hidden' : ''}
+        >
+          Translate
+        </button>
+      `
+      : ''
+  }
 
-        ${
-          hasJapanese
-            ? `
-              <button
-                class="lang-btn translate-btn"
-                type="button"
-                ${lang !== 'jp' ? 'hidden' : ''}
-              >
-                Translate
-              </button>
-            `
-            : ''
-        }
-      </div>
+  ${dlcBadge}
+  ${languageControl}
+  <button class="copy-btn" type="button">Copy</button>
+</div>
 
       <div class="entry-section">${escapeHtml(metaParts.join(' · '))}</div>
 
