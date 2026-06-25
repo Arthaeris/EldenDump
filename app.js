@@ -44,6 +44,7 @@ let currentDialogueKey = '';
 let references = [];
 let entryReferenceMap = new Map();
 let npcReferenceRelations = new Map();
+let referenceAliasIndex = new Map();
 
 let currentRenderTarget = results;
 let currentVisibleEntries = [];
@@ -907,40 +908,83 @@ const aliases = makeReferenceAliasList('npc', label, manualAliases);
   );
 }
 
+function buildReferenceAliasIndex() {
+  referenceAliasIndex = new Map();
+
+  for (const reference of references) {
+    if (reference.type !== 'npc') continue;
+
+    for (const alias of reference.aliases) {
+      const normalizedAlias = normalizeReferenceText(alias);
+
+      if (normalizedAlias.length < 4) continue;
+
+      const firstWord = normalizedAlias.split(/\s+/)[0];
+      if (!firstWord || firstWord.length < 4) continue;
+
+      if (!referenceAliasIndex.has(firstWord)) {
+        referenceAliasIndex.set(firstWord, []);
+      }
+
+      referenceAliasIndex.get(firstWord).push({
+        reference,
+        alias
+      });
+    }
+  }
+
+  for (const list of referenceAliasIndex.values()) {
+    list.sort((a, b) => b.alias.length - a.alias.length);
+  }
+}
+
 function findReferencesInText(text, options = {}) {
   const {
-    types = ['npc', 'item'],
-    includeDisabled = false
+    types = ['npc']
   } = options;
 
   const rawText = String(text || '');
+  const normalizedText = normalizeReferenceText(rawText);
+
+  if (!rawText || !normalizedText) return [];
+
+  const words = new Set(
+    normalizedText
+      .split(/\s+/)
+      .filter(word => word.length >= 4)
+  );
+
+  const candidates = [];
+
+  for (const word of words) {
+    const list = referenceAliasIndex.get(word);
+    if (!list) continue;
+
+    for (const item of list) {
+      if (!types.includes(item.reference.type)) continue;
+      candidates.push(item);
+    }
+  }
+
+  if (!candidates.length) return [];
+
   const matches = [];
 
-  for (const reference of references) {
-    if (!types.includes(reference.type)) continue;
+  for (const item of candidates) {
+    const escapedAlias = item.alias
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    const rule = getReferenceRule(reference.type, reference.label);
+    const regex = new RegExp(`\\b${escapedAlias}\\b`, 'gi');
 
-    if (!includeDisabled && rule.enabled === false) {
-      continue;
-    }
+    let match;
 
-    for (const alias of reference.aliases) {
-      const escapedAlias = alias
-        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-      const regex = new RegExp(`\\b${escapedAlias}\\b`, 'gi');
-
-      let match;
-
-      while ((match = regex.exec(rawText))) {
-        matches.push({
-          start: match.index,
-          end: match.index + match[0].length,
-          text: match[0],
-          reference
-        });
-      }
+    while ((match = regex.exec(rawText))) {
+      matches.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        text: match[0],
+        reference: item.reference
+      });
     }
   }
 
@@ -2326,7 +2370,8 @@ async function loadDump() {
 
     buildIndexes();
 buildReferences();
-//buildReferenceRelations();
+buildReferenceAliasIndex();
+// buildReferenceRelations();
 renderCategoryMenu();
 render();
   } catch (error) {
