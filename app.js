@@ -45,6 +45,7 @@ let references = [];
 let entryReferenceMap = new Map();
 let npcReferenceRelations = new Map();
 let referenceAliasIndex = new Map();
+let validItemReferenceLabels = new Set();
 
 let currentRenderTarget = results;
 let currentVisibleEntries = [];
@@ -861,14 +862,12 @@ function isSentenceStart(text, index) {
   return /[.!?]\s*$/.test(trimmed);
 }
 
-function isAllowedItemMatch(rawText, matchStart, matchedText, alias) {
-  const visibleText = String(matchedText || '');
-
-  if (!isCapitalizedMatch(visibleText)) {
+function isAllowedItemMatch(rawText, matchStart, matchedText, alias, reference) {
+  if (!validItemReferenceLabels.has(reference.label)) {
     return false;
   }
 
-  if (isSentenceStart(rawText, matchStart)) {
+  if (!isCapitalizedMatch(matchedText)) {
     return false;
   }
 
@@ -1028,6 +1027,38 @@ function buildReferenceAliasIndex() {
 
   for (const list of referenceAliasIndex.values()) {
     list.sort((a, b) => b.alias.length - a.alias.length);
+  }
+}
+
+function buildValidItemReferenceLabels() {
+  validItemReferenceLabels = new Set();
+
+  const allText = entries
+    .map(entry => getText(entry, 'en'))
+    .filter(Boolean)
+    .join('\n');
+
+  for (const reference of references) {
+    if (reference.type !== 'item') continue;
+
+    for (const alias of reference.aliases) {
+      const escapedAlias = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escapedAlias}\\b`, 'g');
+
+      let match;
+
+      while ((match = regex.exec(allText))) {
+        if (
+          isCapitalizedMatch(match[0]) &&
+          !isSentenceStart(allText, match.index)
+        ) {
+          validItemReferenceLabels.add(reference.label);
+          break;
+        }
+      }
+
+      if (validItemReferenceLabels.has(reference.label)) break;
+    }
   }
 }
 
@@ -2590,6 +2621,7 @@ async function loadDump() {
     buildIndexes();
 buildReferences();
 buildReferenceAliasIndex();
+buildValidItemReferenceLabels();
 buildReferenceRelations();
 renderCategoryMenu();
 render();
