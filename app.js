@@ -41,9 +41,9 @@ let activeTypeFilter = 'All';
 let activeFlagFilter = 'All';
 let dialogueDisplayMode = 'cards';
 let currentDialogueKey = '';
-let autoRelatedNpcs = new Map();
-let autoRelatedItems = new Map();
-let referenceIndex = [];
+let references = [];
+let entryReferenceMap = new Map();
+let npcReferenceRelations = new Map();
 
 let currentRenderTarget = results;
 let currentVisibleEntries = [];
@@ -161,6 +161,20 @@ const MANUAL_NPC_SECTION_MAPPINGS = [
     labelJp: 'DLC 手動NPC'
   }
 ];
+
+const REFERENCE_RULES = {
+  npc: {
+    'Hornsent': {
+      enabled: false
+    },
+
+    'Hornsent Grandam': {
+      aliases: ['Hornsent Grandam']
+    }
+  },
+
+  item: {}
+};
 
 function parseXmlDump(rawText) {
   const normalized = String(rawText || '')
@@ -867,6 +881,234 @@ function extractCapitalizedPhrases(text) {
   }
 
   return phrases;
+}
+
+function normalizeReferenceText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/^lady\s+/, '')
+    .replace(/^sir\s+/, '')
+    .replace(/^saint\s+/, '')
+    .replace(/^the\s+/, '')
+    .replace(/[^a-z0-9\s'-]/g, '')
+    .trim();
+}
+
+function getReferenceRule(type, label) {
+  return REFERENCE_RULES?.[type]?.[label] || {};
+}
+
+function makeReferenceAliasList(type, label, extraAliases = []) {
+  const rule = getReferenceRule(type, label);
+
+  if (rule.enabled === false) return [];
+
+  const aliases = new Set();
+
+  aliases.add(label);
+
+  const beforeComma = normalizeReferenceText(label).split(',')[0]?.trim();
+  if (beforeComma && beforeComma.length >= 4) {
+    aliases.add(beforeComma);
+  }
+
+  const firstWord = normalizeReferenceText(label).split(/\s+/)[0];
+  if (firstWord && firstWord.length >= 4) {
+    aliases.add(firstWord);
+  }
+
+  for (const alias of extraAliases || []) {
+    aliases.add(alias);
+  }
+
+  for (const alias of rule.aliases || []) {
+    aliases.add(alias);
+  }
+
+  for (const alias of rule.excludeAliases || []) {
+    aliases.delete(alias);
+    aliases.delete(normalizeReferenceText(alias));
+  }
+
+  return [...aliases]
+    .map(alias => String(alias || '').trim())
+    .filter(alias => {
+      const normalized = normalizeReferenceText(alias);
+
+      if (normalized.length < 4) return false;
+      if (/^\d+$/.test(normalized)) return false;
+
+      return true;
+    });
+}
+
+function buildReferences() {
+  references = [];
+
+  const seen = new Set();
+
+  for (const [npcKey, group] of npcGroups.entries()) {
+    const first = group[0];
+    const label = getName(first, 'en');
+
+    if (!label) continue;
+
+    const aliases = makeReferenceAliasList('npc', label);
+
+    if (!aliases.length) continue;
+
+    const key = `npc|${label}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    references.push({
+      type: 'npc',
+      label,
+      aliases,
+      npcKey
+    });
+  }
+
+  for (const entry of entries) {
+    if (!isReferenceEntry(entry)) continue;
+
+    const label = getName(entry, 'en');
+    if (!label) continue;
+
+    const aliases = makeReferenceAliasList('item', label);
+
+    if (!aliases.length) continue;
+
+    const key = `item|${label}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    references.push({
+      type: 'item',
+      label,
+      aliases,
+      category: entry.category,
+      id: entry.id
+    });
+  }
+
+  references.sort((a, b) =>
+    b.label.length - a.label.length
+  );
+}
+
+function findReferencesInText(text, options = {}) {
+  const {
+    types = ['npc', 'item'],
+    includeDisabled = false
+  } = options;
+
+  const rawText = String(text || '');
+  const matches = [];
+
+  for (const reference of references) {
+    if (!types.includes(reference.type)) continue;
+
+    const rule = getReferenceRule(reference.type, reference.label);
+
+    if (!includeDisabled && rule.enabled === false) {
+      continue;
+    }
+
+    for (const alias of reference.aliases) {
+      const escapedAlias = alias
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      const regex = new RegExp(`\\b${escapedAlias}\\b`, 'gi');
+
+      let match;
+
+      while ((match = regex.exec(rawText))) {
+        matches.push({
+          start: match.index,
+          end: match.index + match[0].length,
+          text: match[0],
+          reference
+        });
+      }
+    }
+  }
+
+  if (!matches.length) return [];
+
+  matches.sort((a, b) => {
+    if (a.start !== b.start) return a.start - b.start;
+    return (b.end - b.start) - (a.end - a.start);
+  });
+
+  const accepted = [];
+  let lastEnd = -1;
+
+  for (const match of matches) {
+    if (match.start < lastEnd) continue;
+
+    accepted.push(match);
+    lastEnd = match.end;
+  }
+
+  return accepted;
+}
+
+function buildReferenceRelations() {
+  entryReferenceMap = new Map();
+  npcReferenceRelations = new Map();
+
+  for (const entry of entries) {
+    const text = getText(entry, 'en');
+    if (!text) continue;
+
+    const matches = findReferencesInText(text);
+
+    if (matches.length) {
+      entryReferenceMap.set(entry.id, matches.map(match => match.reference));
+    }
+  }
+
+  for (const [npcKey, group] of npcGroups.entries()) {
+    const first = group[0];
+    const npcName = getName(first, 'en');
+
+    if (!npcName) continue;
+
+    const relatedNpcs = new Set();
+    const relatedItems = new Set();
+
+    for (const entry of group) {
+      const refs = entryReferenceMap.get(entry.id) || [];
+
+      for (const reference of refs) {
+        if (reference.type === 'npc' && reference.label !== npcName) {
+          relatedNpcs.add(reference.label);
+        }
+
+        if (reference.type === 'item') {
+          relatedItems.add(reference.label);
+        }
+      }
+    }
+
+    npcReferenceRelations.set(npcName, {
+      relatedNpcs,
+      relatedItems
+    });
+  }
+}
+
+function isReferenceEntry(entry) {
+  return [
+    'Items',
+    'Weapons',
+    'Armor',
+    'Talismans',
+    'Ashes of War',
+    'Ashes of War (Item)',
+    'Locations'
+  ].includes(entry.category);
 }
 
 function buildAutoRelatedNpcs() {
@@ -2136,27 +2378,28 @@ function renderNpcProfile(entry) {
   const nameEn = getName(entry, 'en');
   const name = getName(entry, activeLanguage);
 
-  const manualRelatedNpcs = meta.relatedNpcs || [];
-  const automaticRelatedNpcs =
-    [...(autoRelatedNpcs.get(nameEn) || [])];
+  const relations = npcReferenceRelations.get(nameEn) || {
+  relatedNpcs: new Set(),
+  relatedItems: new Set()
+};
 
-  const relatedNpcs = [
-    ...new Set([
-      ...manualRelatedNpcs,
-      ...automaticRelatedNpcs
-    ])
-  ].sort((a, b) => a.localeCompare(b));
+const manualRelatedNpcs = meta.relatedNpcs || [];
 
-  const manualRelatedItems = meta.relatedItems || [];
-  const automaticRelatedItems =
-    [...(autoRelatedItems.get(nameEn) || [])];
+const relatedNpcs = [
+  ...new Set([
+    ...manualRelatedNpcs,
+    ...relations.relatedNpcs
+  ])
+].sort((a, b) => a.localeCompare(b));
 
-  const relatedItems = [
-    ...new Set([
-      ...manualRelatedItems,
-      ...automaticRelatedItems
-    ])
-  ].sort((a, b) => a.localeCompare(b));
+const manualRelatedItems = meta.relatedItems || [];
+
+const relatedItems = [
+  ...new Set([
+    ...manualRelatedItems,
+    ...relations.relatedItems
+  ])
+].sort((a, b) => a.localeCompare(b));
 
   const hasProfileData =
     meta.image ||
