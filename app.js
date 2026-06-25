@@ -1021,10 +1021,25 @@ const aliases = makeReferenceAliasList('npc', label, manualAliases);
   );
 }
 
+function buildTermReferences() {
+  termReferences = [...TERM_REFERENCE_WORDS].map(term => ({
+    type: 'term',
+    label: term,
+    aliases: [term]
+  }));
+
+  termReferenceMap = new Map(
+    termReferences.map(reference => [
+      normalizeReferenceText(reference.label),
+      reference
+    ])
+  );
+}
+
 function buildReferenceAliasIndex() {
   referenceAliasIndex = new Map();
 
-  for (const reference of references) {
+  for (const reference of [...references, ...termReferences]) {
     for (const alias of reference.aliases) {
       const normalizedAlias = normalizeReferenceText(alias);
 
