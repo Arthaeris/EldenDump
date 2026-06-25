@@ -1251,6 +1251,56 @@ function getSearchBlob(entry, lang = 'both') {
   return parts.filter(Boolean).join('\n');
 }
 
+function normalizeSearchValue(value) {
+  return String(value || '')
+    .toLowerCase()
+    .trim();
+}
+
+function getSearchRelevance(entry, tokens) {
+  if (!tokens.length) return 0;
+
+  let score = 0;
+
+  for (const token of tokens) {
+    const value = normalizeSearchValue(token.value);
+    if (!value) continue;
+
+    const nameEn = normalizeSearchValue(getName(entry, 'en'));
+    const nameJp = normalizeSearchValue(getName(entry, 'jp'));
+    const textEn = normalizeSearchValue(getText(entry, 'en'));
+    const section = normalizeSearchValue(entry.section);
+    const category = normalizeSearchValue(entry.category);
+
+    if (nameEn === value || nameJp === value) {
+      score += 1000;
+    } else if (nameEn.startsWith(value) || nameJp.startsWith(value)) {
+      score += 800;
+    } else if (nameEn.includes(value) || nameJp.includes(value)) {
+      score += 600;
+    } else if (category.includes(value)) {
+      score += 250;
+    } else if (section.includes(value)) {
+      score += 200;
+    } else if (textEn.includes(value)) {
+      score += 50;
+    }
+
+    const parts = value
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (
+      parts.length > 1 &&
+      parts.every(part => nameEn.includes(part))
+    ) {
+      score += 400;
+    }
+  }
+
+  return score;
+}
+
 function entryMatchesSearchToken(entry, token) {
   const operator = token.operator;
   const value = token.value;
@@ -1528,10 +1578,21 @@ function render() {
   const tokens = tokenizeSearchQuery(search.value.trim());
 currentSearchTokens = tokens;
 
-  const visible = entries.filter(entry =>
+  const visible = entries
+  .filter(entry =>
     matchesSearchFilter(entry) &&
     entryMatchesSearchQuery(entry, tokens)
-  );
+  )
+  .sort((a, b) => {
+    const scoreA = getSearchRelevance(a, tokens);
+    const scoreB = getSearchRelevance(b, tokens);
+
+    if (scoreA !== scoreB) {
+      return scoreB - scoreA;
+    }
+
+    return getName(a, 'en').localeCompare(getName(b, 'en'));
+  });
 
   currentSearchResults = visible;
 
