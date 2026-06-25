@@ -801,6 +801,38 @@ function normalizeReferenceText(value) {
     .trim();
 }
 
+function getWordCount(value) {
+  return normalizeReferenceText(value)
+    .split(/\s+/)
+    .filter(Boolean)
+    .length;
+}
+
+function isCapitalizedMatch(value) {
+  return /^[A-Z][a-zA-Z'’+-]*/.test(String(value || ''));
+}
+
+function isSentenceStart(text, index) {
+  const before = String(text || '').slice(0, index);
+
+  const trimmed = before.replace(/\s+$/g, '');
+
+  if (!trimmed) return true;
+
+  return /[.!?]\s*$/.test(trimmed);
+}
+
+function isAllowedItemMatch(rawText, matchStart, matchedText, alias) {
+  if (getWordCount(alias) >= 2) {
+    return true;
+  }
+
+  return (
+    isCapitalizedMatch(matchedText) &&
+    !isSentenceStart(rawText, matchStart)
+  );
+}
+
 function getReferenceRule(type, label) {
   return REFERENCE_RULES?.[type]?.[label] || {};
 }
