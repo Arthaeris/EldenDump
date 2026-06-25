@@ -859,8 +859,12 @@ function buildReferences() {
 
     if (!label) continue;
 
-    const aliases = makeReferenceAliasList('npc', label);
+    const manualAliases =
+  typeof NPC_MENTION_ALIASES !== 'undefined'
+    ? NPC_MENTION_ALIASES[label] || []
+    : [];
 
+const aliases = makeReferenceAliasList('npc', label, manualAliases);
     if (!aliases.length) continue;
 
     const key = `npc|${label}`;
