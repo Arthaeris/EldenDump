@@ -17,6 +17,11 @@ const categoryView = document.querySelector('#categoryView');
 const npcView = document.querySelector('#npcView');
 const dialogueView = document.querySelector('#dialogueView');
 
+const referenceView = document.querySelector('#referenceView');
+const referenceTitle = document.querySelector('#referenceTitle');
+const referenceResults = document.querySelector('#referenceResults');
+const backFromReferenceBtn = document.querySelector('#backFromReferenceBtn');
+
 const categoryTitle = document.querySelector('#categoryTitle');
 const categoryResults = document.querySelector('#categoryResults');
 const npcList = document.querySelector('#npcList');
