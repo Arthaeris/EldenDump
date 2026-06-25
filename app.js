@@ -1577,6 +1577,13 @@ function appendNextEntries() {
     'beforeend',
     nextItems.map(renderEntry).join('')
   );
+  
+  const newCards = [...currentRenderTarget.querySelectorAll('.entry')]
+  .slice(renderedEntryCount);
+
+newCards.forEach(card => {
+  applyReferenceLinksToElement(card);
+});
 
   renderedEntryCount += nextItems.length;
   isAppending = false;
@@ -1683,9 +1690,9 @@ function renderEntry(e) {
       ${
         text
           ? `
-            <div class="entry-text entry-text-ids">${formatEntryText(textIds, false, false)}</div>
-            <div class="entry-text entry-text-clean">${formatEntryText(textClean, false, false)}</div>
-            <div class="entry-text entry-text-code">${formatEntryText(textCode, false, false)}</div>
+            <div class="entry-text entry-text-ids">${formatEntryText(textIds, false)}</div>
+<div class="entry-text entry-text-clean">${formatEntryText(textClean, false)}</div>
+<div class="entry-text entry-text-code">${formatEntryText(textCode, false)}</div>
           `
           : ''
       }
@@ -1726,10 +1733,8 @@ function formatRawTextClean(entry, lang) {
   return getCleanText(getText(entry, lang));
 }
 
-function formatEntryText(text, highlight = false, linkReferences = false) {
-  let html = linkReferences
-    ? linkReferencesInRawText(text)
-    : escapeHtml(text);
+function formatEntryText(text, highlight = false) {
+  let html = escapeHtml(text);
 
   if (highlight) {
     html = highlightSearchTermsHtml(html);
@@ -1740,14 +1745,8 @@ function formatEntryText(text, highlight = false, linkReferences = false) {
     .replace(/\n/g, '<br>');
 }
 
-function linkReferencesInRawText(text) {
-  if (!referenceIndex.length) {
-    return escapeHtml(text);
-  }
-
-  const rawText = String(text || '');
-
-  const references = referenceIndex
+function getReferenceLinkCandidates() {
+  return referenceIndex
     .filter(reference => reference.type === 'npc')
     .flatMap(reference =>
       reference.aliases.map(alias => ({
@@ -1760,10 +1759,59 @@ function linkReferencesInRawText(text) {
       !/^\d+$/.test(item.alias)
     )
     .sort((a, b) => b.alias.length - a.alias.length);
+}
 
+function applyReferenceLinksToElement(root) {
+  if (!root || !referenceIndex.length) return;
+
+  const candidates = getReferenceLinkCandidates();
+  if (!candidates.length) return;
+
+  const walker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_TEXT,
+    {
+      acceptNode(node) {
+        const parent = node.parentElement;
+
+        if (!parent) return NodeFilter.FILTER_REJECT;
+
+        if (
+          parent.closest('button') ||
+          parent.closest('mark') ||
+          parent.closest('.entry-actions') ||
+          parent.closest('.entry-section') ||
+          parent.closest('.entry-header') ||
+          parent.closest('.entry-text-code')
+        ) {
+          return NodeFilter.FILTER_REJECT;
+        }
+
+        if (!node.nodeValue.trim()) {
+          return NodeFilter.FILTER_REJECT;
+        }
+
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    }
+  );
+
+  const textNodes = [];
+
+  while (walker.nextNode()) {
+    textNodes.push(walker.currentNode);
+  }
+
+  for (const node of textNodes) {
+    linkReferencesInTextNode(node, candidates);
+  }
+}
+
+function linkReferencesInTextNode(textNode, candidates) {
+  const text = textNode.nodeValue;
   const matches = [];
 
-  for (const item of references) {
+  for (const item of candidates) {
     const escapedAlias = item.alias
       .replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -1771,7 +1819,7 @@ function linkReferencesInRawText(text) {
 
     let match;
 
-    while ((match = regex.exec(rawText))) {
+    while ((match = regex.exec(text))) {
       matches.push({
         start: match.index,
         end: match.index + match[0].length,
@@ -1781,9 +1829,7 @@ function linkReferencesInRawText(text) {
     }
   }
 
-  if (!matches.length) {
-    return escapeHtml(rawText);
-  }
+  if (!matches.length) return;
 
   matches.sort((a, b) => {
     if (a.start !== b.start) return a.start - b.start;
@@ -1800,25 +1846,35 @@ function linkReferencesInRawText(text) {
     lastEnd = match.end;
   }
 
-  let output = '';
+  const fragment = document.createDocumentFragment();
   let cursor = 0;
 
   for (const match of accepted) {
-    output += escapeHtml(rawText.slice(cursor, match.start));
+    if (match.start > cursor) {
+      fragment.append(
+        document.createTextNode(text.slice(cursor, match.start))
+      );
+    }
 
-    output += `<button
-      class="reference-link reference-link-${escapeAttribute(match.reference.type)}"
-      type="button"
-      data-reference-type="${escapeAttribute(match.reference.type)}"
-      data-reference-label="${escapeAttribute(match.reference.label)}"
-    >${escapeHtml(match.text)}</button>`;
+    const button = document.createElement('button');
+    button.className =
+      `reference-link reference-link-${match.reference.type}`;
+    button.type = 'button';
+    button.dataset.referenceType = match.reference.type;
+    button.dataset.referenceLabel = match.reference.label;
+    button.textContent = match.text;
 
+    fragment.append(button);
     cursor = match.end;
   }
 
-  output += escapeHtml(rawText.slice(cursor));
+  if (cursor < text.length) {
+    fragment.append(
+      document.createTextNode(text.slice(cursor))
+    );
+  }
 
-  return output;
+  textNode.replaceWith(fragment);
 }
 
 function getCopyTextWithIds(entry, lang) {
@@ -1889,6 +1945,8 @@ function updateCardLanguage(card, lang) {
   if (codeEl) {
     codeEl.innerHTML = formatEntryText(`\`\`\`\n${decodeHtml(textClean)}\n\`\`\``);
   }
+
+applyReferenceLinksToElement(card);
 
   if (langBtn) langBtn.textContent = lang === 'en' ? 'JP' : 'EN';
 
