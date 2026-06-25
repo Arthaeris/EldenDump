@@ -912,15 +912,18 @@ function buildReferenceAliasIndex() {
   referenceAliasIndex = new Map();
 
   for (const reference of references) {
-    if (reference.type !== 'npc') continue;
-
     for (const alias of reference.aliases) {
       const normalizedAlias = normalizeReferenceText(alias);
 
       if (normalizedAlias.length < 4) continue;
 
-      const firstWord = normalizedAlias.split(/\s+/)[0];
-      if (!firstWord || firstWord.length < 4) continue;
+      const words = normalizedAlias
+        .split(/\s+/)
+        .filter(word => word.length >= 4);
+
+      if (!words.length) continue;
+
+      const firstWord = words[0];
 
       if (!referenceAliasIndex.has(firstWord)) {
         referenceAliasIndex.set(firstWord, []);
