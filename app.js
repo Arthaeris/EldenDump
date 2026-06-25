@@ -2651,7 +2651,15 @@ function handleScroll() {
   }
 }
 
-search.addEventListener('input', render);
+let searchRenderTimer = null;
+
+search.addEventListener('input', () => {
+  clearTimeout(searchRenderTimer);
+
+  searchRenderTimer = setTimeout(() => {
+    render();
+  }, 120);
+});
 
 searchFilters.addEventListener('click', event => {
   const clearButton = event.target.closest('[data-clear-filters]');
