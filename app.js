@@ -1785,7 +1785,7 @@ function showReferencePage(reference, addToHistory = true) {
     ${renderWikiSection('Mentioned By', mentionedContent, true)}
   `;
 
-  applyReferenceLinksToElement(referenceResults);
+  //applyReferenceLinksToElement(referenceResults);
 
   searchView.hidden = true;
   categoryView.hidden = true;
