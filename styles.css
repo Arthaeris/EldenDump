@@ -801,3 +801,22 @@ footer {
 .reference-link:hover {
   text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent);
 }
+
+
+
+.wiki-section {
+  margin: 1rem 0;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.wiki-section summary {
+  cursor: pointer;
+  padding: 0.9rem 1rem;
+  font-weight: 700;
+}
+
+.wiki-section-content {
+  padding: 1rem;
+}
