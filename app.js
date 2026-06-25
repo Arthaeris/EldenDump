@@ -2155,6 +2155,7 @@ function showHome(addToHistory = true) {
   categoryView.hidden = true;
   npcView.hidden = true;
   dialogueView.hidden = true;
+  referenceView.hidden = true;
 
   closeMenu();
   render();
@@ -2189,6 +2190,7 @@ function showCategory(categoryName, addToHistory = true) {
   categoryView.hidden = false;
   npcView.hidden = true;
   dialogueView.hidden = true;
+  referenceView.hidden = true;
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2238,6 +2240,7 @@ function showNpcIndex(addToHistory = true) {
   categoryView.hidden = true;
   npcView.hidden = false;
   dialogueView.hidden = true;
+  referenceView.hidden = true;
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2450,6 +2453,7 @@ function showDialogue(npcKey, addToHistory = true) {
   categoryView.hidden = true;
   npcView.hidden = true;
   dialogueView.hidden = false;
+  referenceView.hidden = true;
 
   window.scrollTo({
     top: 0,
