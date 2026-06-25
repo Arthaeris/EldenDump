@@ -3052,6 +3052,7 @@ npcIndexBtn.addEventListener('click', showNpcIndex);
 backFromCategoryBtn.addEventListener('click', goBack);
 backFromNpcBtn.addEventListener('click', goBack);
 backFromDialogueBtn.addEventListener('click', goBack);
+backFromReferenceBtn.addEventListener('click', goBack);
 
 
 function showAnnouncement() {
