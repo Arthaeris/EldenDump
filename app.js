@@ -1496,12 +1496,12 @@ function appendNextEntries() {
     nextItems.map(renderEntry).join('')
   );
   
-  const newCards = [...currentRenderTarget.querySelectorAll('.entry')]
-  .slice(renderedEntryCount);
+  //const newCards = [...currentRenderTarget.querySelectorAll('.entry')]
+  //.slice(renderedEntryCount);
 
-newCards.forEach(card => {
-  applyReferenceLinksToElement(card);
-});
+//newCards.forEach(card => {
+  //applyReferenceLinksToElement(card);
+//});
 
   renderedEntryCount += nextItems.length;
   isAppending = false;
@@ -1814,7 +1814,7 @@ function updateCardLanguage(card, lang) {
     codeEl.innerHTML = formatEntryText(`\`\`\`\n${decodeHtml(textClean)}\n\`\`\``);
   }
 
-applyReferenceLinksToElement(card);
+//applyReferenceLinksToElement(card);
 
   if (langBtn) langBtn.textContent = lang === 'en' ? 'JP' : 'EN';
 
