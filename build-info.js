@@ -3,6 +3,17 @@ const BUILD_INFO = {
   announcements: [
     
     
+    
+    {
+      version: '0.5.3',
+      updatedAt: '2026-06-25T10:00:00Z',
+      enabled: true,
+      title: 'Item/Dialogue relations & Clickable links',
+      message:
+        'Item/Dialogue relations via clickable links in the text dump's entries is being tested now. The relations are still being worked on, so, as of yet, do not rely on the links to lead to the correct entries.',
+      showForHours: 72
+    },
+    
     {
       version: '0.5.3',
       updatedAt: '2026-06-24T08:00:00Z',
