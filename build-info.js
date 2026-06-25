@@ -5,7 +5,7 @@ const BUILD_INFO = {
     
     
     {
-      version: '0.5.3',
+      version: '0.5.4',
       updatedAt: '2026-06-25T10:00:00Z',
       enabled: true,
       title: 'Item/Dialogue relations & Clickable links',
