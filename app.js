@@ -972,7 +972,9 @@ function buildReferenceRelations() {
     const text = getText(entry, 'en');
     if (!text) continue;
 
-    const matches = findReferencesInText(text);
+    const matches = findReferencesInText(text, {
+  types: ['npc']
+});
 
     if (matches.length) {
       entryReferenceMap.set(entry.id, matches.map(match => match.reference));
@@ -1707,7 +1709,7 @@ function applyReferenceLinksToElement(root) {
 function linkReferencesInTextNode(textNode) {
   const text = textNode.nodeValue;
   const matches = findReferencesInText(text, {
-    types: ['npc']
+    types: ['npc', 'item']
   });
 
   if (!matches.length) return;
@@ -2324,7 +2326,7 @@ async function loadDump() {
 
     buildIndexes();
 buildReferences();
-buildReferenceRelations();
+//buildReferenceRelations();
 renderCategoryMenu();
 render();
   } catch (error) {
