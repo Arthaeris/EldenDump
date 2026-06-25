@@ -1595,7 +1595,7 @@ function renderEntry(e) {
   const text = getText(e, lang);
 
   const hasEnglish = hasDirectLanguage(e, 'en');
-const hasJapanese = hasDirectLanguage(e, 'jp');
+  const hasJapanese = hasDirectLanguage(e, 'jp');
 
   const languageControl =
     hasEnglish && hasJapanese
@@ -1607,6 +1607,10 @@ const hasJapanese = hasDirectLanguage(e, 'jp');
   const dlcBadge = e.isDlc
     ? `<span class="tag-badge dlc-badge">DLC</span>`
     : '';
+
+  const textIds = formatRawTextWithIds(e, lang);
+  const textClean = formatRawTextClean(e, lang);
+  const textCode = `\`\`\`\n${textClean}\n\`\`\``;
 
   return `
     <article
@@ -1635,19 +1639,19 @@ const hasJapanese = hasDirectLanguage(e, 'jp');
         ${languageControl}
         <button class="copy-btn" type="button">Copy</button>
 
-${
-  hasJapanese
-    ? `
-      <button
-        class="lang-btn translate-btn"
-        type="button"
-        ${lang !== 'jp' ? 'hidden' : ''}
-      >
-        Translate
-      </button>
-    `
-    : ''
-}
+        ${
+          hasJapanese
+            ? `
+              <button
+                class="lang-btn translate-btn"
+                type="button"
+                ${lang !== 'jp' ? 'hidden' : ''}
+              >
+                Translate
+              </button>
+            `
+            : ''
+        }
       </div>
 
       <div class="entry-section">${escapeHtml(metaParts.join(' · '))}</div>
@@ -1679,11 +1683,9 @@ ${
       ${
         text
           ? `
-            <div class="entry-text entry-text-ids">${formatEntryText(formatRawTextWithIds(e, lang), false, false)}</div>
-<div class="entry-text entry-text-clean">${formatEntryText(formatRawTextClean(e, lang), false, false)}</div>
-<div class="entry-text entry-text-code">
-${formatEntryText(`\`\`\`\n${formatRawTextClean(e, lang)}\n\`\`\``, false, false)}
-</div>
+            <div class="entry-text entry-text-ids">${formatEntryText(textIds, false, false)}</div>
+            <div class="entry-text entry-text-clean">${formatEntryText(textClean, false, false)}</div>
+            <div class="entry-text entry-text-code">${formatEntryText(textCode, false, false)}</div>
           `
           : ''
       }
