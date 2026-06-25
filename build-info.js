@@ -10,7 +10,7 @@ const BUILD_INFO = {
       enabled: true,
       title: 'Item/Dialogue relations & Clickable links',
       message:
-        'Item/Dialogue relations via clickable links in the text dump's entries is being tested now. The relations are still being worked on, so, as of yet, do not rely on the links to lead to the correct entries.',
+        'Item/Dialogue relations via clickable links in the text dump entries is being tested now. The relations are still being worked on, so, as of yet, do not rely on the links to lead to the correct entries.',
       showForHours: 72
     },
     
