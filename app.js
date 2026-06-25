@@ -1012,19 +1012,6 @@ function buildReferenceRelations() {
   entryReferenceMap = new Map();
   npcReferenceRelations = new Map();
 
-  for (const entry of entries) {
-    const text = getText(entry, 'en');
-    if (!text) continue;
-
-    const matches = findReferencesInText(text, {
-  types: ['npc']
-});
-
-    if (matches.length) {
-      entryReferenceMap.set(entry.id, matches.map(match => match.reference));
-    }
-  }
-
   for (const [npcKey, group] of npcGroups.entries()) {
     const first = group[0];
     const npcName = getName(first, 'en');
@@ -1034,17 +1021,24 @@ function buildReferenceRelations() {
     const relatedNpcs = new Set();
     const relatedItems = new Set();
 
-    for (const entry of group) {
-      const refs = entryReferenceMap.get(entry.id) || [];
+    const text = group
+      .map(entry => getText(entry, 'en'))
+      .filter(Boolean)
+      .join('\n');
 
-      for (const reference of refs) {
-        if (reference.type === 'npc' && reference.label !== npcName) {
-          relatedNpcs.add(reference.label);
-        }
+    const matches = findReferencesInText(text, {
+      types: ['npc']
+    });
 
-        if (reference.type === 'item') {
-          relatedItems.add(reference.label);
-        }
+    for (const match of matches) {
+      const reference = match.reference;
+
+      if (reference.type === 'npc' && reference.label !== npcName) {
+        relatedNpcs.add(reference.label);
+      }
+
+      if (reference.type === 'item') {
+        relatedItems.add(reference.label);
       }
     }
 
@@ -2371,7 +2365,7 @@ async function loadDump() {
     buildIndexes();
 buildReferences();
 buildReferenceAliasIndex();
-// buildReferenceRelations();
+buildReferenceRelations();
 renderCategoryMenu();
 render();
   } catch (error) {
