@@ -1715,6 +1715,19 @@ function getNpcSearchCandidates(entry) {
   return candidates.filter(Boolean);
 }
 
+function renderWikiSection(title, content, open = false) {
+  if (!content) return '';
+
+  return `
+    <details class="wiki-section" ${open ? 'open' : ''}>
+      <summary>${escapeHtml(title)}</summary>
+      <div class="wiki-section-content">
+        ${content}
+      </div>
+    </details>
+  `;
+}
+
 function render() {
   const tokens = tokenizeSearchQuery(search.value.trim());
 currentSearchTokens = tokens;
