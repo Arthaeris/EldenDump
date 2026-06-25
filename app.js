@@ -1014,13 +1014,20 @@ function findReferencesInText(text, options = {}) {
     let match;
 
     while ((match = regex.exec(rawText))) {
-      matches.push({
-        start: match.index,
-        end: match.index + match[0].length,
-        text: match[0],
-        reference: item.reference
-      });
-    }
+  if (
+    reference.type === 'item' &&
+    !isAllowedItemMatch(rawText, match.index, match[0], alias)
+  ) {
+    continue;
+  }
+
+  matches.push({
+    start: match.index,
+    end: match.index + match[0].length,
+    text: match[0],
+    reference
+  });
+}
   }
 
   if (!matches.length) return [];
