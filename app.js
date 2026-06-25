@@ -1460,61 +1460,6 @@ function entryMentionsReference(entry, value, exact = false) {
   });
 }
 
-function referenceMatchesQuery(reference, value, exact = false) {
-  if (!reference || !value) return false;
-
-  if (
-    reference.label &&
-    searchIncludes(reference.label, value, exact)
-  ) {
-    return true;
-  }
-
-  return reference.aliases.some(alias =>
-    searchIncludes(alias, value, exact)
-  );
-}
-
-function findReferencesForQuery(value, exact = false) {
-  
-  const query = String(value || '').trim();
-
-if (query.length < 3) {
-  return [];
-}
-
-  const directMatches = referenceIndex.filter(reference =>
-    referenceMatchesQuery(reference, value, exact)
-  );
-
-  if (directMatches.length) {
-    return directMatches;
-  }
-
-  if (shouldUseFuzzyToken({
-    operator: 'mentions',
-    value,
-    exact
-  })) {
-    return referenceIndex.filter(reference =>
-      fuzzyNameMatches(value, [
-        reference.label,
-        ...reference.aliases
-      ])
-    );
-  }
-
-  return [];
-}
-
-function entryTextMentionsReference(entry, reference) {
-  const text = getSearchBlob(entry, 'en');
-
-  return reference.aliases.some(alias =>
-    searchIncludes(text, alias, true)
-  );
-}
-
 function getHighlightTerms(tokens) {
   const terms = [];
 
