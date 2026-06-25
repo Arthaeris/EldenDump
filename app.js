@@ -1109,8 +1109,8 @@ function buildReferenceRelations() {
 
     if (!npcName) continue;
 
-    const relatedNpcs = new Set();
-    const relatedItems = new Set();
+    const relatedNpcScores = new Map();
+    const relatedItemScores = new Map();
 
     const text = group
       .map(entry => getText(entry, 'en'))
@@ -1123,21 +1123,60 @@ function buildReferenceRelations() {
 
     for (const match of matches) {
       const reference = match.reference;
+      const score = getReferenceMatchScore(match);
 
       if (reference.type === 'npc' && reference.label !== npcName) {
-        relatedNpcs.add(reference.label);
+        relatedNpcScores.set(
+          reference.label,
+          (relatedNpcScores.get(reference.label) || 0) + score
+        );
       }
 
       if (reference.type === 'item') {
-        relatedItems.add(reference.label);
+        relatedItemScores.set(
+          reference.label,
+          (relatedItemScores.get(reference.label) || 0) + score
+        );
       }
     }
 
     npcReferenceRelations.set(npcName, {
-      relatedNpcs,
-      relatedItems
+      relatedNpcs: relatedNpcScores,
+      relatedItems: relatedItemScores
     });
   }
+}
+
+function getReferenceMatchScore(match) {
+  const reference = match.reference;
+  const wordCount = getWordCount(match.text);
+
+  let score = 1;
+
+  if (reference.type === 'npc') {
+    score += 5;
+  }
+
+  if (reference.type === 'item') {
+    score += 2;
+  }
+
+  if (wordCount >= 2) {
+    score += 4;
+  }
+
+  if (match.text === reference.label) {
+    score += 8;
+  }
+
+  if (
+    normalizeReferenceText(match.text) ===
+    normalizeReferenceText(reference.label)
+  ) {
+    score += 6;
+  }
+
+  return score;
 }
 
 function isReferenceEntry(entry) {
@@ -2195,8 +2234,8 @@ function renderNpcProfile(entry) {
   const name = getName(entry, activeLanguage);
 
   const relations = npcReferenceRelations.get(nameEn) || {
-  relatedNpcs: new Set(),
-  relatedItems: new Set()
+  relatedNpcs: new Map(),
+  relatedItems: new Map()
 };
 
 const manualRelatedNpcs = meta.relatedNpcs || [];
@@ -2204,18 +2243,32 @@ const manualRelatedNpcs = meta.relatedNpcs || [];
 const relatedNpcs = [
   ...new Set([
     ...manualRelatedNpcs,
-    ...relations.relatedNpcs
+    ...relations.relatedNpcs.keys()
   ])
-].sort((a, b) => a.localeCompare(b));
+].sort((a, b) => {
+  const scoreA = relations.relatedNpcs.get(a) || 0;
+  const scoreB = relations.relatedNpcs.get(b) || 0;
+
+  if (scoreA !== scoreB) return scoreB - scoreA;
+
+  return a.localeCompare(b);
+});
 
 const manualRelatedItems = meta.relatedItems || [];
 
 const relatedItems = [
   ...new Set([
     ...manualRelatedItems,
-    ...relations.relatedItems
+    ...relations.relatedItems.keys()
   ])
-].sort((a, b) => a.localeCompare(b));
+].sort((a, b) => {
+  const scoreA = relations.relatedItems.get(a) || 0;
+  const scoreB = relations.relatedItems.get(b) || 0;
+
+  if (scoreA !== scoreB) return scoreB - scoreA;
+
+  return a.localeCompare(b);
+});
 
   const hasProfileData =
     meta.image ||
