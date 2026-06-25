@@ -51,6 +51,8 @@ let entryReferenceMap = new Map();
 let npcReferenceRelations = new Map();
 let referenceAliasIndex = new Map();
 let validItemReferenceLabels = new Set();
+let termReferences = [];
+let termReferenceMap = new Map();
 
 let currentRenderTarget = results;
 let currentVisibleEntries = [];
@@ -182,6 +184,24 @@ const REFERENCE_RULES = {
 
   item: {}
 };
+
+const TERM_REFERENCE_WORDS = new Set([
+  'Mask',
+  'Rune',
+  'Grace',
+  'Death',
+  'Erdtree',
+  'Crucible',
+  'Tarnished',
+  'Scarlet Rot',
+  'Golden Order',
+  'Frenzied Flame',
+  'Dragon Communion',
+  'Lands Between',
+  'Two Fingers',
+  'Three Fingers',
+  'Great Rune'
+]);
 
 const GENERIC_ITEM_REFERENCE_WORDS = new Set([
   'talisman',
@@ -905,6 +925,7 @@ function makeReferenceAliasList(type, label, extraAliases = []) {
 
   aliases.add(label);
 
+if (type !== 'item') {
   const beforeComma = normalizeReferenceText(label).split(',')[0]?.trim();
   if (beforeComma && beforeComma.length >= 4) {
     aliases.add(beforeComma);
@@ -914,6 +935,7 @@ function makeReferenceAliasList(type, label, extraAliases = []) {
   if (firstWord && firstWord.length >= 4) {
     aliases.add(firstWord);
   }
+}
 
   for (const alias of extraAliases || []) {
     aliases.add(alias);
