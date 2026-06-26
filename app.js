@@ -2422,10 +2422,12 @@ function renderMetadataList(title, items, type = '') {
   if (!items?.length) return '';
 
   const dataAttribute =
-    type === 'npc'
-      ? 'data-related-npc'
-      : type === 'item'
-        ? 'data-related-item'
+  type === 'npc'
+    ? 'data-related-npc'
+    : type === 'item'
+      ? 'data-related-item'
+      : type === 'term'
+        ? 'data-related-term'
         : '';
 
   return `
@@ -2454,7 +2456,8 @@ function renderNpcProfile(entry) {
 
   const relations = npcReferenceRelations.get(nameEn) || {
   relatedNpcs: new Map(),
-  relatedItems: new Map()
+  relatedItems: new Map(),
+  relatedTerms: new Map()
 };
 
 const manualRelatedNpcs = meta.relatedNpcs || [];
@@ -2489,10 +2492,22 @@ const relatedItems = [
   return a.localeCompare(b);
 });
 
+const relatedTerms = [
+  ...relations.relatedTerms.keys()
+].sort((a, b) => {
+  const scoreA = relations.relatedTerms.get(a) || 0;
+  const scoreB = relations.relatedTerms.get(b) || 0;
+
+  if (scoreA !== scoreB) return scoreB - scoreA;
+
+  return a.localeCompare(b);
+});
+
   const hasProfileData =
     meta.image ||
     relatedNpcs.length ||
     relatedItems.length ||
+    relatedTerms.length ||
     meta.trivia?.length ||
     meta.notes?.length;
 
@@ -2516,6 +2531,7 @@ const relatedItems = [
 
       ${renderMetadataList('Related NPCs', relatedNpcs, 'npc')}
       ${renderMetadataList('Related Items', relatedItems, 'item')}
+      ${renderMetadataList('Related Concepts', relatedTerms, 'term')}
 
       ${
         meta.trivia?.length
