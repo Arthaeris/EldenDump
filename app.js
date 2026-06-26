@@ -2110,7 +2110,7 @@ function applyReferenceLinksToElement(root) {
 function linkReferencesInTextNode(textNode) {
   const text = textNode.nodeValue;
   const matches = findReferencesInText(text, {
-    types: ['npc', 'item']
+    types: ['npc', 'item', 'term']
   });
 
   if (!matches.length) return;
@@ -2745,6 +2745,7 @@ async function loadDump() {
 
     buildIndexes();
 buildReferences();
+buildTermReferences();
 buildReferenceAliasIndex();
 //buildValidItemReferenceLabels();
 buildReferenceRelations();
