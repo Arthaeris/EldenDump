@@ -1264,9 +1264,10 @@ const relatedTermScores = new Map();
     }
 
     npcReferenceRelations.set(npcName, {
-      relatedNpcs: relatedNpcScores,
-      relatedItems: relatedItemScores
-    });
+  relatedNpcs: relatedNpcScores,
+  relatedItems: relatedItemScores,
+  relatedTerms: relatedTermScores
+});
   }
 }
 
