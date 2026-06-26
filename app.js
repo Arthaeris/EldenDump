@@ -2109,7 +2109,7 @@ function formatEntryText(text, highlight = false) {
 }
 
 function applyReferenceLinksToElement(root) {
-  if (!root || !references.length) return;
+  if (!root || (!references.length && !termReferences.length)) return;
 
   const walker = document.createTreeWalker(
     root,
