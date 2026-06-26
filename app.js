@@ -296,7 +296,8 @@ const GENERIC_ITEM_REFERENCE_WORDS = new Set([
   'blessed',
   'broken',
   'old',
-  'new'
+  'new',
+  'body'
 ]);
 
 function parseXmlDump(rawText) {
