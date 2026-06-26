@@ -888,17 +888,6 @@ function isSentenceStart(text, index) {
 }
 
 function isAllowedItemMatch(rawText, matchStart, matchedText, alias, reference) {
-  const visibleText = String(matchedText || '');
-  const normalizedAlias = normalizeReferenceText(alias);
-
-  if (!isCapitalizedMatch(visibleText)) {
-    return false;
-  }
-
-  if (GENERIC_ITEM_REFERENCE_WORDS.has(normalizedAlias)) {
-    return false;
-  }
-
   return true;
 }
 
@@ -907,7 +896,9 @@ function isAllowedTermMatch(rawText, matchStart, matchedText, alias) {
     return false;
   }
 
-  if (isSentenceStart(rawText, matchStart)) {
+  const aliasWordCount = getWordCount(alias);
+
+  if (aliasWordCount === 1 && isSentenceStart(rawText, matchStart)) {
     return false;
   }
 
@@ -937,29 +928,31 @@ function makeReferenceAliasList(type, label, extraAliases = []) {
 
   aliases.add(label);
 
-if (type !== 'item') {
-  const beforeComma = normalizeReferenceText(label).split(',')[0]?.trim();
-  if (beforeComma && beforeComma.length >= 4) {
-    aliases.add(beforeComma);
-  }
+  if (type === 'npc') {
+    const beforeComma = normalizeReferenceText(label).split(',')[0]?.trim();
 
-  const firstWord = normalizeReferenceText(label).split(/\s+/)[0];
-  if (firstWord && firstWord.length >= 4) {
-    aliases.add(firstWord);
-  }
-}
+    if (beforeComma && beforeComma.length >= 4) {
+      aliases.add(beforeComma);
+    }
 
-  for (const alias of extraAliases || []) {
-    aliases.add(alias);
-  }
+    const firstWord = normalizeReferenceText(label).split(/\s+/)[0];
 
-  for (const alias of rule.aliases || []) {
-    aliases.add(alias);
-  }
+    if (firstWord && firstWord.length >= 4) {
+      aliases.add(firstWord);
+    }
 
-  for (const alias of rule.excludeAliases || []) {
-    aliases.delete(alias);
-    aliases.delete(normalizeReferenceText(alias));
+    for (const alias of extraAliases || []) {
+      aliases.add(alias);
+    }
+
+    for (const alias of rule.aliases || []) {
+      aliases.add(alias);
+    }
+
+    for (const alias of rule.excludeAliases || []) {
+      aliases.delete(alias);
+      aliases.delete(normalizeReferenceText(alias));
+    }
   }
 
   return [...aliases]
