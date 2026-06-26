@@ -2962,6 +2962,28 @@ if (referenceButton) {
 }
 
 
+const relatedTermButton = event.target.closest('[data-related-term]');
+
+if (relatedTermButton) {
+  event.stopPropagation();
+
+  const label = relatedTermButton.dataset.relatedTerm;
+
+  const reference = termReferences.find(item =>
+    item.label === label
+  );
+
+  if (reference) {
+    showReferencePage(reference);
+  }
+
+  return;
+}
+
+
+const relatedNpcButton = event.target.closest('[data-related-npc]');
+
+
 
 const relatedNpcButton = event.target.closest('[data-related-npc]');
 
