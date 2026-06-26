@@ -1233,8 +1233,8 @@ function buildReferenceRelations() {
       .join('\n');
 
     const matches = findReferencesInText(text, {
-      types: ['npc', 'item']
-    });
+  types: ['npc', 'item', 'term']
+});
 
     for (const match of matches) {
       const reference = match.reference;
