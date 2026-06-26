@@ -1225,7 +1225,8 @@ function buildReferenceRelations() {
     if (!npcName) continue;
 
     const relatedNpcScores = new Map();
-    const relatedItemScores = new Map();
+const relatedItemScores = new Map();
+const relatedTermScores = new Map();
 
     const text = group
       .map(entry => getText(entry, 'en'))
@@ -1253,6 +1254,13 @@ function buildReferenceRelations() {
           (relatedItemScores.get(reference.label) || 0) + score
         );
       }
+      
+      if (reference.type === 'term') {
+  relatedTermScores.set(
+    reference.label,
+    (relatedTermScores.get(reference.label) || 0) + score
+  );
+}
     }
 
     npcReferenceRelations.set(npcName, {
