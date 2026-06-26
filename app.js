@@ -945,9 +945,13 @@ function isSentenceStart(text, index) {
 }
 
 function isAllowedItemMatch(rawText, matchStart, matchedText, alias, reference) {
-  return true;
-}
+  if (!reference || reference.type !== 'item') return false;
 
+  return (
+    normalizeReferenceText(matchedText) ===
+    normalizeReferenceText(reference.label)
+  );
+}
 function isAllowedTermMatch(rawText, matchStart, matchedText, alias) {
   if (!isCapitalizedMatch(matchedText)) {
     return false;
