@@ -902,6 +902,18 @@ function isAllowedItemMatch(rawText, matchStart, matchedText, alias, reference) 
   return true;
 }
 
+function isAllowedTermMatch(rawText, matchStart, matchedText, alias) {
+  if (!isCapitalizedMatch(matchedText)) {
+    return false;
+  }
+
+  if (isSentenceStart(rawText, matchStart)) {
+    return false;
+  }
+
+  return true;
+}
+
 function isPartOfLongerCapitalizedPhrase(rawText, start, end) {
   const before = String(rawText || '').slice(0, start);
   const after = String(rawText || '').slice(end);
@@ -2920,7 +2932,7 @@ if (referenceButton) {
   const type = referenceButton.dataset.referenceType;
   const label = referenceButton.dataset.referenceLabel;
 
-  const reference = references.find(item =>
+  const reference = [...references, ...termReferences].find(item =>
     item.type === type &&
     item.label === label
   );
