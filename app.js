@@ -2980,11 +2980,6 @@ if (relatedTermButton) {
   return;
 }
 
-
-const relatedNpcButton = event.target.closest('[data-related-npc]');
-
-
-
 const relatedNpcButton = event.target.closest('[data-related-npc]');
 
 if (relatedNpcButton) {
