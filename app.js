@@ -1808,14 +1808,24 @@ function renderWikiSection(title, content, open = false) {
 }
 
 function getEntriesRelatedToReference(reference) {
+  const label = reference.pageLabel || reference.label;
+
+  const aliases =
+    reference.type === 'term'
+      ? [label]
+      : reference.aliases;
+
   return entries.filter(entry => {
     const name = getName(entry, 'en');
     const text = getText(entry, 'en');
+    const blob = `${name}\n${text}`;
 
-    if (name === reference.label) return true;
+    if (reference.type !== 'term' && name === reference.label) {
+      return true;
+    }
 
-    return reference.aliases.some(alias =>
-      searchIncludes(`${name}\n${text}`, alias, true)
+    return aliases.some(alias =>
+      searchIncludes(blob, alias, true)
     );
   });
 }
