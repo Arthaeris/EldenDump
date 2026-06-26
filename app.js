@@ -1148,52 +1148,42 @@ function findReferencesInText(text, options = {}) {
 
     while ((match = regex.exec(rawText))) {
       if (item.reference.type === 'item') {
-        if (
-          !isAllowedItemMatch(
-            rawText,
-            match.index,
-            match[0],
-            item.alias
-          )
-        ) {
-          continue;
-        }
+  if (
+    !isAllowedItemMatch(
+      rawText,
+      match.index,
+      match[0],
+      item.alias,
+      item.reference
+    )
+  ) {
+    continue;
+  }
+}
 
-        if (
-          getWordCount(match[0]) === 1 &&
-          isPartOfLongerCapitalizedPhrase(
-            rawText,
-            match.index,
-            match.index + match[0].length
-          )
-        ) {
-          continue;
-        }
-      }
+if (item.reference.type === 'term') {
+  if (
+    !isAllowedTermMatch(
+      rawText,
+      match.index,
+      match[0],
+      item.alias
+    )
+  ) {
+    continue;
+  }
 
-      if (item.reference.type === 'term') {
-        if (
-          !isAllowedTermMatch(
-            rawText,
-            match.index,
-            match[0],
-            item.alias
-          )
-        ) {
-          continue;
-        }
-
-        if (
-          getWordCount(match[0]) === 1 &&
-          isPartOfLongerCapitalizedPhrase(
-            rawText,
-            match.index,
-            match.index + match[0].length
-          )
-        ) {
-          continue;
-        }
-      }
+  if (
+    getWordCount(match[0]) === 1 &&
+    isPartOfLongerCapitalizedPhrase(
+      rawText,
+      match.index,
+      match.index + match[0].length
+    )
+  ) {
+    continue;
+  }
+}
 
       matches.push({
         start: match.index,
