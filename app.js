@@ -539,13 +539,20 @@ function refineEntryCategory(entry) {
     };
   }
 
-  if (/\bIncantation\b/i.test(blob) || /\bIncantations\b/i.test(blob)) {
-    return {
-      ...entry,
-      originalCategory: entry.originalCategory || entry.category,
-      category: 'Incantations'
-    };
-  }
+  const hasIncantationExclusion = INCANTATION_EXCLUDE_PHRASES.some(phrase =>
+  blob.toLowerCase().includes(phrase.toLowerCase())
+);
+
+if (
+  !hasIncantationExclusion &&
+  (/\bIncantation\b/i.test(blob) || /\bIncantations\b/i.test(blob))
+) {
+  return {
+    ...entry,
+    originalCategory: entry.originalCategory || entry.category,
+    category: 'Incantations'
+  };
+}
 
   return entry;
 }
