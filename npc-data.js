@@ -1,3 +1,85 @@
+const EXCLUDED_SECTION_CORES = new Set([
+  'GemEffect',
+  'MagicInfo',
+  'MagicName',
+  'MagicCaption',
+  'TextEmbedImageName_win64',
+  'ToS_win64',
+  'MovieSubtitle'
+]);
+
+
+const CATEGORY_SEPARATOR_BEFORE = new Set([
+  'NPCs',
+  'Talismans',
+  'Ashes of War',
+  'Tutorials',
+  'Messages'
+]);
+
+
+const CATEGORY_ORDER = [
+  'Japanese-Exclusive',
+  'NPCs',
+  'Dialogues',
+  'Locations',
+  'Talismans',
+  'Weapons',
+  'Arrow/Bolt Types',
+  'Armor',
+  'Items',
+  'Ashes of War',
+  'Ashes of War (Item)',
+  'Tutorials',
+  'Loading Screen Tutorials',
+  'Messages',
+  'Interactions',
+  'Event Texts',
+  'UI Messages',
+  'UI Prompts',
+  'Item Prompts',
+  'Multiplayer Prompts'
+];
+
+const MERGE_RULES = [
+  {
+  category: 'Talismans',
+  nameCore: 'AccessoryName',
+  infoCores: ['AccessoryInfo', 'AccessoryCaption'],
+  separator: true
+},
+  {
+    category: 'Ashes of War (Item)',
+    nameCore: 'GemName',
+    infoCores: ['GemInfo']
+  },
+  {
+    category: 'Loading Screen Tutorials',
+    nameCore: 'LoadingTitle',
+    infoCores: ['LoadingText']
+  },
+  {
+    category: 'Armor',
+    nameCore: 'ProtectorName',
+    infoCores: ['ProtectorInfo', 'ProtectorCaption'],
+    separator: true
+  },
+  {
+    category: 'Weapons',
+    nameCore: 'WeaponName',
+    infoCores: ['WeaponEffect', 'WeaponCaption'],
+    separator: true
+  },
+  {
+    category: 'Items',
+    nameCore: 'GoodsName',
+    infoCores: ['GoodsInfo', 'GoodsInfo2', 'GoodsCaption'],
+    separator: true
+  }
+];
+
+
+
 const MANUAL_NPC_SECTION_MAPPINGS = [
   {
     talkSection: 'TalkMsg.fmg',
