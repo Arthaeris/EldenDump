@@ -41,6 +41,124 @@ const NPC_METADATA = {
       "Miniature Ranni",
       "Discarded Palace Key"
     ]
+  },
+  
+    "Margit, the Fell Omen": {
+    trivia: [
+      "An omen projection used by Morgott to bar the Tarnished from Stormveil Castle.",
+      "Guards the approach to Godrick the Grafted.",
+      "Shares identity with Morgott, the Omen King.",
+      "Uses a golden spectral hammer and holy weapons in battle."
+    ],
+
+    relatedNpcs: [
+      "Morgott, the Omen King",
+      "Godrick the Grafted"
+    ],
+
+    relatedItems: [
+      "Margit's Shackle"
+    ]
+  },
+
+  "Morgott, the Omen King": {
+    trivia: [
+      "The veiled monarch of Leyndell.",
+      "One of the demigod children of Queen Marika and Godfrey.",
+      "An omen who remained loyal to the Erdtree despite being rejected by it.",
+      "Also appears under the name Margit, the Fell Omen."
+    ],
+
+    relatedNpcs: [
+      "Margit, the Fell Omen",
+      "Godfrey, First Elden Lord",
+      "Mohg, Lord of Blood",
+      "Marika"
+    ],
+
+    relatedItems: [
+      "Remembrance of the Omen King",
+      "Morgott's Cursed Sword",
+      "Regal Omen Bairn",
+      "Margit's Shackle"
+    ]
+  },
+
+  "Godrick the Grafted": {
+    trivia: [
+      "A shardbearer of the Golden Lineage.",
+      "Rules Stormveil Castle.",
+      "Practices grafting to increase his strength.",
+      "Reveres Godfrey and the Golden Lineage."
+    ],
+
+    relatedNpcs: [
+      "Godfrey, First Elden Lord",
+      "Gostoc",
+      "Nepheli Loux",
+      "Kenneth Haight"
+    ],
+
+    relatedItems: [
+      "Remembrance of the Grafted",
+      "Axe of Godrick",
+      "Grafted Dragon",
+      "Godrick's Great Rune"
+    ]
+  },
+
+  "Rennala, Queen of the Full Moon": {
+    trivia: [
+      "Queen of the Carian royal family.",
+      "Head of the Academy of Raya Lucaria.",
+      "Former wife of Radagon.",
+      "Mother of Ranni, Radahn, and Rykard.",
+      "Holds the Amber Egg left to her by Radagon."
+    ],
+
+    relatedNpcs: [
+      "Ranni the Witch",
+      "Radagon of the Golden Order",
+      "Starscourge Radahn",
+      "Rykard, Lord of Blasphemy"
+    ],
+
+    relatedItems: [
+      "Remembrance of the Full Moon Queen",
+      "Carian Regal Scepter",
+      "Rennala's Full Moon",
+      "Great Rune of the Unborn",
+      "Queen's Crescent Crown",
+      "Queen's Robe",
+      "Queen's Bracelets",
+      "Queen's Leggings"
+    ]
+  },
+
+  "Starscourge Radahn": {
+    trivia: [
+      "A demigod son of Rennala and Radagon.",
+      "Known as the mightiest hero of the demigods.",
+      "Mastered gravitational magic in Sellia.",
+      "Held back the stars with his gravity magic.",
+      "Fought Malenia during the Shattering."
+    ],
+
+    relatedNpcs: [
+      "Rennala, Queen of the Full Moon",
+      "Radagon of the Golden Order",
+      "Malenia, Blade of Miquella",
+      "Alexander, Warrior Jar",
+      "Blaidd the Half-Wolf"
+    ],
+
+    relatedItems: [
+      "Remembrance of the Starscourge",
+      "Starscourge Greatsword",
+      "Lion Greatbow",
+      "Radahn's Great Rune",
+      "Radahn's Redmane Helm"
+    ]
   }
 };
 
