@@ -354,6 +354,21 @@ const GENERIC_ITEM_REFERENCE_WORDS = new Set([
   'my lord'
 ]);
 
+const GENERIC_NPC_ALIAS_WORDS = new Set([
+  'fire',
+  'finger',
+  'lord',
+  'saint',
+  'knight',
+  'commander',
+  'beast',
+  'dragon',
+  'spirit',
+  'ancestor',
+  'reader',
+  'crone'
+]);
+
 
 
 const SORCERY_EXCLUDE_PHRASES = [
