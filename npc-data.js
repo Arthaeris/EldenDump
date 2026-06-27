@@ -353,7 +353,7 @@ const GENERIC_ITEM_REFERENCE_WORDS = new Set([
   'body',
   'head',
   'my lord',
-  'my thanks',
+  'My thanks',
   'rest',
   'count',
   'drake',
@@ -377,7 +377,8 @@ const GENERIC_NPC_ALIAS_WORDS = new Set([
   'crone',
   'ancient',
   'count',
-  'drake'
+  'drake',
+  'My thanks'
 ]);
 
 
