@@ -367,6 +367,10 @@ const SORCERY_EXCLUDE_PHRASES = [
   'learn glintstone sorceries'
 ];
 
+const INCANTATION_EXCLUDE_PHRASES = [
+  // Placeholder — add phrases here as needed.
+];
+
 
 
 const NPC_METADATA = {
