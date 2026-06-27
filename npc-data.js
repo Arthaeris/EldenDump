@@ -368,7 +368,11 @@ const SORCERY_EXCLUDE_PHRASES = [
 ];
 
 const INCANTATION_EXCLUDE_PHRASES = [
-  // Placeholder — add phrases here as needed.
+  'Enchanted by the incantations',
+  'blessed with a velvety purple incantation',
+  'Enchanted with an ancient Erdtree incantation',
+  'imparting a festive incantation',
+  'boosts Dragon Communion incantations'
 ];
 
 
