@@ -344,6 +344,8 @@ const GENERIC_ITEM_REFERENCE_WORDS = new Set([
   'sacred',
   'hidden',
   'secret',
+  'finger',
+  'primeval',
   'blessed',
   'broken',
   'old',
