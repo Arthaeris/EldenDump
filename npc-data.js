@@ -994,7 +994,6 @@ const NPC_MENTION_ALIASES = {
   ],
 
   "Godskin Noble": [
-    "Noble"
   ],
 
   "Astel, Naturalborn of the Void": [
