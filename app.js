@@ -754,6 +754,12 @@ function isAllowedItemMatch(rawText, matchStart, matchedText, alias, reference) 
 }
 
 function isAllowedTermMatch(rawText, matchStart, matchedText, alias) {
+  const normalizedAlias = normalizeReferenceText(alias);
+
+  if (CASE_INSENSITIVE_TERM_REFERENCES.has(normalizedAlias)) {
+    return true;
+  }
+
   if (!isCapitalizedMatch(matchedText)) {
     return false;
   }
