@@ -521,10 +521,17 @@ function markJapaneseExclusive(entry) {
 function refineEntryCategory(entry) {
   if (entry.category !== 'Items') return entry;
 
-  const text = getText(entry, 'en');
-  const blob = `${entry.nameEn || ''}\n${text || ''}`;
+  const blob = `${entry.nameEn || ''}\n${entry.textEn || ''}`;
 
-  if (/\bSorcery\b/i.test(blob)) {
+  const hasSorceryExclusion = SORCERY_EXCLUDE_PHRASES.some(phrase =>
+    blob.toLowerCase().includes(phrase.toLowerCase())
+  );
+
+  if (hasSorceryExclusion) {
+    return entry;
+  }
+
+  if (/\bSorcery\b/i.test(blob) || /\bSorceries\b/i.test(blob)) {
     return {
       ...entry,
       originalCategory: entry.originalCategory || entry.category,
@@ -532,7 +539,7 @@ function refineEntryCategory(entry) {
     };
   }
 
-  if (/\bIncantation\b/i.test(blob)) {
+  if (/\bIncantation\b/i.test(blob) || /\bIncantations\b/i.test(blob)) {
     return {
       ...entry,
       originalCategory: entry.originalCategory || entry.category,
