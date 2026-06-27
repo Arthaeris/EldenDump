@@ -946,13 +946,18 @@ function isSentenceStart(text, index) {
 }
 
 function isAllowedItemMatch(rawText, matchStart, matchedText, alias, reference) {
-  if (!reference || reference.type !== 'item') return false;
+    if (!reference || reference.type !== 'item') return false;
 
-  return (
-    normalizeReferenceText(matchedText) ===
-    normalizeReferenceText(reference.label)
-  );
+    const normalized = normalizeReferenceText(matchedText);
+
+    // Don't auto-link generic item names
+    if (GENERIC_ITEM_REFERENCE_WORDS.has(normalized)) {
+        return false;
+    }
+
+    return normalized === normalizeReferenceText(reference.label);
 }
+
 function isAllowedTermMatch(rawText, matchStart, matchedText, alias) {
   if (!isCapitalizedMatch(matchedText)) {
     return false;
