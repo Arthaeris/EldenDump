@@ -351,7 +351,14 @@ const GENERIC_ITEM_REFERENCE_WORDS = new Set([
   'old',
   'new',
   'body',
-  'my lord'
+  'head',
+  'my lord',
+  'my thanks',
+  'rest',
+  'count',
+  'drake',
+  'Oh mother',
+  'Let us go together'
 ]);
 
 const GENERIC_NPC_ALIAS_WORDS = new Set([
@@ -366,7 +373,10 @@ const GENERIC_NPC_ALIAS_WORDS = new Set([
   'spirit',
   'ancestor',
   'reader',
-  'crone'
+  'crone',
+  'ancient',
+  'count',
+  'drake'
 ]);
 
 
