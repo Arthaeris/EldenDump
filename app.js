@@ -806,15 +806,23 @@ function makeReferenceAliasList(type, label, extraAliases = []) {
   if (type === 'npc') {
     const beforeComma = normalizeReferenceText(label).split(',')[0]?.trim();
 
-    if (beforeComma && beforeComma.length >= 4) {
-      aliases.add(beforeComma);
-    }
+    if (
+  beforeComma &&
+  beforeComma.length >= 4 &&
+  !GENERIC_NPC_ALIAS_WORDS.has(beforeComma)
+) {
+  aliases.add(beforeComma);
+}
 
     const firstWord = normalizeReferenceText(label).split(/\s+/)[0];
 
-    if (firstWord && firstWord.length >= 4) {
-      aliases.add(firstWord);
-    }
+if (
+  firstWord &&
+  firstWord.length >= 4 &&
+  !GENERIC_NPC_ALIAS_WORDS.has(firstWord)
+) {
+  aliases.add(firstWord);
+}
 
     for (const alias of extraAliases || []) {
       aliases.add(alias);
