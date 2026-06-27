@@ -330,6 +330,7 @@ const GENERIC_ITEM_REFERENCE_WORDS = new Set([
   'grease',
   'stone',
   'flower',
+  'fire',
   'leaf',
   'root',
   'mushroom',
