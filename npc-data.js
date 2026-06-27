@@ -45,7 +45,7 @@ const NPC_METADATA = {
   
     "Margit, the Fell Omen": {
     trivia: [
-      "An omen projection used by Morgott to bar the Tarnished from Stormveil Castle.",
+      "A projection used by Morgott to bar the Tarnished from Stormveil Castle.",
       "Guards the approach to Godrick the Grafted.",
       "Shares identity with Morgott, the Omen King.",
       "Uses a golden spectral hammer and holy weapons in battle."
@@ -159,7 +159,343 @@ const NPC_METADATA = {
       "Radahn's Great Rune",
       "Radahn's Redmane Helm"
     ]
-  }
+  },
+  
+  "Mohg, Lord of Blood": {
+  trivia: [
+    "A demigod son of Queen Marika and Godfrey, and twin brother of Morgott.",
+    "Founded the Mohgwyn Dynasty in secret beneath the Lands Between.",
+    "Abducted Miquella from the Haligtree in an attempt to raise him to godhood.",
+    "Serves the Formless Mother and wields cursed bloodflame.",
+    "One of the Shardbearers."
+  ],
+
+  relatedNpcs: [
+    "Morgott, the Omen King",
+    "Marika",
+    "Godfrey, First Elden Lord",
+    "Miquella",
+    "White Mask Varré"
+  ],
+
+  relatedItems: [
+    "Remembrance of the Blood Lord",
+    "Mohgwyn's Sacred Spear",
+    "Bloodboon",
+    "Mohg's Great Rune",
+    "Pureblood Knight's Medal"
+  ]
+},
+
+"Godfrey, First Elden Lord": {
+  trivia: [
+    "The first Elden Lord and first husband of Queen Marika.",
+    "Originally known as Hoarah Loux.",
+    "Leader of the Tarnished before their exile.",
+    "Father of Morgott, Mohg and Godwyn."
+  ],
+
+  relatedNpcs: [
+    "Hoarah Loux, Warrior",
+    "Marika",
+    "Morgott, the Omen King",
+    "Mohg, Lord of Blood",
+    "Godwyn the Golden",
+    "Nepheli Loux"
+  ],
+
+  relatedItems: [
+    "Remembrance of Hoarah Loux",
+    "Axe of Godfrey",
+    "Hoarah Loux's Earthshaker",
+    "Elden Lord Armor"
+  ]
+},
+
+"Rykard, Lord of Blasphemy": {
+  trivia: [
+    "A demigod son of Rennala and Radagon.",
+    "Lord of Volcano Manor and leader of those who opposed the Erdtree.",
+    "Allowed himself to be devoured by the God-Devouring Serpent to achieve immortality.",
+    "Created the Blasphemous Claw to oppose Maliketh.",
+    "One of the Shardbearers."
+  ],
+
+  relatedNpcs: [
+    "Rennala, Queen of the Full Moon",
+    "Radagon of the Golden Order",
+    "Ranni the Witch",
+    "Praetor Rykard",
+    "Tanith",
+    "Blackguard Big Boggart",
+    "Recusant Bernahl",
+    "Patches"
+  ],
+
+  relatedItems: [
+    "Remembrance of the Blasphemous",
+    "Blasphemous Blade",
+    "Rykard's Rancor",
+    "Rykard's Great Rune",
+    "Blasphemous Claw",
+    "Taker's Cameo"
+  ]
+},
+
+"Malenia, Blade of Miquella": {
+  trivia: [
+    "An Empyrean and daughter of Marika and Radagon.",
+    "Twin sister of Miquella.",
+    "Afflicted from birth by Scarlet Rot.",
+    "Fought Starscourge Radahn to a standstill during the Shattering.",
+    "Transforms into the Goddess of Rot during her final battle."
+  ],
+
+  relatedNpcs: [
+    "Miquella",
+    "Millicent",
+    "Starscourge Radahn",
+    "Marika",
+    "Radagon of the Golden Order",
+    "Gowry"
+  ],
+
+  relatedItems: [
+    "Remembrance of the Rot Goddess",
+    "Hand of Malenia",
+    "Scarlet Aeonia",
+    "Malenia's Great Rune",
+    "Malenia's Winged Helm",
+    "Malenia's Armor",
+    "Malenia's Gauntlet",
+    "Malenia's Greaves",
+    "Unalloyed Gold Needle"
+  ]
+},
+
+"Radagon of the Golden Order": {
+  trivia: [
+    "Second Elden Lord and second husband of Queen Marika.",
+    "Former husband of Rennala, Queen of the Full Moon.",
+    "Father of Radahn, Rykard and Ranni through Rennala.",
+    "Father of Malenia and Miquella through Marika.",
+    "Ultimately revealed to be Marika's other self."
+  ],
+
+  relatedNpcs: [
+    "Marika",
+    "Rennala, Queen of the Full Moon",
+    "Malenia, Blade of Miquella",
+    "Miquella",
+    "Ranni the Witch",
+    "Starscourge Radahn",
+    "Rykard, Lord of Blasphemy",
+    "Elden Beast"
+  ],
+
+  relatedItems: [
+    "Elden Remembrance",
+    "Marika's Hammer",
+    "Golden Order Greatsword",
+    "Radagon Icon",
+    "Radagon's Scarseal",
+    "Radagon's Soreseal",
+    "Radagon's Rings of Light"
+  ]
+},
+
+"Elden Beast": {
+  trivia: [
+    "The vassal beast of the Greater Will.",
+    "Embodies the concept of Order.",
+    "Became the Elden Ring upon its arrival in the Lands Between.",
+    "Serves as the final opponent after Radagon.",
+    "Wields the Sacred Relic Sword forged from Radagon's body."
+  ],
+
+  relatedNpcs: [
+    "Radagon of the Golden Order",
+    "Marika",
+    "Greater Will"
+  ],
+
+  relatedItems: [
+    "Elden Remembrance",
+    "Sacred Relic Sword",
+    "Marika's Hammer",
+    "Elden Stars"
+  ]
+},
+
+"Lichdragon Fortissax": {
+  trivia: [
+    "An ancient dragon who became a close companion of Godwyn the Golden.",
+    "Battled alongside Godwyn after the Ancient Dragon War ended.",
+    "Entered Godwyn's dream in an attempt to fight the spreading Death Blight.",
+    "Was ultimately corrupted by Death himself."
+  ],
+
+  relatedNpcs: [
+    "Godwyn the Golden",
+    "Fia",
+    "Ancient Dragon Lansseax"
+  ],
+
+  relatedItems: [
+    "Remembrance of the Lichdragon",
+    "Fortissax's Lightning Spear",
+    "Death Lightning",
+    "Prince of Death's Pustule",
+    "Mending Rune of the Death-Prince"
+  ]
+},
+
+"Dragonlord Placidusax": {
+  trivia: [
+    "The Elden Lord before the age of the Erdtree.",
+    "Waits beyond time in Crumbling Farum Azula.",
+    "His god fled, leaving him behind.",
+    "One of the oldest known dragons in the Lands Between."
+  ],
+
+  relatedNpcs: [
+    "Ancient Dragon Lansseax",
+    "Lichdragon Fortissax",
+    "Greater Will"
+  ],
+
+  relatedItems: [
+    "Remembrance of the Dragonlord",
+    "Dragon King's Cragblade",
+    "Placidusax's Ruin"
+  ]
+},
+
+"Regal Ancestor Spirit": {
+  trivia: [
+    "A great ancestral spirit worshipped by the ancestral followers.",
+    "Embodies the cycle of life, death and rebirth.",
+    "Encountered within Nokron, Eternal City.",
+    "Restores itself by drawing upon nearby spirits."
+  ],
+
+  relatedNpcs: [
+    "Ancestor Spirit",
+    "Ancestral Follower"
+  ],
+
+  relatedItems: [
+    "Remembrance of the Regal Ancestor",
+    "Winged Greathorn",
+    "Ancestral Spirit's Horn"
+  ]
+},
+
+"Astel, Naturalborn of the Void": {
+  trivia: [
+    "A malformed star born in the void.",
+    "Destroyed one of the Eternal Cities.",
+    "Guards the path leading to the Moonlight Altar.",
+    "Manipulates gravity and meteoric sorceries."
+  ],
+
+  relatedNpcs: [
+  ],
+
+  relatedItems: [
+    "Remembrance of the Naturalborn",
+    "Bastard's Stars",
+    "Waves of Darkness"
+  ]
+},
+
+"Maliketh, the Black Blade": {
+  trivia: [
+    "Marika's shadowbound beast.",
+    "Entrusted with safeguarding the Rune of Death.",
+    "Known as Gurranq, Beast Clergyman, while gathering Deathroot.",
+    "His defeat releases Destined Death back into the world."
+  ],
+
+  relatedNpcs: [
+    "Gurranq, Beast Clergyman",
+    "Marika",
+    "Godwyn the Golden"
+  ],
+
+  relatedItems: [
+    "Remembrance of the Black Blade",
+    "Maliketh's Black Blade",
+    "Black Blade",
+    "Deathroot",
+    "Maliketh's Helm",
+    "Maliketh's Armor",
+    "Maliketh's Gauntlets",
+    "Maliketh's Greaves"
+  ]
+},
+
+"Fire Giant": {
+  trivia: [
+    "The final surviving Fire Giant.",
+    "Guards the Forge of the Giants.",
+    "Bears the Fell God's face upon his torso.",
+    "Cursed with tending the Flame of Ruin by Queen Marika."
+  ],
+
+  relatedNpcs: [
+    "Marika",
+    "Fell God"
+  ],
+
+  relatedItems: [
+    "Remembrance of the Fire Giant",
+    "Giant's Red Braid",
+    "Burn, O Flame!"
+  ]
+},
+
+"Godskin Duo": {
+  trivia: [
+    "Consists of a Godskin Apostle and a Godskin Noble.",
+    "Servants of the Gloam-Eyed Queen.",
+    "Users of the Black Flame.",
+    "Encountered together in Crumbling Farum Azula."
+  ],
+
+  relatedNpcs: [
+    "Godskin Apostle",
+    "Godskin Noble",
+    "Gloam-Eyed Queen"
+  ],
+
+  relatedItems: [
+    "Black Flame Tornado",
+    "Smithing-Stone Miner's Bell Bearing [4]"
+  ]
+},
+
+"Hoarah Loux, Warrior": {
+  trivia: [
+    "The true identity of Godfrey, First Elden Lord.",
+    "Returns to his original warrior persona after slaying Serosh.",
+    "Renowned as the greatest chieftain of the Badlands.",
+    "Fights with overwhelming physical strength."
+  ],
+
+  relatedNpcs: [
+    "Godfrey, First Elden Lord",
+    "Serosh",
+    "Marika",
+    "Nepheli Loux"
+  ],
+
+  relatedItems: [
+    "Remembrance of Hoarah Loux",
+    "Axe of Godfrey",
+    "Hoarah Loux's Earthshaker"
+  ]
+}
 };
 
 
