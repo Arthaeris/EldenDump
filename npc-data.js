@@ -207,9 +207,7 @@ const TERM_REFERENCE_WORDS = new Set([
   'Hornsent',
   'Hornsent Inquisitor',
   'Incantation',
-  'incantation',
   'Incantations',
-  'incantations',
   'Invocation',
   'Jagged Peak',
   'Jar Saint',
@@ -278,9 +276,7 @@ const TERM_REFERENCE_WORDS = new Set([
   'Siofra',
   'Site of Grace',
   'Sorcery',
-  'sorcery',
   'Sorceries',
-  'sorceries',
   'Soul',
   'Spirit Ash',
   'Spirit Calling',
@@ -305,6 +301,13 @@ const TERM_REFERENCE_WORDS = new Set([
   'Weeping Peninsula',
   'Wormface',
   'Zamor'
+]);
+
+const CASE_INSENSITIVE_TERM_REFERENCES = new Set([
+  'sorceries',
+  'sorcery',
+  'incantations',
+  'incantation'
 ]);
 
 const GENERIC_ITEM_REFERENCE_WORDS = new Set([
