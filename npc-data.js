@@ -349,6 +349,7 @@ const SORCERY_EXCLUDE_PHRASES = [
   'catalyst for glintstone sorcery',
   'Glintstone Stars sorcery',
   'processing using sorceries',
+  'Enchanted by sorceries of the Cuckoos',
   'learn glintstone sorceries'
 ];
 
