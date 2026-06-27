@@ -341,6 +341,18 @@ const GENERIC_ITEM_REFERENCE_WORDS = new Set([
 
 
 
+const SORCERY_EXCLUDE_PHRASES = [
+  'their sorcery',
+  'faux sorcery',
+  'Town of Sorcery',
+  'sorcery scroll',
+  'catalyst for glintstone sorcery',
+  'Glintstone Stars sorcery',
+  'learn glintstone sorceries'
+];
+
+
+
 const NPC_METADATA = {
   "Aureliette": {
     image: "images/aureliette.webp",
