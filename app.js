@@ -111,7 +111,7 @@ function buildEntriesFromDumps(enSections, jpSections) {
   built.push(...buildDialogueEntries(enSections, jpSections, usedSections));
   built.push(...collectStandaloneSections(enSections, jpSections, usedSections));
 
-  return built
+    return built
     .filter(entry =>
       entry.id &&
       (
@@ -121,6 +121,7 @@ function buildEntriesFromDumps(enSections, jpSections) {
         entry.textJp
       )
     )
+    .map(refineEntryCategory)
     .map(markJapaneseExclusive);
 }
 
@@ -511,6 +512,31 @@ function markJapaneseExclusive(entry) {
       ...entry,
       originalCategory: entry.category,
       category: 'Japanese-Exclusive'
+    };
+  }
+
+  return entry;
+}
+
+function refineEntryCategory(entry) {
+  if (entry.category !== 'Items') return entry;
+
+  const text = getText(entry, 'en');
+  const blob = `${entry.nameEn || ''}\n${text || ''}`;
+
+  if (/\bSorcery\b/i.test(blob)) {
+    return {
+      ...entry,
+      originalCategory: entry.originalCategory || entry.category,
+      category: 'Sorceries'
+    };
+  }
+
+  if (/\bIncantation\b/i.test(blob)) {
+    return {
+      ...entry,
+      originalCategory: entry.originalCategory || entry.category,
+      category: 'Incantations'
     };
   }
 
