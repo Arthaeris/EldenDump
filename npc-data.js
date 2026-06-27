@@ -348,6 +348,7 @@ const SORCERY_EXCLUDE_PHRASES = [
   'sorcery scroll',
   'catalyst for glintstone sorcery',
   'Glintstone Stars sorcery',
+  'processing using sorceries',
   'learn glintstone sorceries'
 ];
 
