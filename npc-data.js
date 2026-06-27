@@ -27,6 +27,8 @@ const CATEGORY_ORDER = [
   'Weapons',
   'Arrow/Bolt Types',
   'Armor',
+  'Sorceries',
+  'Incantations',
   'Items',
   'Ashes of War',
   'Ashes of War (Item)',
