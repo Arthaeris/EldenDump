@@ -378,7 +378,8 @@ const GENERIC_NPC_ALIAS_WORDS = new Set([
   'ancient',
   'count',
   'drake',
-  'My thanks'
+  'My thanks',
+  'Rest'
 ]);
 
 
