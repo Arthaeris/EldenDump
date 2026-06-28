@@ -393,7 +393,8 @@ const SORCERY_EXCLUDE_PHRASES = [
   'Glintstone Stars sorcery',
   'processing using sorceries',
   'Enchanted by sorceries of the Cuckoos',
-  'learn glintstone sorceries'
+  'learn glintstone sorceries',
+  'Casting sorceries and incantations consumes FP'
 ];
 
 const INCANTATION_EXCLUDE_PHRASES = [
