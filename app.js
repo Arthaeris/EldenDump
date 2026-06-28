@@ -3140,6 +3140,14 @@ copySearchResultsBtn.addEventListener('click', async () => {
 window.addEventListener('scroll', handleScroll, { passive: true });
 
 document.addEventListener('click', async event => {
+  
+  const themeButton = event.target.closest('#themeToggleBtn');
+
+if (themeButton) {
+  event.stopPropagation();
+  cycleTheme();
+  return;
+}
 
 const referenceButton = event.target.closest('[data-reference-type]');
 
@@ -3494,8 +3502,6 @@ function cycleTheme() {
 }
 
 applyTheme(getSavedTheme());
-
-themeToggleBtn.addEventListener('click', cycleTheme);
 
 loadDump();
 
