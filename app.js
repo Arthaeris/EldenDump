@@ -27,6 +27,7 @@ const wordIndexView = document.querySelector('#wordIndexView');
 const wordIndexResults = document.querySelector('#wordIndexResults');
 const backFromWordIndexBtn = document.querySelector('#backFromWordIndexBtn');
 const graphBtn = document.querySelector('#graphBtn');
+const themeToggleBtn = document.querySelector('#themeToggleBtn');
 const graphView = document.querySelector('#graphView');
 const graphContainer = document.querySelector('#graphContainer');
 const backFromGraphBtn = document.querySelector('#backFromGraphBtn');
@@ -3452,6 +3453,49 @@ function showAnnouncement() {
 }
 
 showAnnouncement();
+
+const THEME_STORAGE_KEY = 'eldenDumpTheme';
+
+function applyTheme(theme) {
+  if (theme === 'light' || theme === 'dark') {
+    document.documentElement.dataset.theme = theme;
+  } else {
+    delete document.documentElement.dataset.theme;
+  }
+
+  if (themeToggleBtn) {
+    const label =
+      theme === 'light'
+        ? 'Theme: Light'
+        : theme === 'dark'
+          ? 'Theme: Dark'
+          : 'Theme: System';
+
+    themeToggleBtn.textContent = label;
+  }
+}
+
+function getSavedTheme() {
+  return localStorage.getItem(THEME_STORAGE_KEY) || 'system';
+}
+
+function cycleTheme() {
+  const current = getSavedTheme();
+
+  const next =
+    current === 'system'
+      ? 'dark'
+      : current === 'dark'
+        ? 'light'
+        : 'system';
+
+  localStorage.setItem(THEME_STORAGE_KEY, next);
+  applyTheme(next);
+}
+
+applyTheme(getSavedTheme());
+
+themeToggleBtn.addEventListener('click', cycleTheme);
 
 loadDump();
 
