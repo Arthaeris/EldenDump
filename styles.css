@@ -966,31 +966,32 @@ footer {
 
 
 .word-index-item {
-  width: 100%;
-  padding: .35rem .75rem;
-  margin: 0;
-
-  display: flex;
+  display: inline-flex;
   align-items: baseline;
-  justify-content: flex-start;
-  gap: .4rem;
+  gap: 0.4rem;
+
+  margin: 0.25rem 0.75rem 0.25rem 0;
+  padding: 0;
 
   border: 0;
-  border-bottom: 1px solid var(--border-color);
-
   background: transparent;
-  color: var(--text-color);
+
   font: inherit;
-  text-align: left;
+  color: inherit;
   cursor: pointer;
 }
 
 .word-index-item strong {
   font-weight: 700;
-  color: var(--text-color);
 }
 
 .word-index-item span {
   font-weight: 600;
+  color: var(--muted-text);
+}
+
+.word-index-item strong {
   color: var(--accent-color);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
 }
