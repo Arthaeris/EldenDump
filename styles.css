@@ -21,6 +21,30 @@
   }
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f6f2ea;
+  --card: #fffaf2;
+  --text: #1c1712;
+  --muted: #736b62;
+  --border: #ded2c2;
+  --accent: #7b4a20;
+  --accent-text: #fff7ef;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #161310;
+  --card: #211c17;
+  --text: #f4eadc;
+  --muted: #baa995;
+  --border: #40362d;
+  --accent: #c58a52;
+  --accent-text: #1a1008;
+}
+
 * {
   box-sizing: border-box;
 }
