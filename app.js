@@ -1233,6 +1233,143 @@ const relatedTermScores = new Map();
   }
 }
 
+function buildGraphData(limit = 140) {
+  const nodes = new Map();
+  const edges = [];
+
+  for (const [npcName, relations] of npcReferenceRelations.entries()) {
+    nodes.set(npcName, {
+      data: {
+        id: npcName,
+        label: npcName,
+        type: 'npc'
+      }
+    });
+
+    const addEdges = (map, type) => {
+      for (const [target, score] of map.entries()) {
+        if (score <= 0) continue;
+
+        nodes.set(target, {
+          data: {
+            id: target,
+            label: target,
+            type
+          }
+        });
+
+        edges.push({
+          data: {
+            id: `${npcName}->${target}`,
+            source: npcName,
+            target,
+            weight: score,
+            type
+          }
+        });
+      }
+    };
+
+    addEdges(relations.relatedNpcs, 'npc');
+    addEdges(relations.relatedItems, 'item');
+    addEdges(relations.relatedTerms, 'term');
+  }
+
+  const keptEdges = edges
+    .sort((a, b) => b.data.weight - a.data.weight)
+    .slice(0, limit);
+
+  const usedNodes = new Set();
+
+  keptEdges.forEach(edge => {
+    usedNodes.add(edge.data.source);
+    usedNodes.add(edge.data.target);
+  });
+
+  return {
+    nodes: [...nodes.values()].filter(node => usedNodes.has(node.data.id)),
+    edges: keptEdges
+  };
+}
+
+function renderGraph() {
+  const data = buildGraphData(140);
+
+  if (referenceGraph) {
+    referenceGraph.destroy();
+  }
+
+  referenceGraph = cytoscape({
+    container: graphContainer,
+
+    elements: [
+      ...data.nodes,
+      ...data.edges
+    ],
+
+    style: [
+      {
+        selector: 'node',
+        style: {
+          label: 'data(label)',
+          color: '#f4eadf',
+          'background-color': '#d08b4f',
+          'font-size': 11,
+          'text-wrap': 'wrap',
+          'text-max-width': 90,
+          'text-valign': 'center',
+          'text-halign': 'center',
+          width: 34,
+          height: 34
+        }
+      },
+      {
+        selector: 'node[type = "item"]',
+        style: {
+          'background-color': '#8f6f4f'
+        }
+      },
+      {
+        selector: 'node[type = "term"]',
+        style: {
+          'background-color': '#6f7f8f'
+        }
+      },
+      {
+        selector: 'edge',
+        style: {
+          width: 1.5,
+          'line-color': '#7a5a43',
+          'target-arrow-color': '#7a5a43',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          opacity: 0.55
+        }
+      }
+    ],
+
+    layout: {
+      name: 'cose',
+      animate: false,
+      fit: true,
+      padding: 40,
+      nodeRepulsion: 7000,
+      idealEdgeLength: 90,
+      edgeElasticity: 80
+    }
+  });
+
+  referenceGraph.on('tap', 'node', event => {
+    const node = event.target.data();
+
+    showReferencePage({
+      type: node.type === 'npc' ? 'npc' : node.type,
+      label: node.label,
+      aliases: [node.label]
+    });
+  });
+}
+
 function getReferenceMatchScore(match) {
   const reference = match.reference;
   const wordCount = getWordCount(match.text);
