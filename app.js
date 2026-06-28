@@ -2821,6 +2821,7 @@ function showDialogue(npcKey, addToHistory = true) {
   dialogueView.hidden = false;
   referenceView.hidden = true;
   wordIndexView.hidden = true;
+  graphView.hidden = true;
 
   window.scrollTo({
     top: 0,
