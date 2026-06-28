@@ -1360,14 +1360,18 @@ function renderGraph() {
   });
 
   referenceGraph.on('tap', 'node', event => {
-    const node = event.target.data();
+  const node = event.target.data();
 
-    showReferencePage({
-      type: node.type === 'npc' ? 'npc' : node.type,
-      label: node.label,
-      aliases: [node.label]
-    });
+  pushViewHistory({
+    type: 'graph'
   });
+
+  showReferencePage({
+    type: node.type === 'npc' ? 'npc' : node.type,
+    label: node.label,
+    aliases: [node.label]
+  }, false);
+});
 }
 
 function getReferenceMatchScore(match) {
