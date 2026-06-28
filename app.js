@@ -1827,6 +1827,7 @@ function showReferencePage(reference, addToHistory = true) {
   npcView.hidden = true;
   dialogueView.hidden = true;
   referenceView.hidden = false;
+  wordIndexView.hidden = true;
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2249,6 +2250,10 @@ function goBack() {
   if (previous.type === 'category') {
     showCategory(previous.categoryName, false);
   }
+  
+  if (previous.type === 'wordIndex') {
+  showWordIndex(false);
+  }
 }
 
 function showHome(addToHistory = true) {
@@ -2273,6 +2278,7 @@ function showHome(addToHistory = true) {
   npcView.hidden = true;
   dialogueView.hidden = true;
   referenceView.hidden = true;
+  wordIndexView.hidden = true;
 
   closeMenu();
   render();
@@ -2308,6 +2314,39 @@ function showCategory(categoryName, addToHistory = true) {
   npcView.hidden = true;
   dialogueView.hidden = true;
   referenceView.hidden = true;
+  wordIndexView.hidden = true;
+
+  closeMenu();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showWordIndex(addToHistory = true) {
+  if (addToHistory) {
+    if (!searchView.hidden) {
+      pushViewHistory({ type: 'home' });
+    } else if (!categoryView.hidden) {
+      pushViewHistory({
+        type: 'category',
+        categoryName: categoryTitle.textContent
+      });
+    } else if (!npcView.hidden) {
+      pushViewHistory({ type: 'npcIndex' });
+    } else if (!dialogueView.hidden && currentDialogueKey) {
+      pushViewHistory({
+        type: 'dialogue',
+        npcKey: currentDialogueKey
+      });
+    }
+  }
+
+  searchView.hidden = true;
+  categoryView.hidden = true;
+  npcView.hidden = true;
+  dialogueView.hidden = true;
+  referenceView.hidden = true;
+  wordIndexView.hidden = false;
+
+  renderWordIndex();
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2358,6 +2397,7 @@ function showNpcIndex(addToHistory = true) {
   npcView.hidden = false;
   dialogueView.hidden = true;
   referenceView.hidden = true;
+  wordIndexView.hidden = true;
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2587,6 +2627,7 @@ function showDialogue(npcKey, addToHistory = true) {
   npcView.hidden = true;
   dialogueView.hidden = false;
   referenceView.hidden = true;
+  wordIndexView.hidden = true;
 
   window.scrollTo({
     top: 0,
@@ -2757,9 +2798,7 @@ async function loadDump() {
 
     entries = buildEntriesFromDumps(enSections, jpSections);
 
-
-buildWordFrequencyIndex();
-buildIndexes();
+    buildIndexes();
 buildReferences();
 buildTermReferences();
 buildReferenceAliasIndex();
@@ -2789,8 +2828,12 @@ function handleScroll() {
     window.scrollY;
 
   if (distanceFromBottom < 900) {
+  if (!wordIndexView.hidden) {
+    appendNextWordIndexItems();
+  } else {
     appendNextEntries();
   }
+}
 }
 
 let searchRenderTimer = null;
