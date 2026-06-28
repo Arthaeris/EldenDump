@@ -387,7 +387,7 @@ const GENERIC_NPC_ALIAS_WORDS = new Set([
 const SORCERY_EXCLUDE_PHRASES = [
   'their sorcery',
   'faux sorcery',
-  'Town of Sorcery',
+  'Sellia, Town of Sorcery can be found in Caelid',
   'sorcery scroll',
   'catalyst for glintstone sorcery',
   'Glintstone Stars sorcery',
