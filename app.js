@@ -1341,8 +1341,9 @@ function renderGraph() {
           'text-max-width': 90,
           'text-valign': 'center',
           'text-halign': 'center',
-          width: 34,
-          height: 34
+          width: 'mapData(references, 1, 12, 30, 82)',
+height: 'mapData(references, 1, 12, 30, 82)',
+'font-size': 'mapData(references, 1, 12, 9, 15)',
         }
       },
       {
