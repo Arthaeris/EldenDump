@@ -989,9 +989,3 @@ footer {
   font-weight: 600;
   color: var(--muted-text);
 }
-
-.word-index-item strong {
-  color: var(--accent-color);
-  text-decoration: underline;
-  text-underline-offset: 0.12em;
-}
