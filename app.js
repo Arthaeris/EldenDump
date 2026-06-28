@@ -3375,12 +3375,14 @@ menuOverlay.addEventListener('click', closeMenu);
 homeBtn.addEventListener('click', showHome);
 npcIndexBtn.addEventListener('click', showNpcIndex);
 wordIndexBtn.addEventListener('click', showWordIndex);
+graphBtn.addEventListener('click', showGraph);
 
 backFromCategoryBtn.addEventListener('click', goBack);
 backFromNpcBtn.addEventListener('click', goBack);
 backFromDialogueBtn.addEventListener('click', goBack);
 backFromReferenceBtn.addEventListener('click', goBack);
 backFromWordIndexBtn.addEventListener('click', goBack);
+backFromGraphBtn.addEventListener('click', goBack);
 
 
 function showAnnouncement() {
