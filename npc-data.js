@@ -410,10 +410,10 @@ const INCANTATION_EXCLUDE_PHRASES = [
   'Scroll containing incantations',
   'Versed in fire incantations',
   'Uses healing incantations',
-  'boosts incantations of the'
+  'boosts incantations of the',
+  'blessed with an incantation',
+  'blessed with an Erdtree incantation'
 ];
-
-
 
 const NPC_METADATA = {
   "Aureliette": {
