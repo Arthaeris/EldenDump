@@ -1977,6 +1977,7 @@ function showReferencePage(reference, addToHistory = true) {
   dialogueView.hidden = true;
   referenceView.hidden = false;
   wordIndexView.hidden = true;
+  graphView.hidden = true;
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2432,6 +2433,7 @@ function showHome(addToHistory = true) {
   dialogueView.hidden = true;
   referenceView.hidden = true;
   wordIndexView.hidden = true;
+  graphView.hidden = true;
 
   closeMenu();
   render();
@@ -2468,6 +2470,7 @@ function showCategory(categoryName, addToHistory = true) {
   dialogueView.hidden = true;
   referenceView.hidden = true;
   wordIndexView.hidden = true;
+  graphView.hidden = true;
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2498,6 +2501,7 @@ function showWordIndex(addToHistory = true) {
   dialogueView.hidden = true;
   referenceView.hidden = true;
   wordIndexView.hidden = false;
+  graphView.hidden = true;
 
   renderWordIndex();
 
@@ -2586,6 +2590,7 @@ function showNpcIndex(addToHistory = true) {
   dialogueView.hidden = true;
   referenceView.hidden = true;
   wordIndexView.hidden = true;
+  graphView.hidden = true;
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
