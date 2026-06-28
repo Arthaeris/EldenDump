@@ -967,24 +967,30 @@ footer {
 
 .word-index-item {
   width: 100%;
+  padding: .35rem .75rem;
+  margin: 0;
+
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.2rem;
-  margin: 0.5rem 0;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  background: var(--card-bg);
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: .4rem;
+
+  border: 0;
+  border-bottom: 1px solid var(--border-color);
+
+  background: transparent;
   color: var(--text-color);
   font: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.word-index-item span {
+.word-index-item strong {
   font-weight: 700;
+  color: var(--text-color);
 }
 
-.word-index-item strong {
+.word-index-item span {
+  font-weight: 600;
   color: var(--accent-color);
 }
