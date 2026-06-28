@@ -22,6 +22,11 @@ const referenceTitle = document.querySelector('#referenceTitle');
 const referenceResults = document.querySelector('#referenceResults');
 const backFromReferenceBtn = document.querySelector('#backFromReferenceBtn');
 
+const wordIndexBtn = document.querySelector('#wordIndexBtn');
+const wordIndexView = document.querySelector('#wordIndexView');
+const wordIndexResults = document.querySelector('#wordIndexResults');
+const backFromWordIndexBtn = document.querySelector('#backFromWordIndexBtn');
+
 const categoryTitle = document.querySelector('#categoryTitle');
 const categoryResults = document.querySelector('#categoryResults');
 const npcList = document.querySelector('#npcList');
@@ -53,6 +58,10 @@ let referenceAliasIndex = new Map();
 let validItemReferenceLabels = new Set();
 let termReferences = [];
 let termReferenceMap = new Map();
+
+let wordFrequency = [];
+let currentWordIndexCount = 0;
+const WORD_INDEX_PAGE_SIZE = 120;
 
 let currentRenderTarget = results;
 let currentVisibleEntries = [];
@@ -232,6 +241,68 @@ function buildDialogueEntries(enSections, jpSections, usedSections) {
   }
 
   return built;
+}
+
+function buildWordFrequencyIndex() {
+  const counts = new Map();
+
+  for (const entry of entries) {
+    const blob = [
+      getName(entry, 'en'),
+      getText(entry, 'en')
+    ].filter(Boolean).join('\n');
+
+    const words = blob
+      .toLowerCase()
+      .replace(/['’]s\b/g, '')
+      .match(/[a-z][a-z'-]*/g) || [];
+
+    for (const word of words) {
+      if (!word) continue;
+
+      counts.set(word, (counts.get(word) || 0) + 1);
+    }
+  }
+
+  wordFrequency = [...counts.entries()]
+    .map(([word, count]) => ({ word, count }))
+    .sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return a.word.localeCompare(b.word);
+    });
+}
+
+function renderWordIndex() {
+  currentWordIndexCount = 0;
+  wordIndexResults.innerHTML = '';
+
+  appendNextWordIndexItems();
+}
+
+function appendNextWordIndexItems() {
+  if (wordIndexView.hidden) return;
+  if (currentWordIndexCount >= wordFrequency.length) return;
+
+  const nextItems = wordFrequency.slice(
+    currentWordIndexCount,
+    currentWordIndexCount + WORD_INDEX_PAGE_SIZE
+  );
+
+  wordIndexResults.insertAdjacentHTML(
+    'beforeend',
+    nextItems.map(item => `
+      <button
+        class="word-index-item"
+        type="button"
+        data-word-search="${escapeAttribute(item.word)}"
+      >
+        <span>${escapeHtml(item.word)}</span>
+        <strong>${escapeHtml(item.count)}</strong>
+      </button>
+    `).join('')
+  );
+
+  currentWordIndexCount += nextItems.length;
 }
 
 function parseTalkMsgEntries({
