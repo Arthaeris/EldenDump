@@ -1792,10 +1792,10 @@ function groupEntriesByCategory(items) {
 
 function showReferencePage(reference, addToHistory = true) {
   if (!reference) return;
-  
-  if (previous.type === 'wordIndex') {
-  showWordIndex(false);
-}
+
+  if (addToHistory && !wordIndexView.hidden) {
+    pushViewHistory({ type: 'wordIndex' });
+  }
 
   referenceTitle.textContent = reference.label;
 
