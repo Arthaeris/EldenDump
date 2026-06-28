@@ -1287,8 +1287,24 @@ function buildGraphData(limit = 140) {
     usedNodes.add(edge.data.target);
   });
 
+  // ADD THIS BLOCK
+  const degree = new Map();
+
+  keptEdges.forEach(edge => {
+    degree.set(edge.data.source, (degree.get(edge.data.source) || 0) + 1);
+    degree.set(edge.data.target, (degree.get(edge.data.target) || 0) + 1);
+  });
+
   return {
-    nodes: [...nodes.values()].filter(node => usedNodes.has(node.data.id)),
+    nodes: [...nodes.values()]
+      .filter(node => usedNodes.has(node.data.id))
+      .map(node => ({
+        ...node,
+        data: {
+          ...node.data,
+          references: degree.get(node.data.id) || 1
+        }
+      })),
     edges: keptEdges
   };
 }
