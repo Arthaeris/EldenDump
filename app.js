@@ -1792,6 +1792,10 @@ function groupEntriesByCategory(items) {
 
 function showReferencePage(reference, addToHistory = true) {
   if (!reference) return;
+  
+  if (previous.type === 'wordIndex') {
+  showWordIndex(false);
+}
 
   referenceTitle.textContent = reference.label;
 
@@ -2241,6 +2245,10 @@ function goBack() {
 
   if (previous.type === 'npcIndex') {
     showNpcIndex(false);
+  }
+  
+  if (previous.type === 'wordIndex') {
+  showWordIndex(false);
   }
 
   if (previous.type === 'dialogue') {
@@ -3019,9 +3027,13 @@ const wordSearchButton = event.target.closest('[data-word-search]');
 if (wordSearchButton) {
   event.stopPropagation();
 
-  search.value = wordSearchButton.dataset.wordSearch;
-  showHome();
-  render();
+  const word = wordSearchButton.dataset.wordSearch;
+
+  showReferencePage({
+    type: 'term',
+    label: word,
+    aliases: [word]
+  });
 
   return;
 }
