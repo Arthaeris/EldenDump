@@ -2403,6 +2403,10 @@ function goBack() {
   if (previous.type === 'wordIndex') {
   showWordIndex(false);
   }
+  
+  if (previous.type === 'graph') {
+  showGraph(false);
+}
 }
 
 function showHome(addToHistory = true) {
@@ -2496,6 +2500,41 @@ function showWordIndex(addToHistory = true) {
   wordIndexView.hidden = false;
 
   renderWordIndex();
+
+  closeMenu();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showGraph(addToHistory = true) {
+  if (addToHistory) {
+    if (!searchView.hidden) {
+      pushViewHistory({ type: 'home' });
+    } else if (!categoryView.hidden) {
+      pushViewHistory({
+        type: 'category',
+        categoryName: categoryTitle.textContent
+      });
+    } else if (!npcView.hidden) {
+      pushViewHistory({ type: 'npcIndex' });
+    } else if (!dialogueView.hidden && currentDialogueKey) {
+      pushViewHistory({
+        type: 'dialogue',
+        npcKey: currentDialogueKey
+      });
+    } else if (!wordIndexView.hidden) {
+      pushViewHistory({ type: 'wordIndex' });
+    }
+  }
+
+  searchView.hidden = true;
+  categoryView.hidden = true;
+  npcView.hidden = true;
+  dialogueView.hidden = true;
+  referenceView.hidden = true;
+  wordIndexView.hidden = true;
+  graphView.hidden = false;
+
+  renderGraph();
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
