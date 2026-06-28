@@ -1293,10 +1293,6 @@ function buildGraphData(limit = 140) {
   };
 }
 
-function colorMix(a, b) {
-  return a || b;
-}
-
 function renderGraph() {
   const data = buildGraphData(140);
 
@@ -1336,7 +1332,7 @@ function renderGraph() {
       {
         selector: 'node[type = "item"]',
         style: {
-          'background-color': colorMix(graphAccent, graphBorder)
+          'background-color': graphBorder
         }
       },
       {
@@ -3508,6 +3504,10 @@ function cycleTheme() {
 
   localStorage.setItem(THEME_STORAGE_KEY, next);
   applyTheme(next);
+
+  if (!graphView.hidden) {
+    renderGraph();
+  }
 }
 
 applyTheme(getSavedTheme());
