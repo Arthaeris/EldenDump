@@ -1287,12 +1287,13 @@ function buildGraphData(limit = 140) {
     usedNodes.add(edge.data.target);
   });
 
-  // ADD THIS BLOCK
-  const degree = new Map();
+  const incomingWeight = new Map();
 
   keptEdges.forEach(edge => {
-    degree.set(edge.data.source, (degree.get(edge.data.source) || 0) + 1);
-    degree.set(edge.data.target, (degree.get(edge.data.target) || 0) + 1);
+    incomingWeight.set(
+      edge.data.target,
+      (incomingWeight.get(edge.data.target) || 0) + edge.data.weight
+    );
   });
 
   return {
@@ -1302,7 +1303,7 @@ function buildGraphData(limit = 140) {
         ...node,
         data: {
           ...node.data,
-          references: degree.get(node.data.id) || 1
+          references: incomingWeight.get(node.data.id) || 1
         }
       })),
     edges: keptEdges
