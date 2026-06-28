@@ -296,8 +296,8 @@ function appendNextWordIndexItems() {
         type="button"
         data-word-search="${escapeAttribute(item.word)}"
       >
-        <span>${escapeHtml(item.word)}</span>
-        <strong>${escapeHtml(item.count)}</strong>
+        <strong>${escapeHtml(item.word)}</strong>
+        <span>${escapeHtml(item.count)}</span>
       </button>
     `).join('')
   );
