@@ -3013,6 +3013,18 @@ if (relatedItemButton) {
   return;
 }
 
+const wordSearchButton = event.target.closest('[data-word-search]');
+
+if (wordSearchButton) {
+  event.stopPropagation();
+
+  search.value = wordSearchButton.dataset.wordSearch;
+  showHome();
+  render();
+
+  return;
+}
+
   const fullDialogueLanguageButton =
     event.target.closest('[data-full-dialogue-language-toggle]');
 
@@ -3163,11 +3175,13 @@ menuOverlay.addEventListener('click', closeMenu);
 
 homeBtn.addEventListener('click', showHome);
 npcIndexBtn.addEventListener('click', showNpcIndex);
+wordIndexBtn.addEventListener('click', showWordIndex);
 
 backFromCategoryBtn.addEventListener('click', goBack);
 backFromNpcBtn.addEventListener('click', goBack);
 backFromDialogueBtn.addEventListener('click', goBack);
 backFromReferenceBtn.addEventListener('click', goBack);
+backFromWordIndexBtn.addEventListener('click', goBack);
 
 
 function showAnnouncement() {
