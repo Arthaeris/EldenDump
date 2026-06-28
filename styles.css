@@ -962,3 +962,29 @@ footer {
     padding: 0.75rem;
   }
 }
+
+
+
+.word-index-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  margin: 0.5rem 0;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.word-index-item span {
+  font-weight: 700;
+}
+
+.word-index-item strong {
+  color: var(--accent-color);
+}
