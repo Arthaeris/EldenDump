@@ -2798,7 +2798,8 @@ async function loadDump() {
 
     entries = buildEntriesFromDumps(enSections, jpSections);
 
-    buildIndexes();
+buildWordFrequencyIndex();
+buildIndexes();
 buildReferences();
 buildTermReferences();
 buildReferenceAliasIndex();
