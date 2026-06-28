@@ -1293,8 +1293,17 @@ function buildGraphData(limit = 140) {
   };
 }
 
+function colorMix(a, b) {
+  return a || b;
+}
+
 function renderGraph() {
   const data = buildGraphData(140);
+
+  const css = getComputedStyle(document.documentElement);
+  const graphText = css.getPropertyValue('--text').trim();
+  const graphAccent = css.getPropertyValue('--accent').trim();
+  const graphBorder = css.getPropertyValue('--border').trim();
 
   if (referenceGraph) {
     referenceGraph.destroy();
@@ -1313,8 +1322,8 @@ function renderGraph() {
         selector: 'node',
         style: {
           label: 'data(label)',
-          color: '#f4eadf',
-          'background-color': '#d08b4f',
+          color: graphText,
+          'background-color': graphAccent,
           'font-size': 11,
           'text-wrap': 'wrap',
           'text-max-width': 90,
@@ -1327,21 +1336,21 @@ function renderGraph() {
       {
         selector: 'node[type = "item"]',
         style: {
-          'background-color': '#8f6f4f'
+          'background-color': colorMix(graphAccent, graphBorder)
         }
       },
       {
         selector: 'node[type = "term"]',
         style: {
-          'background-color': '#6f7f8f'
+          'background-color': graphBorder
         }
       },
       {
         selector: 'edge',
         style: {
           width: 1.5,
-          'line-color': '#7a5a43',
-          'target-arrow-color': '#7a5a43',
+          'line-color': graphBorder,
+          'target-arrow-color': graphBorder,
           'target-arrow-shape': 'triangle',
           'curve-style': 'bezier',
           opacity: 0.55
@@ -1361,18 +1370,18 @@ function renderGraph() {
   });
 
   referenceGraph.on('tap', 'node', event => {
-  const node = event.target.data();
+    const node = event.target.data();
 
-  pushViewHistory({
-    type: 'graph'
+    pushViewHistory({
+      type: 'graph'
+    });
+
+    showReferencePage({
+      type: node.type === 'npc' ? 'npc' : node.type,
+      label: node.label,
+      aliases: [node.label]
+    }, false);
   });
-
-  showReferencePage({
-    type: node.type === 'npc' ? 'npc' : node.type,
-    label: node.label,
-    aliases: [node.label]
-  }, false);
-});
 }
 
 function getReferenceMatchScore(match) {
