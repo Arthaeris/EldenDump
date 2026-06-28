@@ -296,7 +296,9 @@ function appendNextWordIndexItems() {
         type="button"
         data-word-search="${escapeAttribute(item.word)}"
       >
-        <strong>${escapeHtml(item.word)}</strong>
+        <span class="reference-link reference-link-term">
+  ${escapeHtml(item.word)}
+</span>
         <span>${escapeHtml(item.count)}</span>
       </button>
     `).join('')
