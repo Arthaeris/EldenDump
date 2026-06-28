@@ -26,6 +26,12 @@ const wordIndexBtn = document.querySelector('#wordIndexBtn');
 const wordIndexView = document.querySelector('#wordIndexView');
 const wordIndexResults = document.querySelector('#wordIndexResults');
 const backFromWordIndexBtn = document.querySelector('#backFromWordIndexBtn');
+const graphBtn = document.querySelector('#graphBtn');
+const graphView = document.querySelector('#graphView');
+const graphContainer = document.querySelector('#graphContainer');
+const backFromGraphBtn = document.querySelector('#backFromGraphBtn');
+
+let referenceGraph = null;
 
 const categoryTitle = document.querySelector('#categoryTitle');
 const categoryResults = document.querySelector('#categoryResults');
