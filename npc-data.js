@@ -409,7 +409,8 @@ const INCANTATION_EXCLUDE_PHRASES = [
   'acquire new incantations',
   'Scroll containing incantations',
   'Versed in fire incantations',
-  'Uses healing incantations'
+  'Uses healing incantations',
+  'boosts incantations of the'
 ];
 
 
