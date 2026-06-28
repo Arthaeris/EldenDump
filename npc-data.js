@@ -402,7 +402,14 @@ const INCANTATION_EXCLUDE_PHRASES = [
   'blessed with a velvety purple incantation',
   'Enchanted with an ancient Erdtree incantation',
   'imparting a festive incantation',
-  'boosts Dragon Communion incantations'
+  'boosts Dragon Communion incantations',
+  'Hilde swings a slender greatsword and casts fire incantations',
+  'Enchanted by incantations',
+  'Enchanted with assassin incantations',
+  'acquire new incantations',
+  'Scroll containing incantations',
+  'Versed in fire incantations',
+  'Uses healing incantations'
 ];
 
 
