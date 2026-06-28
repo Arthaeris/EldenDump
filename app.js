@@ -2246,10 +2246,6 @@ function goBack() {
   if (previous.type === 'npcIndex') {
     showNpcIndex(false);
   }
-  
-  if (previous.type === 'wordIndex') {
-  showWordIndex(false);
-  }
 
   if (previous.type === 'dialogue') {
     showDialogue(previous.npcKey, false);
