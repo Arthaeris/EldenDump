@@ -3500,19 +3500,27 @@ npcIndexBtn.addEventListener('click', showNpcIndex);
 wordIndexBtn.addEventListener('click', showWordIndex);
 graphBtn.addEventListener('click', showGraph);
 
-allWordsBtn.addEventListener('click', () => {
-  activeWordIndexMode = 'all';
-  allWordsBtn.classList.add('active');
-  referenceWordsBtn.classList.remove('active');
-  renderWordIndex();
-});
+if (allWordsBtn && referenceWordsBtn) {
 
-referenceWordsBtn.addEventListener('click', () => {
-  activeWordIndexMode = 'references';
-  referenceWordsBtn.classList.add('active');
-  allWordsBtn.classList.remove('active');
-  renderWordIndex();
-});
+  allWordsBtn.addEventListener('click', () => {
+    activeWordIndexMode = 'all';
+
+    allWordsBtn.classList.add('active');
+    referenceWordsBtn.classList.remove('active');
+
+    renderWordIndex();
+  });
+
+  referenceWordsBtn.addEventListener('click', () => {
+    activeWordIndexMode = 'references';
+
+    referenceWordsBtn.classList.add('active');
+    allWordsBtn.classList.remove('active');
+
+    renderWordIndex();
+  });
+
+}
 
 backFromCategoryBtn.addEventListener('click', goBack);
 backFromNpcBtn.addEventListener('click', goBack);
