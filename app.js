@@ -290,50 +290,73 @@ function buildReferenceWordFrequencyIndex() {
       : { exclude: [], include: [], aliases: {} };
 
   const excluded = new Set(
-    (config.exclude || []).map(word => normalizeReferenceText(word))
+    (config.exclude || []).map(item => normalizeReferenceText(item))
   );
 
-  const included = new Set(
-    (config.include || []).map(word => normalizeReferenceText(word))
-  );
-
+  const manualIncluded = config.include || [];
   const aliasMap = config.aliases || {};
-  const referenceWordSet = new Set(included);
 
-  for (const [npcName, relations] of npcReferenceRelations.entries()) {
-    referenceWordSet.add(normalizeReferenceText(npcName));
+  const labels = new Set();
 
-    for (const target of relations.relatedNpcs.keys()) {
-      referenceWordSet.add(normalizeReferenceText(target));
-    }
-
-    for (const target of relations.relatedItems.keys()) {
-      referenceWordSet.add(normalizeReferenceText(target));
-    }
-
-    for (const target of relations.relatedTerms.keys()) {
-      referenceWordSet.add(normalizeReferenceText(target));
-    }
+  for (const term of TERM_REFERENCE_WORDS) {
+    labels.add(term);
   }
 
-  referenceWordFrequency = wordFrequency
-    .map(item => {
-      const normalized = normalizeReferenceText(item.word);
-      const aliasTarget = aliasMap[normalized] || normalized;
+  for (const [npcName, relations] of npcReferenceRelations.entries()) {
+    labels.add(npcName);
+
+    for (const target of relations.relatedNpcs.keys()) labels.add(target);
+    for (const target of relations.relatedItems.keys()) labels.add(target);
+    for (const target of relations.relatedTerms.keys()) labels.add(target);
+  }
+
+  for (const item of manualIncluded) {
+    labels.add(item);
+  }
+
+  referenceWordFrequency = [...labels]
+    .map(label => {
+      const normalized = normalizeReferenceText(label);
+      const displayLabel = aliasMap[normalized] || label;
 
       return {
-        ...item,
-        word: aliasTarget
+        word: displayLabel,
+        count: countReferenceLabelMentions(label)
       };
     })
-    .filter(item => {
-      const normalized = normalizeReferenceText(item.word);
-
-      return (
-        referenceWordSet.has(normalized) &&
-        !excluded.has(normalized)
-      );
+    .filter(item =>
+      item.count > 0 &&
+      !excluded.has(normalizeReferenceText(item.word))
+    )
+    .sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return a.word.localeCompare(b.word);
     });
+}
+
+function countReferenceLabelMentions(label) {
+  const normalizedLabel = normalizeReferenceText(label);
+
+  if (!normalizedLabel) return 0;
+
+  let count = 0;
+
+  for (const entry of entries) {
+    const blob = [
+      getName(entry, 'en'),
+      getText(entry, 'en')
+    ].filter(Boolean).join('\n');
+
+    const matches = findReferencesInText(blob, {
+      types: ['npc', 'item', 'term']
+    });
+
+    count += matches.filter(match =>
+      normalizeReferenceText(match.reference.label) === normalizedLabel
+    ).length;
+  }
+
+  return count;
 }
 
 function getActiveWordFrequency() {
