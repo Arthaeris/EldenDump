@@ -293,75 +293,54 @@ function buildReferenceWordFrequencyIndex() {
     (config.exclude || []).map(item => normalizeReferenceText(item))
   );
 
-  const manualIncluded = config.include || [];
   const aliasMap = config.aliases || {};
+  const counts = new Map();
 
-  const labels = new Set();
+  const addCount = (label, score = 1) => {
+    const normalized = normalizeReferenceText(label);
+    if (!normalized) return;
+    if (excluded.has(normalized)) return;
 
-  const termWords =
-  typeof TERM_REFERENCE_WORDS !== 'undefined'
-    ? TERM_REFERENCE_WORDS
-    : [];
+    counts.set(label, (counts.get(label) || 0) + score);
+  };
 
-for (const term of termWords) {
-  labels.add(term);
-}
+  for (const term of TERM_REFERENCE_WORDS) {
+    addCount(term, 1);
+  }
 
   for (const [npcName, relations] of npcReferenceRelations.entries()) {
-    labels.add(npcName);
+    addCount(npcName, 1);
 
-    for (const target of relations.relatedNpcs.keys()) labels.add(target);
-    for (const target of relations.relatedItems.keys()) labels.add(target);
-    for (const target of relations.relatedTerms.keys()) labels.add(target);
+    for (const [target, score] of relations.relatedNpcs.entries()) {
+      addCount(target, score);
+    }
+
+    for (const [target, score] of relations.relatedItems.entries()) {
+      addCount(target, score);
+    }
+
+    for (const [target, score] of relations.relatedTerms.entries()) {
+      addCount(target, score);
+    }
   }
 
-  for (const item of manualIncluded) {
-    labels.add(item);
+  for (const item of config.include || []) {
+    addCount(item, 1);
   }
 
-  referenceWordFrequency = [...labels]
-    .map(label => {
+  referenceWordFrequency = [...counts.entries()]
+    .map(([label, count]) => {
       const normalized = normalizeReferenceText(label);
-      const displayLabel = aliasMap[normalized] || label;
 
       return {
-        word: displayLabel,
-        count: countReferenceLabelMentions(label)
+        word: aliasMap[normalized] || label,
+        count
       };
     })
-    .filter(item =>
-      item.count > 0 &&
-      !excluded.has(normalizeReferenceText(item.word))
-    )
     .sort((a, b) => {
       if (b.count !== a.count) return b.count - a.count;
       return a.word.localeCompare(b.word);
     });
-}
-
-function countReferenceLabelMentions(label) {
-  const normalizedLabel = normalizeReferenceText(label);
-
-  if (!normalizedLabel) return 0;
-
-  let count = 0;
-
-  for (const entry of entries) {
-    const blob = [
-      getName(entry, 'en'),
-      getText(entry, 'en')
-    ].filter(Boolean).join('\n');
-
-    const matches = findReferencesInText(blob, {
-      types: ['npc', 'item', 'term']
-    });
-
-    count += matches.filter(match =>
-      normalizeReferenceText(match.reference.label) === normalizedLabel
-    ).length;
-  }
-
-  return count;
 }
 
 function getActiveWordFrequency() {
