@@ -284,19 +284,56 @@ function buildWordFrequencyIndex() {
 }
 
 function buildReferenceWordFrequencyIndex() {
-  const graphData = buildGraphData(Number.MAX_SAFE_INTEGER);
-  const graphWords = new Set();
+  const config =
+    typeof WORD_INDEX_REFERENCE_WORDS !== 'undefined'
+      ? WORD_INDEX_REFERENCE_WORDS
+      : { exclude: [], include: [], aliases: {} };
 
-  graphData.nodes.forEach(node => {
-    normalizeReferenceText(node.data.label)
-      .split(/\s+/)
-      .filter(Boolean)
-      .forEach(word => graphWords.add(word));
-  });
-
-  referenceWordFrequency = wordFrequency.filter(item =>
-    graphWords.has(item.word)
+  const excluded = new Set(
+    (config.exclude || []).map(word => normalizeReferenceText(word))
   );
+
+  const included = new Set(
+    (config.include || []).map(word => normalizeReferenceText(word))
+  );
+
+  const aliasMap = config.aliases || {};
+  const referenceWordSet = new Set(included);
+
+  for (const [npcName, relations] of npcReferenceRelations.entries()) {
+    referenceWordSet.add(normalizeReferenceText(npcName));
+
+    for (const target of relations.relatedNpcs.keys()) {
+      referenceWordSet.add(normalizeReferenceText(target));
+    }
+
+    for (const target of relations.relatedItems.keys()) {
+      referenceWordSet.add(normalizeReferenceText(target));
+    }
+
+    for (const target of relations.relatedTerms.keys()) {
+      referenceWordSet.add(normalizeReferenceText(target));
+    }
+  }
+
+  referenceWordFrequency = wordFrequency
+    .map(item => {
+      const normalized = normalizeReferenceText(item.word);
+      const aliasTarget = aliasMap[normalized] || normalized;
+
+      return {
+        ...item,
+        word: aliasTarget
+      };
+    })
+    .filter(item => {
+      const normalized = normalizeReferenceText(item.word);
+
+      return (
+        referenceWordSet.has(normalized) &&
+        !excluded.has(normalized)
+      );
+    });
 }
 
 function getActiveWordFrequency() {
