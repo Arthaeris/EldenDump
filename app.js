@@ -1364,16 +1364,18 @@ height: `mapData(references, 1, ${maxRefs}, 30, 82)`,
         }
       },
       {
-        selector: 'edge',
-        style: {
-          width: 1.5,
-          'line-color': graphBorder,
-          'target-arrow-color': graphBorder,
-          'target-arrow-shape': 'triangle',
-          'curve-style': 'bezier',
-          opacity: 0.55
-        }
-      }
+  selector: 'edge',
+  style: {
+    width: 1.5,
+    'line-color': graphBorder,
+    'target-arrow-color': graphBorder,
+    'source-arrow-color': graphBorder,
+    'target-arrow-shape': 'triangle',
+    'source-arrow-shape': 'data(sourceArrow)',
+    'curve-style': 'bezier',
+    opacity: 0.55
+  }
+}
     ],
 
     layout: {
