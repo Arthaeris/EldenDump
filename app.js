@@ -316,9 +316,12 @@ function renderWordIndex() {
 
 function appendNextWordIndexItems() {
   if (wordIndexView.hidden) return;
-  if (currentWordIndexCount >= wordFrequency.length) return;
 
-  const nextItems = wordFrequency.slice(
+  const activeList = getActiveWordFrequency();
+
+  if (currentWordIndexCount >= activeList.length) return;
+
+  const nextItems = activeList.slice(
     currentWordIndexCount,
     currentWordIndexCount + WORD_INDEX_PAGE_SIZE
   );
@@ -332,8 +335,8 @@ function appendNextWordIndexItems() {
         data-word-search="${escapeAttribute(item.word)}"
       >
         <span class="reference-link reference-link-term">
-  ${escapeHtml(item.word)}
-</span>
+          ${escapeHtml(item.word)}
+        </span>
         <span>${escapeHtml(item.count)}</span>
       </button>
     `).join('')
