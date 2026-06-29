@@ -1236,7 +1236,7 @@ const relatedTermScores = new Map();
 
 function buildGraphData(limit = 140) {
   const nodes = new Map();
-  const edges = [];
+  const rawEdges = [];
 
   for (const [npcName, relations] of npcReferenceRelations.entries()) {
     nodes.set(npcName, {
@@ -1259,16 +1259,12 @@ function buildGraphData(limit = 140) {
           }
         });
 
-        edges.push({
-  data: {
-    id: `${npcName}->${target}`,
-    source: npcName,
-    target,
-    weight: score,
-    type,
-    sourceArrow: 'none'
-  }
-});
+        rawEdges.push({
+          source: npcName,
+          target,
+          weight: score,
+          type
+        });
       }
     };
 
@@ -1277,23 +1273,54 @@ function buildGraphData(limit = 140) {
     addEdges(relations.relatedTerms, 'term');
   }
 
-  const keptEdges = edges
-  .sort((a, b) => b.data.weight - a.data.weight)
-  .slice(0, limit);
+  const strongestRawEdges = rawEdges
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, limit);
 
-const edgeLookup = new Set(
-  keptEdges.map(edge => `${edge.data.source}->${edge.data.target}`)
-);
+  const mergedEdges = new Map();
 
-for (const edge of keptEdges) {
-  const reverse = `${edge.data.target}->${edge.data.source}`;
+  for (const edge of strongestRawEdges) {
+    const pairKey = [edge.source, edge.target].sort().join('↔');
 
-  if (edgeLookup.has(reverse)) {
-    edge.data.sourceArrow = 'triangle';
+    if (!mergedEdges.has(pairKey)) {
+      mergedEdges.set(pairKey, {
+        source: edge.source,
+        target: edge.target,
+        weight: edge.weight,
+        type: edge.type,
+        hasForward: true,
+        hasReverse: false
+      });
+      continue;
+    }
+
+    const existing = mergedEdges.get(pairKey);
+
+    existing.weight += edge.weight;
+
+    if (
+      existing.source === edge.target &&
+      existing.target === edge.source
+    ) {
+      existing.hasReverse = true;
+    } else {
+      existing.hasForward = true;
+    }
   }
-}
 
-const usedNodes = new Set();
+  const keptEdges = [...mergedEdges.values()].map(edge => ({
+    data: {
+      id: `${edge.source}->${edge.target}`,
+      source: edge.source,
+      target: edge.target,
+      weight: edge.weight,
+      type: edge.type,
+      sourceArrow: edge.hasReverse ? 'triangle' : 'none',
+      targetArrow: 'triangle'
+    }
+  }));
+
+  const usedNodes = new Set();
 
   keptEdges.forEach(edge => {
     usedNodes.add(edge.data.source);
@@ -1307,6 +1334,13 @@ const usedNodes = new Set();
       edge.data.target,
       (incomingWeight.get(edge.data.target) || 0) + edge.data.weight
     );
+
+    if (edge.data.sourceArrow === 'triangle') {
+      incomingWeight.set(
+        edge.data.source,
+        (incomingWeight.get(edge.data.source) || 0) + edge.data.weight
+      );
+    }
   });
 
   return {
