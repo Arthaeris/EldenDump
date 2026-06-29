@@ -1092,7 +1092,7 @@ function buildTermReferences() {
       ? TERM_REFERENCE_WORDS
       : [];
 
-  termReferences = termWords.map(term => ({
+  termReferences = [...termWords].map(term => ({
     type: 'term',
     label: term,
     aliases: [term]
