@@ -68,6 +68,8 @@ let termReferenceMap = new Map();
 
 let wordFrequency = [];
 let currentWordIndexCount = 0;
+let activeWordIndexMode = 'all';
+let referenceWordFrequency = [];
 const WORD_INDEX_PAGE_SIZE = 120;
 
 let currentRenderTarget = results;
@@ -277,6 +279,32 @@ function buildWordFrequencyIndex() {
       if (b.count !== a.count) return b.count - a.count;
       return a.word.localeCompare(b.word);
     });
+}
+
+function buildReferenceWordFrequencyIndex() {
+  const referenceLabels = [
+    ...references.map(reference => reference.label),
+    ...termReferences.map(reference => reference.label)
+  ];
+
+  const referenceWordSet = new Set();
+
+  referenceLabels.forEach(label => {
+    const words = normalizeReferenceText(label)
+      .split(/\s+/)
+      .filter(Boolean);
+
+    words.forEach(word => referenceWordSet.add(word));
+  });
+
+  referenceWordFrequency = wordFrequency
+    .filter(item => referenceWordSet.has(item.word));
+}
+
+function getActiveWordFrequency() {
+  return activeWordIndexMode === 'references'
+    ? referenceWordFrequency
+    : wordFrequency;
 }
 
 function renderWordIndex() {
@@ -3077,6 +3105,7 @@ buildWordFrequencyIndex();
 buildIndexes();
 buildReferences();
 buildTermReferences();
+buildReferenceWordFrequencyIndex();
 buildReferenceAliasIndex();
 //buildValidItemReferenceLabels();
 buildReferenceRelations();
