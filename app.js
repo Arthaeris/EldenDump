@@ -1260,14 +1260,15 @@ function buildGraphData(limit = 140) {
         });
 
         edges.push({
-          data: {
-            id: `${npcName}->${target}`,
-            source: npcName,
-            target,
-            weight: score,
-            type
-          }
-        });
+  data: {
+    id: `${npcName}->${target}`,
+    source: npcName,
+    target,
+    weight: score,
+    type,
+    sourceArrow: 'none'
+  }
+});
       }
     };
 
@@ -1277,10 +1278,22 @@ function buildGraphData(limit = 140) {
   }
 
   const keptEdges = edges
-    .sort((a, b) => b.data.weight - a.data.weight)
-    .slice(0, limit);
+  .sort((a, b) => b.data.weight - a.data.weight)
+  .slice(0, limit);
 
-  const usedNodes = new Set();
+const edgeLookup = new Set(
+  keptEdges.map(edge => `${edge.data.source}->${edge.data.target}`)
+);
+
+for (const edge of keptEdges) {
+  const reverse = `${edge.data.target}->${edge.data.source}`;
+
+  if (edgeLookup.has(reverse)) {
+    edge.data.sourceArrow = 'triangle';
+  }
+}
+
+const usedNodes = new Set();
 
   keptEdges.forEach(edge => {
     usedNodes.add(edge.data.source);
