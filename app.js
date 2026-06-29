@@ -1312,6 +1312,10 @@ function buildGraphData(limit = 140) {
 
 function renderGraph() {
   const data = buildGraphData(140);
+  const maxRefs = Math.max(
+  1,
+  ...data.nodes.map(node => node.data.references || 1)
+);
 
   const css = getComputedStyle(document.documentElement);
   const graphText = css.getPropertyValue('--text').trim();
