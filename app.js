@@ -937,7 +937,10 @@ function isAllowedItemMatch(rawText, matchStart, matchedText, alias, reference) 
 function isAllowedTermMatch(rawText, matchStart, matchedText, alias) {
   const normalizedAlias = normalizeReferenceText(alias);
 
-  if (CASE_INSENSITIVE_TERM_REFERENCES.has(normalizedAlias)) {
+  if (
+  typeof CASE_INSENSITIVE_TERM_REFERENCES !== 'undefined' &&
+  CASE_INSENSITIVE_TERM_REFERENCES.has(normalizedAlias)
+) {
     return true;
   }
 
