@@ -54,3 +54,22 @@ const MANUAL_NPC_TALK_MAPPINGS = {
   'd2110': ['Base Serpent Messmer', '邪な蛇、メスメル'],
   'd1500': ['NPC Spirits', 'NPC Spirits']
 };
+
+
+
+
+const WORD_INDEX_REFERENCE_WORDS = {
+  exclude: [
+    'the',
+    'and',
+    'of',
+    'to',
+    'in',
+    'a',
+    'an'
+  ],
+
+  include: [],
+
+  aliases: {}
+};
