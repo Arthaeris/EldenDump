@@ -1417,7 +1417,7 @@ height: `mapData(references, 1, ${maxRefs}, 30, 82)`,
     'line-color': graphBorder,
     'target-arrow-color': graphBorder,
     'source-arrow-color': graphBorder,
-    'target-arrow-shape': 'triangle',
+    'target-arrow-shape': 'data(targetArrow)',
     'source-arrow-shape': 'data(sourceArrow)',
     'curve-style': 'bezier',
     opacity: 0.55
