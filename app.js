@@ -63,6 +63,7 @@ let currentDialogueKey = '';
 let references = [];
 let entryReferenceMap = new Map();
 let npcReferenceRelations = new Map();
+let referenceMentionCounts = new Map();
 let referenceAliasIndex = new Map();
 let validItemReferenceLabels = new Set();
 let termReferences = [];
@@ -294,49 +295,40 @@ function buildReferenceWordFrequencyIndex() {
   );
 
   const aliasMap = config.aliases || {};
-  const counts = new Map();
-
-  const addCount = (label, score = 1) => {
-    const normalized = normalizeReferenceText(label);
-    if (!normalized) return;
-    if (excluded.has(normalized)) return;
-
-    counts.set(label, (counts.get(label) || 0) + score);
-  };
-
-  for (const term of TERM_REFERENCE_WORDS) {
-    addCount(term, 1);
-  }
+  const labels = new Set();
 
   for (const [npcName, relations] of npcReferenceRelations.entries()) {
-    addCount(npcName, 1);
+    labels.add(npcName);
 
-    for (const [target, score] of relations.relatedNpcs.entries()) {
-      addCount(target, score);
-    }
+    for (const target of relations.relatedNpcs.keys()) labels.add(target);
+    for (const target of relations.relatedItems.keys()) labels.add(target);
+    for (const target of relations.relatedTerms.keys()) labels.add(target);
+  }
 
-    for (const [target, score] of relations.relatedItems.entries()) {
-      addCount(target, score);
-    }
-
-    for (const [target, score] of relations.relatedTerms.entries()) {
-      addCount(target, score);
+  if (typeof TERM_REFERENCE_WORDS !== 'undefined') {
+    for (const term of TERM_REFERENCE_WORDS) {
+      labels.add(term);
     }
   }
 
   for (const item of config.include || []) {
-    addCount(item, 1);
+    labels.add(item);
   }
 
-  referenceWordFrequency = [...counts.entries()]
-    .map(([label, count]) => {
+  referenceWordFrequency = [...labels]
+    .map(label => {
       const normalized = normalizeReferenceText(label);
+      const displayLabel = aliasMap[normalized] || label;
 
       return {
-        word: aliasMap[normalized] || label,
-        count
+        word: displayLabel,
+        count: referenceMentionCounts.get(label) || 0
       };
     })
+    .filter(item =>
+      item.count > 0 &&
+      !excluded.has(normalizeReferenceText(item.word))
+    )
     .sort((a, b) => {
       if (b.count !== a.count) return b.count - a.count;
       return a.word.localeCompare(b.word);
@@ -1261,6 +1253,7 @@ if (item.reference.type === 'term') {
 function buildReferenceRelations() {
   entryReferenceMap = new Map();
   npcReferenceRelations = new Map();
+  referenceMentionCounts = new Map();
 
   for (const [npcKey, group] of npcGroups.entries()) {
     const first = group[0];
@@ -1269,8 +1262,8 @@ function buildReferenceRelations() {
     if (!npcName) continue;
 
     const relatedNpcScores = new Map();
-const relatedItemScores = new Map();
-const relatedTermScores = new Map();
+    const relatedItemScores = new Map();
+    const relatedTermScores = new Map();
 
     const text = group
       .map(entry => getText(entry, 'en'))
@@ -1278,40 +1271,53 @@ const relatedTermScores = new Map();
       .join('\n');
 
     const matches = findReferencesInText(text, {
-  types: ['npc', 'item', 'term']
-});
+      types: ['npc', 'item', 'term']
+    });
+
+    for (const entry of group) {
+      entryReferenceMap.set(
+        entry.id,
+        matches.map(match => match.reference)
+      );
+    }
 
     for (const match of matches) {
       const reference = match.reference;
       const score = getReferenceMatchScore(match);
+      const label = reference.label;
 
-      if (reference.type === 'npc' && reference.label !== npcName) {
+      referenceMentionCounts.set(
+        label,
+        (referenceMentionCounts.get(label) || 0) + 1
+      );
+
+      if (reference.type === 'npc' && label !== npcName) {
         relatedNpcScores.set(
-          reference.label,
-          (relatedNpcScores.get(reference.label) || 0) + score
+          label,
+          (relatedNpcScores.get(label) || 0) + score
         );
       }
 
       if (reference.type === 'item') {
         relatedItemScores.set(
-          reference.label,
-          (relatedItemScores.get(reference.label) || 0) + score
+          label,
+          (relatedItemScores.get(label) || 0) + score
         );
       }
-      
+
       if (reference.type === 'term') {
-  relatedTermScores.set(
-    reference.label,
-    (relatedTermScores.get(reference.label) || 0) + score
-  );
-}
+        relatedTermScores.set(
+          label,
+          (relatedTermScores.get(label) || 0) + score
+        );
+      }
     }
 
     npcReferenceRelations.set(npcName, {
-  relatedNpcs: relatedNpcScores,
-  relatedItems: relatedItemScores,
-  relatedTerms: relatedTermScores
-});
+      relatedNpcs: relatedNpcScores,
+      relatedItems: relatedItemScores,
+      relatedTerms: relatedTermScores
+    });
   }
 }
 
