@@ -26,6 +26,8 @@ const wordIndexBtn = document.querySelector('#wordIndexBtn');
 const wordIndexView = document.querySelector('#wordIndexView');
 const wordIndexResults = document.querySelector('#wordIndexResults');
 const backFromWordIndexBtn = document.querySelector('#backFromWordIndexBtn');
+const allWordsBtn = document.querySelector('#allWordsBtn');
+const referenceWordsBtn = document.querySelector('#referenceWordsBtn');
 const graphBtn = document.querySelector('#graphBtn');
 const themeToggleBtn = document.querySelector('#themeToggleBtn');
 const graphView = document.querySelector('#graphView');
@@ -3497,6 +3499,20 @@ homeBtn.addEventListener('click', showHome);
 npcIndexBtn.addEventListener('click', showNpcIndex);
 wordIndexBtn.addEventListener('click', showWordIndex);
 graphBtn.addEventListener('click', showGraph);
+
+allWordsBtn.addEventListener('click', () => {
+  activeWordIndexMode = 'all';
+  allWordsBtn.classList.add('active');
+  referenceWordsBtn.classList.remove('active');
+  renderWordIndex();
+});
+
+referenceWordsBtn.addEventListener('click', () => {
+  activeWordIndexMode = 'references';
+  referenceWordsBtn.classList.add('active');
+  allWordsBtn.classList.remove('active');
+  renderWordIndex();
+});
 
 backFromCategoryBtn.addEventListener('click', goBack);
 backFromNpcBtn.addEventListener('click', goBack);
