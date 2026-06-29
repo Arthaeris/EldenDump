@@ -2615,9 +2615,14 @@ function showWordIndex(addToHistory = true) {
   dialogueView.hidden = true;
   referenceView.hidden = true;
   wordIndexView.hidden = false;
-  graphView.hidden = true;
+graphView.hidden = true;
 
-  renderWordIndex();
+if (allWordsBtn && referenceWordsBtn) {
+  allWordsBtn.classList.toggle('active', activeWordIndexMode === 'all');
+  referenceWordsBtn.classList.toggle('active', activeWordIndexMode === 'references');
+}
+
+renderWordIndex();
 
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'smooth' });
