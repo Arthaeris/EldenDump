@@ -298,9 +298,14 @@ function buildReferenceWordFrequencyIndex() {
 
   const labels = new Set();
 
-  for (const term of TERM_REFERENCE_WORDS) {
-    labels.add(term);
-  }
+  const termWords =
+  typeof TERM_REFERENCE_WORDS !== 'undefined'
+    ? TERM_REFERENCE_WORDS
+    : [];
+
+for (const term of termWords) {
+  labels.add(term);
+}
 
   for (const [npcName, relations] of npcReferenceRelations.entries()) {
     labels.add(npcName);
