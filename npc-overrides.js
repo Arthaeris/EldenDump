@@ -60,13 +60,13 @@ const MANUAL_NPC_TALK_MAPPINGS = {
 
 const WORD_INDEX_REFERENCE_WORDS = {
   exclude: [
-    'the',
-    'and',
-    'of',
-    'to',
-    'in',
-    'a',
-    'an'
+  //  'the',
+   // 'and',
+   // 'of',
+   // 'to',
+    //'in',
+    //'a',
+    //'an'
   ],
 
   include: [],
