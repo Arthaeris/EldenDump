@@ -1084,7 +1084,12 @@ const aliases = makeReferenceAliasList('npc', label, manualAliases);
 }
 
 function buildTermReferences() {
-  termReferences = [...TERM_REFERENCE_WORDS].map(term => ({
+  const termWords =
+    typeof TERM_REFERENCE_WORDS !== 'undefined'
+      ? TERM_REFERENCE_WORDS
+      : [];
+
+  termReferences = termWords.map(term => ({
     type: 'term',
     label: term,
     aliases: [term]
