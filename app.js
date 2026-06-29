@@ -284,23 +284,19 @@ function buildWordFrequencyIndex() {
 }
 
 function buildReferenceWordFrequencyIndex() {
-  const referenceLabels = [
-    ...references.map(reference => reference.label),
-    ...termReferences.map(reference => reference.label)
-  ];
+  const graphData = buildGraphData(Number.MAX_SAFE_INTEGER);
+  const graphWords = new Set();
 
-  const referenceWordSet = new Set();
-
-  referenceLabels.forEach(label => {
-    const words = normalizeReferenceText(label)
+  graphData.nodes.forEach(node => {
+    normalizeReferenceText(node.data.label)
       .split(/\s+/)
-      .filter(Boolean);
-
-    words.forEach(word => referenceWordSet.add(word));
+      .filter(Boolean)
+      .forEach(word => graphWords.add(word));
   });
 
-  referenceWordFrequency = wordFrequency
-    .filter(item => referenceWordSet.has(item.word));
+  referenceWordFrequency = wordFrequency.filter(item =>
+    graphWords.has(item.word)
+  );
 }
 
 function getActiveWordFrequency() {
@@ -3115,10 +3111,10 @@ buildWordFrequencyIndex();
 buildIndexes();
 buildReferences();
 buildTermReferences();
-buildReferenceWordFrequencyIndex();
 buildReferenceAliasIndex();
 //buildValidItemReferenceLabels();
 buildReferenceRelations();
+buildReferenceWordFrequencyIndex();
 renderCategoryMenu();
 render();
   } catch (error) {
