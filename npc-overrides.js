@@ -97,6 +97,37 @@ const MANUAL_NPC_TALK_MAPPINGS = {
 
 
 
+const NPC_INDEX_EXCLUDED_IDS = new Set([
+  '0100',
+  '0200',
+  '2009',
+  '2012',
+  '2016',
+  '2025',
+  '2029',
+  '2031',
+  '2032',
+  '2034',
+  '2035',
+  '2036',
+  '2036',
+  '2037',
+  '2038',
+  '2047',
+  '2055',
+  '2059',
+  '2062',
+  '2063',
+  '2069',
+  // development leftovers
+]);
+
+
+
+
+
+
+
 const WORD_INDEX_REFERENCE_WORDS = {
   exclude: [
   //  'the',
