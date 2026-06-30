@@ -1531,7 +1531,7 @@ function renderGraph() {
       color: graphText,
       'background-color': graphAccent,
 
-      'border-width': 1,
+      'border-width': 0.5,
       'border-color': graphText,
       'border-opacity': 0.7,
 
@@ -1550,7 +1550,7 @@ function renderGraph() {
   {
     selector: 'node[focused]',
     style: {
-      'border-width': 3,
+      'border-width': 2,
       'border-color': graphText,
       'border-opacity': 1,
       'z-index': 999
@@ -1580,7 +1580,7 @@ function renderGraph() {
       'source-arrow-color': graphBorder,
       'target-arrow-shape': 'data(targetArrow)',
       'source-arrow-shape': 'data(sourceArrow)',
-      'arrow-scale': 0.75,
+      'arrow-scale': 1,
       'curve-style': 'bezier',
       opacity: 0.75
     }
