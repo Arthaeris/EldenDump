@@ -335,6 +335,34 @@ function buildReferenceWordFrequencyIndex() {
     });
 }
 
+function countReferenceLabelMentions(label) {
+  const rawLabel = String(label || '').trim();
+  if (!rawLabel) return 0;
+
+  const normalizedLabel = normalizeReferenceText(rawLabel);
+  const isMultiWord = normalizedLabel.includes(' ');
+
+  const escapedLabel = rawLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  const regex = isMultiWord
+    ? new RegExp(`\\b${escapedLabel}\\b`, 'gi')
+    : new RegExp(escapedLabel, 'gi');
+
+  let count = 0;
+
+  for (const entry of entries) {
+    const blob = [
+      getName(entry, 'en'),
+      getText(entry, 'en')
+    ].filter(Boolean).join('\n');
+
+    const matches = blob.match(regex);
+    count += matches ? matches.length : 0;
+  }
+
+  return count;
+}
+
 function getActiveWordFrequency() {
   return activeWordIndexMode === 'references'
     ? referenceWordFrequency
