@@ -295,6 +295,34 @@
     <h2>Reference Graph</h2>
   </div>
 
+<div class="graph-controls">
+  <input
+    id="graphSearch"
+    type="search"
+    placeholder="Focus node..."
+  />
+
+  <div class="filter-row">
+    <button class="filter-chip active" type="button" data-graph-type="all">
+      All
+    </button>
+
+    <button class="filter-chip active" type="button" data-graph-type="npc">
+      NPCs
+    </button>
+
+    <button class="filter-chip active" type="button" data-graph-type="item">
+      Items
+    </button>
+
+    <button class="filter-chip active" type="button" data-graph-type="term">
+      Concepts
+    </button>
+  </div>
+
+  <div id="graphFocusLabel" class="graph-focus-label" hidden></div>
+</div>
+
   <div id="graphContainer" class="graph-container"></div>
 </section>
 
