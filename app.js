@@ -1536,8 +1536,9 @@ function renderGraph() {
       'border-opacity': 0.7,
 
       'text-wrap': 'wrap',
-      'text-max-width': 70,
-      'text-overflow-wrap': 'anywhere',
+      'text-overflow-wrap': 'whitespace',
+      'text-max-width': 95,
+      'text-justification': 'center',
       'text-valign': 'center',
       'text-halign': 'center',
 
