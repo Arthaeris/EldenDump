@@ -34,6 +34,12 @@ const graphView = document.querySelector('#graphView');
 const graphContainer = document.querySelector('#graphContainer');
 const backFromGraphBtn = document.querySelector('#backFromGraphBtn');
 
+const graphSearch = document.querySelector('#graphSearch');
+const graphFocusLabel = document.querySelector('#graphFocusLabel');
+
+let focusedGraphNodeId = '';
+const activeGraphTypes = new Set(['npc', 'item', 'term']);
+
 let referenceGraph = null;
 
 const categoryTitle = document.querySelector('#categoryTitle');
@@ -1363,6 +1369,8 @@ function buildGraphData(limit = 140) {
     });
 
     const addEdges = (map, type) => {
+      if (!activeGraphTypes.has(type)) return;
+
       for (const [target, score] of map.entries()) {
         if (score <= 0) continue;
 
@@ -1388,9 +1396,16 @@ function buildGraphData(limit = 140) {
     addEdges(relations.relatedTerms, 'term');
   }
 
-  const strongestRawEdges = rawEdges
+  let strongestRawEdges = rawEdges
     .sort((a, b) => b.weight - a.weight)
     .slice(0, limit);
+
+  if (focusedGraphNodeId) {
+    strongestRawEdges = strongestRawEdges.filter(edge =>
+      edge.source === focusedGraphNodeId ||
+      edge.target === focusedGraphNodeId
+    );
+  }
 
   const mergedEdges = new Map();
 
@@ -1403,14 +1418,12 @@ function buildGraphData(limit = 140) {
         target: edge.target,
         weight: edge.weight,
         type: edge.type,
-        hasForward: true,
         hasReverse: false
       });
       continue;
     }
 
     const existing = mergedEdges.get(pairKey);
-
     existing.weight += edge.weight;
 
     if (
@@ -1418,8 +1431,6 @@ function buildGraphData(limit = 140) {
       existing.target === edge.source
     ) {
       existing.hasReverse = true;
-    } else {
-      existing.hasForward = true;
     }
   }
 
@@ -1441,6 +1452,10 @@ function buildGraphData(limit = 140) {
     usedNodes.add(edge.data.source);
     usedNodes.add(edge.data.target);
   });
+
+  if (focusedGraphNodeId && nodes.has(focusedGraphNodeId)) {
+    usedNodes.add(focusedGraphNodeId);
+  }
 
   const incomingWeight = new Map();
 
@@ -1465,7 +1480,8 @@ function buildGraphData(limit = 140) {
         ...node,
         data: {
           ...node.data,
-          references: incomingWeight.get(node.data.id) || 1
+          references: incomingWeight.get(node.data.id) || 1,
+          focused: node.data.id === focusedGraphNodeId
         }
       })),
     edges: keptEdges
