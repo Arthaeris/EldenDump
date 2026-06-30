@@ -1596,6 +1596,7 @@ function renderGraph() {
   idealEdgeLength: 115,
   edgeElasticity: 70
 }
+});
 
   referenceGraph.on('tap', 'node', event => {
   const node = event.target.data();
