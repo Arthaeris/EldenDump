@@ -1524,71 +1524,78 @@ function renderGraph() {
     ],
 
     style: [
-      {
-        selector: 'node',
-        style: {
-          label: 'data(label)',
-          color: graphText,
-          'background-color': graphAccent,
-          'font-size': 11,
-          'text-wrap': 'wrap',
-          'text-max-width': 90,
-          'text-valign': 'center',
-          'text-halign': 'center',
-          width: `mapData(references, 1, ${maxRefs}, 30, 82)`,
-height: `mapData(references, 1, ${maxRefs}, 30, 82)`,
-'font-size': `mapData(references, 1, ${maxRefs}, 9, 15)`,
-        }
-      },
-      
-      
-      {
-  selector: 'node[focused]',
-  style: {
-    'border-width': 4,
-    'border-color': graphText,
-    'z-index': 999
+  {
+    selector: 'node',
+    style: {
+      label: 'data(label)',
+      color: graphText,
+      'background-color': graphAccent,
+
+      'border-width': 1,
+      'border-color': graphText,
+      'border-opacity': 0.7,
+
+      'text-wrap': 'wrap',
+      'text-max-width': 70,
+      'text-overflow-wrap': 'anywhere',
+      'text-valign': 'center',
+      'text-halign': 'center',
+
+      width: `mapData(references, 1, ${maxRefs}, 34, 88)`,
+      height: `mapData(references, 1, ${maxRefs}, 34, 88)`,
+      'font-size': `mapData(references, 1, ${maxRefs}, 8, 14)`
+    }
+  },
+
+  {
+    selector: 'node[focused]',
+    style: {
+      'border-width': 3,
+      'border-color': graphText,
+      'border-opacity': 1,
+      'z-index': 999
+    }
+  },
+
+  {
+    selector: 'node[type = "item"]',
+    style: {
+      'background-color': graphBorder
+    }
+  },
+
+  {
+    selector: 'node[type = "term"]',
+    style: {
+      'background-color': graphBorder
+    }
+  },
+
+  {
+    selector: 'edge',
+    style: {
+      width: `mapData(weight, 1, 50, 1.5, 3.5)`,
+      'line-color': graphBorder,
+      'target-arrow-color': graphBorder,
+      'source-arrow-color': graphBorder,
+      'target-arrow-shape': 'data(targetArrow)',
+      'source-arrow-shape': 'data(sourceArrow)',
+      'arrow-scale': 0.75,
+      'curve-style': 'bezier',
+      opacity: 0.75
+    }
   }
-},
-      
-      
-      {
-        selector: 'node[type = "item"]',
-        style: {
-          'background-color': graphBorder
-        }
-      },
-      {
-        selector: 'node[type = "term"]',
-        style: {
-          'background-color': graphBorder
-        }
-      },
-      {
-  selector: 'edge',
-  style: {
-    width: 1.5,
-    'line-color': graphBorder,
-    'target-arrow-color': graphBorder,
-    'source-arrow-color': graphBorder,
-    'target-arrow-shape': 'data(targetArrow)',
-    'source-arrow-shape': 'data(sourceArrow)',
-    'curve-style': 'bezier',
-    opacity: 0.55
-  }
-}
-    ],
+],
 
     layout: {
-      name: 'cose',
-      animate: false,
-      fit: true,
-      padding: 40,
-      nodeRepulsion: 7000,
-      idealEdgeLength: 90,
-      edgeElasticity: 80
-    }
-  });
+  name: 'cose',
+  animate: false,
+  fit: true,
+  padding: 50,
+  nodeRepulsion: 10000,
+  idealEdgeLength: 115,
+  edgeElasticity: 70
+}
 
   referenceGraph.on('tap', 'node', event => {
   const node = event.target.data();
