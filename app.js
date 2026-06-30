@@ -1490,6 +1490,17 @@ function buildGraphData(limit = 140) {
 
 function renderGraph() {
   const data = buildGraphData(140);
+  
+  if (graphFocusLabel) {
+  if (focusedGraphNodeId) {
+    graphFocusLabel.hidden = false;
+    graphFocusLabel.textContent = `Focused: ${focusedGraphNodeId} — tap again to open`;
+  } else {
+    graphFocusLabel.hidden = true;
+    graphFocusLabel.textContent = '';
+  }
+}
+  
   const maxRefs = Math.max(
   1,
   ...data.nodes.map(node => node.data.references || 1)
@@ -1529,6 +1540,18 @@ height: `mapData(references, 1, ${maxRefs}, 30, 82)`,
 'font-size': `mapData(references, 1, ${maxRefs}, 9, 15)`,
         }
       },
+      
+      
+      {
+  selector: 'node[focused]',
+  style: {
+    'border-width': 4,
+    'border-color': graphText,
+    'z-index': 999
+  }
+},
+      
+      
       {
         selector: 'node[type = "item"]',
         style: {
@@ -1568,18 +1591,28 @@ height: `mapData(references, 1, ${maxRefs}, 30, 82)`,
   });
 
   referenceGraph.on('tap', 'node', event => {
-    const node = event.target.data();
+  const node = event.target.data();
 
-    pushViewHistory({
-      type: 'graph'
-    });
+  if (focusedGraphNodeId === node.id) {
+    pushViewHistory({ type: 'graph' });
 
     showReferencePage({
       type: node.type === 'npc' ? 'npc' : node.type,
       label: node.label,
       aliases: [node.label]
     }, false);
-  });
+
+    return;
+  }
+
+  focusedGraphNodeId = node.id;
+
+  if (graphSearch) {
+    graphSearch.value = node.label;
+  }
+
+  renderGraph();
+});
 }
 
 function getReferenceMatchScore(match) {
