@@ -1531,7 +1531,7 @@ function renderGraph() {
       color: graphText,
       'background-color': graphAccent,
 
-      'border-width': 0.5,
+      'border-width': 1,
       'border-color': graphText,
       'border-opacity': 0.7,
 
@@ -1551,7 +1551,7 @@ function renderGraph() {
   {
     selector: 'node[focused]',
     style: {
-      'border-width': 0.5,
+      'border-width': 1,
       'border-color': graphText,
       'border-opacity': 1,
       'z-index': 999
