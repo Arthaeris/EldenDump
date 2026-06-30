@@ -2820,11 +2820,21 @@ function showNpcIndex(addToHistory = true) {
     }
   }
 
-  const groups = [...npcGroups.entries()].sort((a, b) => {
-    const aName = getName(a[1][0], activeLanguage);
-    const bName = getName(b[1][0], activeLanguage);
-    return aName.localeCompare(bName);
-  });
+  const excludedNpcIds =
+    typeof NPC_INDEX_EXCLUDED_IDS !== 'undefined'
+      ? NPC_INDEX_EXCLUDED_IDS
+      : new Set();
+
+  const groups = [...npcGroups.entries()]
+    .filter(([, group]) => {
+      const first = group[0];
+      return first && !excludedNpcIds.has(String(first.npcId || first.segment));
+    })
+    .sort((a, b) => {
+      const aName = getName(a[1][0], activeLanguage);
+      const bName = getName(b[1][0], activeLanguage);
+      return aName.localeCompare(bName);
+    });
 
   npcList.innerHTML = groups.map(([key, group]) => {
     const first = group[0];
