@@ -1491,6 +1491,14 @@ function buildGraphData(limit = 140) {
 function renderGraph() {
   const data = buildGraphData(140);
   
+  data.nodes = data.nodes.map(node => ({
+  ...node,
+  data: {
+    ...node.data,
+    focused: node.data.id === focusedGraphNodeId
+  }
+}));
+  
   if (graphFocusLabel) {
   if (focusedGraphNodeId) {
     graphFocusLabel.hidden = false;
