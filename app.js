@@ -322,7 +322,7 @@ function buildReferenceWordFrequencyIndex() {
 
       return {
         word: displayLabel,
-        count: referenceMentionCounts.get(label) || 0
+        count: countReferenceLabelMentions(label)
       };
     })
     .filter(item =>
