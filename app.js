@@ -1491,14 +1491,6 @@ function buildGraphData(limit = 140) {
 function renderGraph() {
   const data = buildGraphData(140);
   
-  data.nodes = data.nodes.map(node => ({
-  ...node,
-  data: {
-    ...node.data,
-    focused: node.data.id === focusedGraphNodeId
-  }
-}));
-  
   if (graphFocusLabel) {
   if (focusedGraphNodeId) {
     graphFocusLabel.hidden = false;
@@ -3403,6 +3395,51 @@ if (themeButton) {
   return;
 }
 
+const graphTypeButton = event.target.closest('[data-graph-type]');
+
+if (graphTypeButton) {
+  event.stopPropagation();
+
+  const type = graphTypeButton.dataset.graphType;
+
+  if (type === 'all') {
+    activeGraphTypes.clear();
+    activeGraphTypes.add('npc');
+    activeGraphTypes.add('item');
+    activeGraphTypes.add('term');
+
+    document.querySelectorAll('[data-graph-type]').forEach(button => {
+      button.classList.add('active');
+    });
+
+    renderGraph();
+    return;
+  }
+
+  if (activeGraphTypes.has(type)) {
+    activeGraphTypes.delete(type);
+    graphTypeButton.classList.remove('active');
+  } else {
+    activeGraphTypes.add(type);
+    graphTypeButton.classList.add('active');
+  }
+
+  const allButton = document.querySelector('[data-graph-type="all"]');
+
+  if (allButton) {
+    allButton.classList.toggle(
+      'active',
+      activeGraphTypes.has('npc') &&
+      activeGraphTypes.has('item') &&
+      activeGraphTypes.has('term')
+    );
+  }
+
+  focusedGraphNodeId = '';
+  renderGraph();
+  return;
+}
+
 const referenceButton = event.target.closest('[data-reference-type]');
 
 if (referenceButton) {
@@ -3643,6 +3680,29 @@ homeBtn.addEventListener('click', showHome);
 npcIndexBtn.addEventListener('click', showNpcIndex);
 wordIndexBtn.addEventListener('click', showWordIndex);
 graphBtn.addEventListener('click', showGraph);
+
+if (graphSearch) {
+  graphSearch.addEventListener('input', () => {
+    const query = graphSearch.value.trim().toLowerCase();
+
+    if (!query) {
+      focusedGraphNodeId = '';
+      renderGraph();
+      return;
+    }
+
+    const oldFocus = focusedGraphNodeId;
+    focusedGraphNodeId = '';
+
+    const data = buildGraphData(9999);
+    const match = data.nodes.find(node =>
+      node.data.label.toLowerCase().includes(query)
+    );
+
+    focusedGraphNodeId = match ? match.data.id : oldFocus;
+    renderGraph();
+  });
+}
 
 if (allWordsBtn && referenceWordsBtn) {
 
