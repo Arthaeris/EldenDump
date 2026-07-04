@@ -130,6 +130,43 @@ function parseXmlDump(rawText) {
   return sections;
 }
 
+function stripPlusNumberSuffix(value) {
+  return String(value || '')
+    .normalize('NFKC')
+    .replace(/\s+\+\d+$/u, '')
+    .trim();
+}
+
+function normalizeDedupText(value) {
+  return getCleanText(value)
+    .normalize('NFKC')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function removePlusNumberDuplicateEntries(items) {
+  const seen = new Map();
+
+  return items.filter(entry => {
+    const baseNameEn = stripPlusNumberSuffix(entry.nameEn);
+    const baseNameJp = stripPlusNumberSuffix(entry.nameJp);
+
+    const key = [
+      entry.category,
+      entry.section,
+      baseNameEn,
+      baseNameJp,
+      normalizeDedupText(entry.textEn),
+      normalizeDedupText(entry.textJp)
+    ].join('||');
+
+    if (seen.has(key)) return false;
+
+    seen.set(key, entry);
+    return true;
+  });
+}
+
 function buildEntriesFromDumps(enSections, jpSections) {
   const built = [];
   const usedSections = new Set();
@@ -138,7 +175,8 @@ function buildEntriesFromDumps(enSections, jpSections) {
   built.push(...buildDialogueEntries(enSections, jpSections, usedSections));
   built.push(...collectStandaloneSections(enSections, jpSections, usedSections));
 
-    return built
+    return removePlusNumberDuplicateEntries(
+  built
     .filter(entry =>
       entry.id &&
       (
@@ -149,7 +187,8 @@ function buildEntriesFromDumps(enSections, jpSections) {
       )
     )
     .map(refineEntryCategory)
-    .map(markJapaneseExclusive);
+    .map(markJapaneseExclusive)
+);
 }
 
 function buildMergedEntries(enSections, jpSections, usedSections) {
@@ -3195,49 +3234,6 @@ function renderFullDialogueByNpcId(group) {
       </section>
     `)
     .join('');
-}
-
-function stripPlusNumberSuffix(value) {
-  return String(value || '')
-    .replace(/\s+\+\d+$/g, '')
-    .trim();
-}
-
-function getDuplicateVariantKey(entry) {
-  return [
-    entry.category,
-    entry.section,
-    stripPlusNumberSuffix(entry.nameEn),
-    stripPlusNumberSuffix(entry.nameJp),
-    getCleanText(entry.textEn),
-    getCleanText(entry.textJp)
-  ].join('||');
-}
-
-function removePlusNumberDuplicates(items) {
-  const groups = new Map();
-
-  for (const entry of items) {
-    const key = getDuplicateVariantKey(entry);
-
-    if (!groups.has(key)) {
-      groups.set(key, []);
-    }
-
-    groups.get(key).push(entry);
-  }
-
-  return [...groups.values()].flatMap(group => {
-    if (group.length <= 1) return group;
-
-    const baseEntry = group.find(entry =>
-      !/\s+\+\d+$/.test(getName(entry, 'en'))
-    );
-
-    if (baseEntry) return [baseEntry];
-
-    return [group.sort((a, b) => sortIds(a.id, b.id))[0]];
-  });
 }
 
 function openMenu() {
