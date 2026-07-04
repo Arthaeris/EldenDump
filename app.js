@@ -3,6 +3,7 @@ const results = document.querySelector('#results');
 const count = document.querySelector('#count');
 const searchFilters = document.querySelector('#searchFilters');
 const cardControls = document.querySelector('#cardControls');
+const copySearchResultsBtn = document.querySelector('#copySearchResultsBtn');
 
 const menu = document.querySelector('#menu');
 const menuOverlay = document.querySelector('#menuOverlay');
@@ -3413,7 +3414,8 @@ cardControls.addEventListener('click', event => {
   }
 });
 
-copySearchResultsBtn.addEventListener('click', async () => {
+if (copySearchResultsBtn) {
+  copySearchResultsBtn.addEventListener('click', async () => {
   const text = currentSearchResults
     .map(entry =>
       `\`\`\`\n${getCopyTextClean(entry, activeLanguage)}\n\`\`\``
@@ -3440,6 +3442,7 @@ copySearchResultsBtn.addEventListener('click', async () => {
     }, 900);
   }
 });
+}
 
 window.addEventListener('scroll', handleScroll, { passive: true });
 
