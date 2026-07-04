@@ -134,7 +134,7 @@ function parseXmlDump(rawText) {
 function stripPlusNumberSuffix(value) {
   return String(value || '')
     .normalize('NFKC')
-    .replace(/\s*\+\s*\d+$/u, '')
+    .replace(/\s*\+\s*\d+\s*$/u, '')
     .trim();
 }
 
@@ -146,24 +146,19 @@ function normalizeDedupText(value) {
 }
 
 function removePlusNumberDuplicateEntries(items) {
-  const seen = new Map();
+  const seen = new Set();
 
   return items.filter(entry => {
-    const baseNameEn = stripPlusNumberSuffix(entry.nameEn);
-    const baseNameJp = stripPlusNumberSuffix(entry.nameJp);
-
     const key = [
-      entry.category,
-      entry.section,
-      baseNameEn,
-      baseNameJp,
+      stripPlusNumberSuffix(entry.nameEn),
+      stripPlusNumberSuffix(entry.nameJp),
       normalizeDedupText(entry.textEn),
       normalizeDedupText(entry.textJp)
     ].join('||');
 
     if (seen.has(key)) return false;
 
-    seen.set(key, entry);
+    seen.add(key);
     return true;
   });
 }
