@@ -3197,6 +3197,49 @@ function renderFullDialogueByNpcId(group) {
     .join('');
 }
 
+function stripPlusNumberSuffix(value) {
+  return String(value || '')
+    .replace(/\s+\+\d+$/g, '')
+    .trim();
+}
+
+function getDuplicateVariantKey(entry) {
+  return [
+    entry.category,
+    entry.section,
+    stripPlusNumberSuffix(entry.nameEn),
+    stripPlusNumberSuffix(entry.nameJp),
+    getCleanText(entry.textEn),
+    getCleanText(entry.textJp)
+  ].join('||');
+}
+
+function removePlusNumberDuplicates(items) {
+  const groups = new Map();
+
+  for (const entry of items) {
+    const key = getDuplicateVariantKey(entry);
+
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+
+    groups.get(key).push(entry);
+  }
+
+  return [...groups.values()].flatMap(group => {
+    if (group.length <= 1) return group;
+
+    const baseEntry = group.find(entry =>
+      !/\s+\+\d+$/.test(getName(entry, 'en'))
+    );
+
+    if (baseEntry) return [baseEntry];
+
+    return [group.sort((a, b) => sortIds(a.id, b.id))[0]];
+  });
+}
+
 function openMenu() {
   menu.classList.add('open');
   menuOverlay.classList.add('open');
@@ -3259,7 +3302,9 @@ async function loadDump() {
     const enSections = parseXmlDump(enText);
     const jpSections = parseXmlDump(jpText);
 
-    entries = buildEntriesFromDumps(enSections, jpSections);
+    entries = removePlusNumberDuplicates(
+  buildEntriesFromDumps(enSections, jpSections)
+);
 
 buildWordFrequencyIndex();
 buildIndexes();
