@@ -134,7 +134,7 @@ function parseXmlDump(rawText) {
 function stripPlusNumberSuffix(value) {
   return String(value || '')
     .normalize('NFKC')
-    .replace(/\s+\+\d+$/u, '')
+    .replace(/\s*\+\s*\d+$/u, '')
     .trim();
 }
 
