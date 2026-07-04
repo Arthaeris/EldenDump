@@ -3298,9 +3298,7 @@ async function loadDump() {
     const enSections = parseXmlDump(enText);
     const jpSections = parseXmlDump(jpText);
 
-    entries = removePlusNumberDuplicates(
-  buildEntriesFromDumps(enSections, jpSections)
-);
+    entries = buildEntriesFromDumps(enSections, jpSections);
 
 buildWordFrequencyIndex();
 buildIndexes();
