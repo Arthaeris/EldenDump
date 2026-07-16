@@ -834,58 +834,50 @@ footer {
 }
 
 #referenceView > .view-header {
-  margin: 2rem 0 2.2rem;
-  padding: 1.5rem;
+  margin: 1.5rem 0 1.6rem;
+  padding: 1.25rem 1.5rem 1.5rem;
   border: 1px solid var(--border);
-  border-radius: 28px;
+  border-radius: 20px;
   background:
-  radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 18%, transparent), transparent 38%),
-  var(--card);
-  box-shadow:
-    0 18px 50px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--card)), var(--card) 70%);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
 #referenceTitle {
-  margin: 1.2rem 0 0;
-  font-size: clamp(2rem, 7vw, 4.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.05em;
+  margin: 0.9rem 0 0;
+  font-size: clamp(1.8rem, 5.5vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   color: var(--text);
-  text-shadow: 0 0 28px rgba(213, 151, 85, 0.16);
 }
 
 #referenceResults {
   display: grid;
-  gap: 1.15rem;
+  gap: 1rem;
 }
 
 .wiki-section {
   position: relative;
   margin: 0;
-  border: 1px solid rgba(213, 151, 85, 0.18);
-  border-radius: 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
   overflow: hidden;
   background: var(--card);
-  box-shadow:
-    0 8px 22px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .wiki-section summary {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  min-height: 3.8rem;
+  gap: 0.65rem;
+  min-height: 3.2rem;
   cursor: pointer;
-  padding: 1rem 1.25rem 1rem 1.45rem;
-  font-size: clamp(1.05rem, 4vw, 1.45rem);
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  padding: 0.75rem 1.1rem;
+  font-size: clamp(1rem, 3.5vw, 1.2rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
   color: var(--text);
   list-style: none;
-  background:
-    linear-gradient(90deg, rgba(213, 151, 85, 0.12), transparent 55%);
+  transition: background 140ms ease;
 }
 
 .wiki-section summary::-webkit-details-marker {
@@ -896,36 +888,57 @@ footer {
   content: "›";
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 1.6rem;
+  height: 1.6rem;
   flex: 0 0 auto;
-  border: 1px solid rgba(213, 151, 85, 0.32);
-  border-radius: 999px;
+  border-radius: 8px;
   color: var(--accent);
-  background: rgba(213, 151, 85, 0.08);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
   transform: rotate(0deg);
   transition:
     transform 160ms ease,
-    background 160ms ease,
-    border-color 160ms ease;
+    background 160ms ease;
 }
 
 .wiki-section[open] summary::before {
   transform: rotate(90deg);
-  background: rgba(213, 151, 85, 0.16);
-  border-color: rgba(213, 151, 85, 0.55);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .wiki-section summary:hover {
-  background:
-    linear-gradient(90deg, rgba(213, 151, 85, 0.18), transparent 62%);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.wiki-icon {
+  flex: 0 0 auto;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.wiki-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wiki-count {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
 }
 
 .wiki-section-content {
+  display: grid;
+  gap: 0.9rem;
   padding: 1rem;
-  border-top: 1px solid rgba(213, 151, 85, 0.16);
-  background:
-    radial-gradient(circle at top right, rgba(213, 151, 85, 0.07), transparent 35%);
+  border-top: 1px solid var(--border);
 }
 
 .wiki-section-content > .entry {
@@ -933,29 +946,23 @@ footer {
 }
 
 .wiki-section-content .wiki-section {
-  margin: 0.85rem 0;
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--card) 88%, var(--accent));
-  box-shadow: none;
+  margin: 0;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card) 94%, var(--accent));
 }
 
 .wiki-section-content .wiki-section summary {
-  min-height: 3.2rem;
-  font-size: clamp(1rem, 3.4vw, 1.25rem);
+  min-height: 2.8rem;
+  font-size: clamp(0.95rem, 3.2vw, 1.1rem);
 }
 
 .wiki-section-content .wiki-section-content {
   padding: 0.8rem;
+  gap: 0.8rem;
 }
 
 #referenceResults > .wiki-section:first-child {
-  border-color: rgba(213, 151, 85, 0.48);
-}
-
-#referenceResults > .wiki-section:first-child summary {
-  background:
-    radial-gradient(circle at top left, rgba(213, 151, 85, 0.18), transparent 42%),
-    linear-gradient(90deg, rgba(213, 151, 85, 0.16), transparent 65%);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
 }
 
 #referenceResults .empty {
