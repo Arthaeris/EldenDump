@@ -1024,3 +1024,109 @@ footer {
   background: var(--card);
   overflow: hidden;
 }
+
+
+/* Older version diffs on entry cards */
+
+.entry-versions {
+  margin-top: 12px;
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+}
+
+.entry-versions summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+  list-style: none;
+  user-select: none;
+}
+
+.entry-versions summary::-webkit-details-marker {
+  display: none;
+}
+
+.entry-versions summary::before {
+  content: "›";
+  display: inline-block;
+  margin-right: 0.4rem;
+  transition: transform 0.15s ease;
+}
+
+.entry-versions[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.entry-version {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card) 70%, var(--bg));
+}
+
+.entry-version-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.entry-version-text {
+  font-size: 0.9rem;
+  white-space: normal;
+}
+
+/* Show only the language currently active on the card */
+.entry[data-lang="en"] .entry-version-jp,
+.entry[data-lang="jp"] .entry-version-en {
+  display: none;
+}
+
+
+/* NPC index overview progress */
+
+.npc-progress {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.npc-progress-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.npc-progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 60%, var(--bg));
+  overflow: hidden;
+}
+
+.npc-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.npc-overview-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--accent);
+  color: var(--accent-text);
+  vertical-align: middle;
+}
