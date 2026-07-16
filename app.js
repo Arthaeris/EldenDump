@@ -2182,12 +2182,41 @@ function getNpcSearchCandidates(entry) {
   return candidates.filter(Boolean);
 }
 
-function renderWikiSection(title, content, open = false) {
+const CATEGORY_ICONS = {
+  'NPCs': '🧝',
+  'Dialogues': '💬',
+  'Locations': '🗺️',
+  'Talismans': '🧿',
+  'Weapons': '⚔️',
+  'Arrow/Bolt Types': '🏹',
+  'Armor': '🛡️',
+  'Sorceries': '🔮',
+  'Incantations': '🕯️',
+  'Items': '🎒',
+  'Ashes of War': '🔥',
+  'Ashes of War (Item)': '🔥',
+  'Tutorials': '📖',
+  'Loading Screen Tutorials': '📖',
+  'Messages': '✉️',
+  'Interactions': '🤝',
+  'Event Texts': '📜',
+  'Japanese-Exclusive': '🇯🇵'
+};
+
+function getCategoryIcon(category) {
+  return CATEGORY_ICONS[category] || '📄';
+}
+
+function renderWikiSection(title, content, open = false, count = null, icon = '') {
   if (!content) return '';
 
   return `
     <details class="wiki-section" ${open ? 'open' : ''}>
-      <summary>${escapeHtml(title)}</summary>
+      <summary>
+        ${icon ? `<span class="wiki-icon">${icon}</span>` : ''}
+        <span class="wiki-title">${escapeHtml(title)}</span>
+        ${count != null ? `<span class="wiki-count">${count}</span>` : ''}
+      </summary>
       <div class="wiki-section-content">
         ${content}
       </div>
@@ -2242,28 +2271,42 @@ function showReferencePage(reference, addToHistory = true) {
   referenceTitle.textContent = reference.label;
 
   const relatedEntries = getEntriesRelatedToReference(reference);
-  const grouped = groupEntriesByCategory(relatedEntries);
 
   const ownEntries = relatedEntries.filter(entry =>
     getName(entry, 'en') === reference.label
   );
 
+  // Entries already shown under Basic Info are excluded from mentions
+  const ownKeys = new Set(ownEntries.map(entryDiffKey));
+  const mentionEntries = relatedEntries.filter(
+    entry => !ownKeys.has(entryDiffKey(entry))
+  );
+
+  const grouped = groupEntriesByCategory(mentionEntries);
+
   const ownContent = ownEntries.length
     ? ownEntries.map(renderEntry).join('')
-    : '<div class="empty">No direct entry found.</div>';
+    : '';
 
   const mentionedContent = [...grouped.entries()]
     .map(([category, items]) =>
       renderWikiSection(
-        `${category} (${items.length})`,
-        items.map(renderEntry).join('')
+        category,
+        items.map(renderEntry).join(''),
+        false,
+        items.length,
+        getCategoryIcon(category)
       )
     )
     .join('');
 
   referenceResults.innerHTML = `
-    ${renderWikiSection('Basic Info', ownContent, true)}
-    ${renderWikiSection('Mentioned By', mentionedContent, true)}
+    ${ownContent ? renderWikiSection('Basic Info', ownContent, true) : ''}
+    ${
+      mentionEntries.length
+        ? renderWikiSection('Mentioned By', mentionedContent, true, mentionEntries.length)
+        : '<div class="empty">No mentions found.</div>'
+    }
   `;
 
   //applyReferenceLinksToElement(referenceResults);
