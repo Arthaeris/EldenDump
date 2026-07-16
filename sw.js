@@ -1,16 +1,15 @@
-const CACHE_NAME = "elden-dump-v-06";
+const CACHE_NAME = "elden-dump-v-07";
 
 const STATIC_FILES = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./build-info.js",
   "./npc-overrides.js",
   "./npc-data.js",
   "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png",
-  "./apple-touch-icon.png"
+  "./icon.svg"
 ];
 
 const DATA_FILES = [
@@ -50,9 +49,8 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(event.request.url);
 
-  const isDataFile =
-    url.pathname.endsWith("pc-engus-er-1.16.txt") ||
-    url.pathname.endsWith("pc-jpnjp-er-1.16.txt");
+  // Matches any dump version (e.g. pc-engus-er-1.16.txt, pc-engus-er-1.10.txt)
+  const isDataFile = /pc-(engus|jpnjp)-er-[\d.]+\.txt$/.test(url.pathname);
 
   // Huge dump files:
   // Cache-first
