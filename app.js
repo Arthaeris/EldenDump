@@ -56,6 +56,13 @@ const backFromDialogueBtn = document.querySelector('#backFromDialogueBtn');
 const EN_SOURCE = './pc-engus-er-1.16.txt';
 const JP_SOURCE = './pc-jpnjp-er-1.16.txt';
 
+const DUMP_VERSION = (EN_SOURCE.match(/-er-([\d.]+)\.txt$/) || [])[1] || '';
+
+// Older dump versions, loaded automatically when files like
+// pc-engus-er-1.10.txt are present next to the current ones.
+// [{ version, map: Map(diffKey -> { textEn, textJp }) }], newest first
+let olderVersions = [];
+
 const PAGE_SIZE = 80;
 
 let entries = [];
@@ -2347,6 +2354,74 @@ newCards.forEach(card => {
   isAppending = false;
 }
 
+function entryDiffKey(entry) {
+  return `${entry.type}|${entry.section}|${entry.id}`;
+}
+
+function normalizeDiffText(value) {
+  return String(value || '')
+    .normalize('NFKC')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getEntryVersionDiffs(entry) {
+  if (!olderVersions.length) return [];
+
+  const key = entryDiffKey(entry);
+  const diffs = [];
+
+  for (const { version, map, hasEn, hasJp } of olderVersions) {
+    const old = map.get(key);
+
+    if (!old) continue;
+
+    // Only compare languages whose dump file exists for that version
+    const enDiffers =
+      hasEn &&
+      normalizeDiffText(old.textEn) !== normalizeDiffText(entry.textEn);
+    const jpDiffers =
+      hasJp &&
+      normalizeDiffText(old.textJp) !== normalizeDiffText(entry.textJp);
+
+    if (enDiffers || jpDiffers) {
+      diffs.push({
+        version,
+        textEn: old.textEn,
+        textJp: old.textJp
+      });
+    }
+  }
+
+  return diffs;
+}
+
+function renderVersionDiffBlock(entry) {
+  const diffs = getEntryVersionDiffs(entry);
+
+  if (!diffs.length) return '';
+
+  return `
+    <details class="entry-versions">
+      <summary>Older versions (${diffs.length})</summary>
+
+      ${diffs.map(diff => `
+        <div class="entry-version">
+          <div class="entry-version-label">Version ${escapeHtml(diff.version)}</div>
+
+          <div class="entry-version-text entry-version-en">
+            ${diff.textEn ? formatEntryText(diff.textEn) : '<em>Not present in this version</em>'}
+          </div>
+
+          <div class="entry-version-text entry-version-jp">
+            ${diff.textJp ? formatEntryText(diff.textJp) : '<em>Not present in this version</em>'}
+          </div>
+        </div>
+      `).join('')}
+    </details>
+  `;
+}
+
 function renderEntry(e) {
   const lang = activeLanguage;
   const metaParts = [e.category];
@@ -2383,6 +2458,7 @@ function renderEntry(e) {
       id="entry-${escapeHtml(e.section)}-${escapeHtml(e.id)}"
       data-mode="${escapeHtml(defaultCardMode)}"
       data-lang="${escapeHtml(lang)}"
+      data-diff-key="${escapeAttribute(entryDiffKey(e))}"
 
       data-name-en="${escapeAttribute(getName(e, 'en'))}"
       data-name-jp="${escapeAttribute(getName(e, 'jp'))}"
@@ -2454,6 +2530,8 @@ function renderEntry(e) {
           `
           : ''
       }
+
+      ${renderVersionDiffBlock(e)}
     </article>
   `;
 }
@@ -2872,14 +2950,34 @@ function showNpcIndex(addToHistory = true) {
       return aName.localeCompare(bName);
     });
 
-  npcList.innerHTML = groups.map(([key, group]) => {
+  const overviewCount = groups.filter(([, group]) =>
+    Boolean(getNpcMetadata(group[0]))
+  ).length;
+
+  const overviewPercent = groups.length
+    ? Math.round((overviewCount / groups.length) * 100)
+    : 0;
+
+  const progressHtml = `
+    <div class="npc-progress">
+      <div class="npc-progress-label">
+        Overview data: ${overviewCount} / ${groups.length} NPCs (${overviewPercent}%)
+      </div>
+      <div class="npc-progress-bar">
+        <div class="npc-progress-fill" style="width: ${overviewPercent}%"></div>
+      </div>
+    </div>
+  `;
+
+  npcList.innerHTML = progressHtml + groups.map(([key, group]) => {
     const first = group[0];
     const name = getName(first, activeLanguage);
     const segmentCount = new Set(group.map(entry => entry.segment).filter(Boolean)).size;
+    const hasOverview = Boolean(getNpcMetadata(first));
 
     return `
       <button class="npc-item" data-npc-key="${escapeAttribute(key)}">
-        <span>${escapeHtml(name)}</span>
+        <span>${escapeHtml(name)}${hasOverview ? '<span class="npc-overview-badge">Overview</span>' : ''}</span>
         <small>${group.length} sections · ${segmentCount} segments</small>
       </button>
     `;
@@ -3270,6 +3368,124 @@ function escapeAttribute(value) {
   return escapeHtml(value).replace(/"/g, '&quot;');
 }
 
+// ---------------------------------------------------------------
+// Older dump versions
+//
+// Any file named pc-engus-er-<version>.txt placed next to the
+// current dumps is detected automatically (with an optional
+// matching pc-jpnjp-er-<version>.txt) and used for the
+// "Older versions" diff sections on entry cards.
+// ---------------------------------------------------------------
+
+async function probeOlderVersionFiles() {
+  const candidates = [];
+
+  for (let major = 1; major <= 2; major++) {
+    for (let minor = 0; minor <= 30; minor++) {
+      const version = `${major}.${String(minor).padStart(2, '0')}`;
+
+      if (version === DUMP_VERSION) continue;
+
+      candidates.push(version);
+    }
+  }
+
+  const checks = await Promise.allSettled(
+    candidates.map(version =>
+      fetch(`./pc-engus-er-${version}.txt`, { method: 'HEAD' })
+        .then(response => (response.ok ? version : null))
+    )
+  );
+
+  return checks
+    .map(check => (check.status === 'fulfilled' ? check.value : null))
+    .filter(Boolean);
+}
+
+async function loadOlderVersion(version) {
+  const [enResult, jpResult] = await Promise.allSettled([
+    fetch(`./pc-engus-er-${version}.txt`),
+    fetch(`./pc-jpnjp-er-${version}.txt`)
+  ]);
+
+  const enText =
+    enResult.status === 'fulfilled' && enResult.value.ok
+      ? await enResult.value.text()
+      : '';
+
+  const jpText =
+    jpResult.status === 'fulfilled' && jpResult.value.ok
+      ? await jpResult.value.text()
+      : '';
+
+  if (!enText && !jpText) return null;
+
+  const oldEntries = buildEntriesFromDumps(
+    parseXmlDump(enText),
+    parseXmlDump(jpText)
+  );
+
+  const map = new Map();
+
+  for (const entry of oldEntries) {
+    map.set(entryDiffKey(entry), {
+      textEn: entry.textEn || '',
+      textJp: entry.textJp || ''
+    });
+  }
+
+  return {
+    version,
+    map,
+    hasEn: Boolean(enText),
+    hasJp: Boolean(jpText)
+  };
+}
+
+async function loadOlderVersions() {
+  try {
+    const versions = await probeOlderVersionFiles();
+
+    if (!versions.length) return;
+
+    // Newest first
+    versions.sort((a, b) => parseFloat(b) - parseFloat(a));
+
+    for (const version of versions) {
+      const loaded = await loadOlderVersion(version);
+
+      if (loaded) olderVersions.push(loaded);
+    }
+
+    if (olderVersions.length) {
+      annotateCardsWithVersionDiffs();
+    }
+  } catch (error) {
+    console.error('Could not load older dump versions', error);
+  }
+}
+
+// Adds the diff section to cards that were rendered before the
+// older versions finished loading. Newly rendered cards get the
+// section directly in renderEntry().
+function annotateCardsWithVersionDiffs() {
+  const entryByKey = new Map(
+    entries.map(entry => [entryDiffKey(entry), entry])
+  );
+
+  document.querySelectorAll('article.entry[data-diff-key]').forEach(card => {
+    if (card.querySelector('.entry-versions')) return;
+
+    const entry = entryByKey.get(card.dataset.diffKey);
+
+    if (!entry) return;
+
+    const html = renderVersionDiffBlock(entry);
+
+    if (html) card.insertAdjacentHTML('beforeend', html);
+  });
+}
+
 async function loadDump() {
   results.innerHTML = '<div class="empty">Loading language files…</div>';
 
@@ -3307,6 +3523,8 @@ buildReferenceRelations();
 buildReferenceWordFrequencyIndex();
 renderCategoryMenu();
 render();
+
+loadOlderVersions();
   } catch (error) {
     console.error(error);
 
