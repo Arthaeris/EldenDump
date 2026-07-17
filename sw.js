@@ -1,4 +1,4 @@
-const CACHE_NAME = "elden-dump-v-07";
+const CACHE_NAME = "elden-dump-v-08";
 
 const STATIC_FILES = [
   "./",
@@ -14,16 +14,19 @@ const STATIC_FILES = [
 
 const DATA_FILES = [
   "./pc-engus-er-1.16.txt",
-  "./pc-jpnjp-er-1.16.txt"
+  "./pc-jpnjp-er-1.16.txt",
+  "./pc-retra-er-1.16.txt"
 ];
 
 self.addEventListener("install", event => {
+  // Tolerant install: one missing file must not break offline support
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
-      cache.addAll([
-        ...STATIC_FILES,
-        ...DATA_FILES
-      ])
+      Promise.all(
+        [...STATIC_FILES, ...DATA_FILES].map(url =>
+          cache.add(url).catch(() => {})
+        )
+      )
     )
   );
 
@@ -49,8 +52,8 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(event.request.url);
 
-  // Matches any dump version (e.g. pc-engus-er-1.16.txt, pc-engus-er-1.10.txt)
-  const isDataFile = /pc-(engus|jpnjp)-er-[\d.]+\.txt$/.test(url.pathname);
+  // Matches any dump version (e.g. pc-engus-er-1.16.txt, pc-retra-er-1.16.txt)
+  const isDataFile = /pc-(engus|jpnjp|retra)-er-[\d.]+\.txt$/.test(url.pathname);
 
   // Huge dump files:
   // Cache-first
