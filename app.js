@@ -12,6 +12,7 @@ const closeMenuBtn = document.querySelector('#closeMenuBtn');
 const homeBtn = document.querySelector('#homeBtn');
 const categoryList = document.querySelector('#categoryList');
 const npcIndexBtn = document.querySelector('#npcIndexBtn');
+const rtIndexBtn = document.querySelector('#rtIndexBtn');
 
 const searchView = document.querySelector('#searchView');
 const categoryView = document.querySelector('#categoryView');
@@ -58,6 +59,10 @@ const JP_SOURCE = './pc-jpnjp-er-1.16.txt';
 
 const DUMP_VERSION = (EN_SOURCE.match(/-er-([\d.]+)\.txt$/) || [])[1] || '';
 
+// Optional fan retranslation dump (dialogue only). Loaded if present.
+const RT_SOURCE = './pc-retra-er-1.16.txt';
+let retranslationAvailable = false;
+
 // Older dump versions, loaded automatically when files like
 // pc-engus-er-1.10.txt are present next to the current ones.
 // [{ version, map: Map(diffKey -> { textEn, textJp }) }], newest first
@@ -72,6 +77,7 @@ let activeLanguage = 'en';
 let defaultCardMode = 'ids';
 let activeTypeFilter = 'All';
 let activeFlagFilter = 'All';
+let activeRtFilter = 'All';
 let dialogueDisplayMode = 'cards';
 let currentDialogueKey = '';
 let references = [];
@@ -171,12 +177,12 @@ function removePlusNumberDuplicateEntries(items) {
   });
 }
 
-function buildEntriesFromDumps(enSections, jpSections) {
+function buildEntriesFromDumps(enSections, jpSections, rtSections = new Map()) {
   const built = [];
   const usedSections = new Set();
 
   built.push(...buildMergedEntries(enSections, jpSections, usedSections));
-  built.push(...buildDialogueEntries(enSections, jpSections, usedSections));
+  built.push(...buildDialogueEntries(enSections, jpSections, rtSections, usedSections));
   built.push(...collectStandaloneSections(enSections, jpSections, usedSections));
 
     return removePlusNumberDuplicateEntries(
@@ -276,7 +282,7 @@ const textJp = separator && textJpParts.length
   });
 }
 
-function buildDialogueEntries(enSections, jpSections, usedSections) {
+function buildDialogueEntries(enSections, jpSections, rtSections, usedSections) {
   const allSections = getAllSections(enSections, jpSections);
   const talkSections = allSections.filter(section =>
     getSectionCore(section) === 'TalkMsg'
@@ -295,6 +301,7 @@ function buildDialogueEntries(enSections, jpSections, usedSections) {
       npcNameSection,
       enSections,
       jpSections,
+      rtSections,
       isDlc: Boolean(suffix)
     }));
 
@@ -461,10 +468,12 @@ function parseTalkMsgEntries({
   npcNameSection,
   enSections,
   jpSections,
+  rtSections = new Map(),
   isDlc = false
 }) {
   const enTalk = normalizeIdMap(enSections.get(talkSection) || new Map());
   const jpTalk = normalizeIdMap(jpSections.get(talkSection) || new Map());
+  const rtTalk = normalizeIdMap(rtSections.get(talkSection) || new Map());
 
   const npcNameIsDlc = Boolean(
     npcNameSection && npcNameSection.includes('_dlc')
@@ -546,6 +555,8 @@ function parseTalkMsgEntries({
         talkSection: info.section,
         linesEn: [],
         linesJp: [],
+        linesRt: [],
+        hasRt: false,
         isDlc,
         type: 'talk'
       });
@@ -553,8 +564,17 @@ function parseTalkMsgEntries({
 
     const group = grouped.get(key);
 
+    const rtText = rtTalk.get(id) || '';
+
     if (enText) group.linesEn.push(`[${id}] ${enText}`);
     if (jpText) group.linesJp.push(`[${id}] ${jpText}`);
+
+    // Retranslation with per-line fallback to the official English text
+    if (enText || rtText) {
+      group.linesRt.push(`[${id}] ${rtText || enText}`);
+    }
+
+    if (rtText) group.hasRt = true;
   }
 
   return [...grouped.values()].map(group => ({
@@ -569,6 +589,8 @@ function parseTalkMsgEntries({
     talkSection: group.talkSection,
     textEn: group.linesEn.join('\n'),
     textJp: group.linesJp.join('\n'),
+    textRt: group.hasRt ? group.linesRt.join('\n') : '',
+    hasRt: group.hasRt,
     isDlc: group.isDlc,
     type: group.type
   }));
@@ -1735,7 +1757,9 @@ function updateSearchFilterButtons() {
   searchFilters.querySelectorAll('[data-clear-filters]').forEach(button => {
     button.classList.toggle(
       'active',
-      activeTypeFilter === 'All' && activeFlagFilter === 'All'
+      activeTypeFilter === 'All' &&
+        activeFlagFilter === 'All' &&
+        activeRtFilter === 'All'
     );
   });
 
@@ -1750,6 +1774,13 @@ function updateSearchFilterButtons() {
     button.classList.toggle(
       'active',
       button.dataset.flagFilter === activeFlagFilter
+    );
+  });
+
+  searchFilters.querySelectorAll('[data-rt-filter]').forEach(button => {
+    button.classList.toggle(
+      'active',
+      button.dataset.rtFilter === activeRtFilter
     );
   });
 }
@@ -1771,7 +1802,11 @@ function matchesSearchFilter(entry) {
     entry.category === 'Japanese-Exclusive'
   );
 
-  return matchesType && matchesFlag;
+  const matchesRt =
+    activeRtFilter === 'All' ||
+    (activeRtFilter === 'Retranslation' && Boolean(entry.hasRt));
+
+  return matchesType && matchesFlag && matchesRt;
 }
 
 function tokenizeSearchQuery(query) {
@@ -2479,10 +2514,11 @@ function renderEntry(e) {
 
   const hasEnglish = hasDirectLanguage(e, 'en');
   const hasJapanese = hasDirectLanguage(e, 'jp');
+  const hasRt = retranslationAvailable && Boolean(e.hasRt);
 
   const languageControl =
     hasEnglish && hasJapanese
-      ? `<button class="lang-btn" type="button" data-language-toggle>${lang === 'en' ? 'JP' : 'EN'}</button>`
+      ? `<button class="lang-btn" type="button" data-language-toggle>${lang === 'jp' ? 'EN' : 'JP'}</button>`
       : !hasEnglish && hasJapanese
         ? `<span class="tag-badge lang-static">JP-only</span>`
         : '';
@@ -2517,6 +2553,13 @@ function renderEntry(e) {
       data-copy-clean-jp="${escapeAttribute(getCopyTextClean(e, 'jp'))}"
       data-copy-code-en="${escapeAttribute(getCopyTextCode(e, 'en'))}"
       data-copy-code-jp="${escapeAttribute(getCopyTextCode(e, 'jp'))}"
+
+      data-name-rt="${escapeAttribute(getName(e, 'en'))}"
+      data-text-ids-rt="${escapeAttribute(hasRt ? formatRawTextWithIds(e, 'rt') : '')}"
+      data-text-clean-rt="${escapeAttribute(hasRt ? formatRawTextClean(e, 'rt') : '')}"
+      data-copy-ids-rt="${escapeAttribute(hasRt ? getCopyTextWithIds(e, 'rt') : '')}"
+      data-copy-clean-rt="${escapeAttribute(hasRt ? getCopyTextClean(e, 'rt') : '')}"
+      data-copy-code-rt="${escapeAttribute(hasRt ? getCopyTextCode(e, 'rt') : '')}"
     >
       <div class="entry-actions">
   ${
@@ -2534,6 +2577,11 @@ function renderEntry(e) {
   }
 
   ${dlcBadge}
+  ${
+    hasRt
+      ? `<button class="lang-btn rt-btn${lang === 'rt' ? ' active' : ''}" type="button" data-rt-toggle>RT</button>`
+      : ''
+  }
   ${languageControl}
   <button class="copy-btn" type="button">Copy</button>
 </div>
@@ -2586,9 +2634,9 @@ function getName(entry, lang) {
 }
 
 function getText(entry, lang) {
-  return lang === 'jp'
-    ? entry.textJp || entry.textEn || ''
-    : entry.textEn || entry.textJp || '';
+  if (lang === 'jp') return entry.textJp || entry.textEn || '';
+  if (lang === 'rt') return entry.textRt || entry.textEn || entry.textJp || '';
+  return entry.textEn || entry.textJp || '';
 }
 
 
@@ -2596,6 +2644,10 @@ function getText(entry, lang) {
 function hasDirectLanguage(entry, lang) {
   if (lang === 'jp') {
     return Boolean(entry.nameJp || entry.textJp);
+  }
+
+  if (lang === 'rt') {
+    return Boolean(entry.hasRt);
   }
 
   return Boolean(entry.nameEn || entry.textEn);
@@ -2755,7 +2807,7 @@ function getCleanText(text) {
 function updateCardLanguage(card, lang) {
   card.dataset.lang = lang;
 
-  const suffix = lang === 'jp' ? 'Jp' : 'En';
+  const suffix = lang === 'jp' ? 'Jp' : lang === 'rt' ? 'Rt' : 'En';
 
   const name = card.dataset[`name${suffix}`] || '';
   const textIds = card.dataset[`textIds${suffix}`] || '';
@@ -2777,7 +2829,10 @@ function updateCardLanguage(card, lang) {
 
 applyReferenceLinksToElement(card);
 
-  if (langBtn) langBtn.textContent = lang === 'en' ? 'JP' : 'EN';
+  if (langBtn) langBtn.textContent = lang === 'jp' ? 'EN' : 'JP';
+
+  const rtBtn = card.querySelector('[data-rt-toggle]');
+  if (rtBtn) rtBtn.classList.toggle('active', lang === 'rt');
 
   if (translateBtn) {
     translateBtn.hidden = lang !== 'jp';
@@ -2865,7 +2920,10 @@ function showCategory(categoryName, addToHistory = true) {
     }
   }
 
-  const items = categories.get(categoryName) || [];
+  const items =
+    categoryName === 'Retranslation Index'
+      ? entries.filter(entry => entry.hasRt)
+      : categories.get(categoryName) || [];
 
   categoryTitle.textContent = categoryName;
 
@@ -3554,7 +3612,27 @@ async function loadDump() {
     const enSections = parseXmlDump(enText);
     const jpSections = parseXmlDump(jpText);
 
-    entries = buildEntriesFromDumps(enSections, jpSections);
+    // Optional fan retranslation dump; app works without it
+    let rtSections = new Map();
+
+    try {
+      const rtResponse = await fetch(RT_SOURCE);
+
+      if (rtResponse.ok) {
+        rtSections = parseXmlDump(await rtResponse.text());
+        retranslationAvailable = rtSections.size > 0;
+      }
+    } catch (rtError) {
+      retranslationAvailable = false;
+    }
+
+    entries = buildEntriesFromDumps(enSections, jpSections, rtSections);
+
+    if (retranslationAvailable) {
+      const rtFilterGroup = document.querySelector('#rtFilterGroup');
+      if (rtFilterGroup) rtFilterGroup.hidden = false;
+      if (rtIndexBtn) rtIndexBtn.hidden = false;
+    }
 
 buildWordFrequencyIndex();
 buildIndexes();
@@ -3612,10 +3690,17 @@ searchFilters.addEventListener('click', event => {
   const clearButton = event.target.closest('[data-clear-filters]');
   const typeButton = event.target.closest('[data-type-filter]');
   const flagButton = event.target.closest('[data-flag-filter]');
+  const rtButton = event.target.closest('[data-rt-filter]');
 
   if (clearButton) {
     activeTypeFilter = 'All';
     activeFlagFilter = 'All';
+    activeRtFilter = 'All';
+  } else if (rtButton) {
+    activeRtFilter =
+      activeRtFilter === rtButton.dataset.rtFilter
+        ? 'All'
+        : rtButton.dataset.rtFilter;
   } else if (typeButton) {
     activeTypeFilter =
       activeTypeFilter === typeButton.dataset.typeFilter
@@ -3858,6 +3943,19 @@ if (wordSearchButton) {
     return;
   }
   
+  const rtToggleButton = event.target.closest('[data-rt-toggle]');
+
+  if (rtToggleButton) {
+    event.stopPropagation();
+
+    const rtCard = rtToggleButton.closest('.entry');
+    if (!rtCard) return;
+
+    updateCardLanguage(rtCard, rtCard.dataset.lang === 'rt' ? 'en' : 'rt');
+
+    return;
+  }
+
   const languageButton = event.target.closest('[data-language-toggle]');
 
   if (languageButton) {
@@ -3866,7 +3964,7 @@ if (wordSearchButton) {
     const card = languageButton.closest('.entry');
     if (!card) return;
 
-    const nextLang = card.dataset.lang === 'en' ? 'jp' : 'en';
+    const nextLang = card.dataset.lang === 'jp' ? 'en' : 'jp';
     updateCardLanguage(card, nextLang);
 
     return;
@@ -3922,7 +4020,7 @@ if (translateButton) {
 
   const mode = card.dataset.mode || 'ids';
   const lang = card.dataset.lang || 'en';
-  const suffix = lang === 'jp' ? 'Jp' : 'En';
+  const suffix = lang === 'jp' ? 'Jp' : lang === 'rt' ? 'Rt' : 'En';
 
   let text;
 
@@ -3996,6 +4094,10 @@ menuOverlay.addEventListener('click', closeMenu);
 
 homeBtn.addEventListener('click', showHome);
 npcIndexBtn.addEventListener('click', showNpcIndex);
+
+if (rtIndexBtn) {
+  rtIndexBtn.addEventListener('click', () => showCategory('Retranslation Index'));
+}
 wordIndexBtn.addEventListener('click', showWordIndex);
 graphBtn.addEventListener('click', showGraph);
 
