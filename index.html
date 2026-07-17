@@ -47,6 +47,9 @@
       <button id="npcIndexBtn" class="menu-item">
         NPC Index
       </button>
+      <button id="rtIndexBtn" class="menu-item" hidden>
+        Retranslation Index
+      </button>
     </div>
 
     <div class="menu-section">
@@ -84,6 +87,16 @@
     <p>
       Search English and Japanese Elden Ring FMG entries, dialogue,
       item names, descriptions, locations, and system text.
+    </p>
+
+    <p class="disclaimer">
+      EldenDump is an unofficial, fan-made reference tool created for research
+      and educational purposes. It is not affiliated with, endorsed by, or
+      sponsored by FromSoftware, Inc. or Bandai Namco Entertainment Inc.
+      ELDEN RING and all related game text, names, and materials are the
+      property of their respective owners. The optional "Retranslation" texts
+      are likewise fan-made (Odokuro Translation community project) and are
+      not official translations. No copyright infringement is intended.
     </p>
   </header>
 
@@ -151,6 +164,16 @@
 
             <button class="filter-chip" type="button" data-flag-filter="DLC">
               DLC
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-group" id="rtFilterGroup" hidden>
+          <span class="filter-label">Retranslation</span>
+
+          <div class="filter-row">
+            <button class="filter-chip" type="button" data-rt-filter="Retranslation">
+              Only entries with RT
             </button>
           </div>
         </div>
