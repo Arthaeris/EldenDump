@@ -1124,6 +1124,26 @@ footer {
   background: var(--accent);
 }
 
+/* Fan-made disclaimer in the header */
+
+.disclaimer {
+  max-width: 720px;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--muted);
+  opacity: 0.85;
+}
+
+
+/* Retranslation pill on entry cards */
+
+.rt-btn.active {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+
 .npc-overview-badge {
   display: inline-block;
   margin-left: 0.5rem;
